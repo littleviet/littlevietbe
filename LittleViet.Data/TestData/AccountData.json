@@ -1,0 +1,80 @@
+﻿[
+  {
+    "Id": "admin",
+    "Email": "admin@admin.com.vn",
+    "Password": "admin",
+    "AccountType": "1",
+    "Firsname": "Admin",
+    "Lastname": "Admin",
+    "Address": "Admin",
+    "PostalCode": "12345",
+    "PhoneNumber1": "0123456789",
+    "PhoneNumber2": "1234567890",
+    "IsDelete": "Flase"
+  },
+  {
+    "Id": "user",
+    "Email": "user@user.com.vn",
+    "Password": "user",
+    "AccountType": "2",
+    "Firsname": "User",
+    "Lastname": "User",
+    "Address": "User",
+    "PostalCode": "12345",
+    "PhoneNumber1": "0123456789",
+    "PhoneNumber2": "1234567890",
+    "IsDelete": "True"
+  },
+  {
+    "Id": "kaze",
+    "Email": "kaze@kaze.com.vn",
+    "Password": "kaze",
+    "AccountType": "3",
+    "Firsname": "Kaze",
+    "Lastname": "Nguyen",
+    "Address": "Kaze",
+    "PostalCode": "12345",
+    "PhoneNumber1": "0123456789",
+    "PhoneNumber2": "1234567890",
+    "IsDelete": "Flase"
+  },
+  {
+    "Id": "dolly",
+    "Email": "dolly@dolly.com.vn",
+    "Password": "dolly",
+    "AccountType": "2",
+    "Firsname": "Dolly",
+    "Lastname": "Hoang",
+    "Address": "Dolly",
+    "PostalCode": "12345",
+    "PhoneNumber1": "0123456789",
+    "PhoneNumber2": "1234567890",
+    "IsDelete": "Flase"
+  },
+  {
+    "Id": "thanh",
+    "Email": "thanh@thanh.com.vn",
+    "Password": "thanh",
+    "AccountType": "2",
+    "Firsname": "Thanh",
+    "Lastname": "Hoang",
+    "Address": "Hoang",
+    "PostalCode": "12345",
+    "PhoneNumber1": "0123456789",
+    "PhoneNumber2": "1234567890",
+    "IsDelete": "Flase"
+  },
+  {
+    "Id": "tien",
+    "Email": "tien@tien.com.vn",
+    "Password": "tien",
+    "AccountType": "3",
+    "Firsname": "Tien",
+    "Lastname": "Huynh",
+    "Address": "Huynh",
+    "PostalCode": "12345",
+    "PhoneNumber1": "0123456789",
+    "PhoneNumber2": "1234567890",
+    "IsDelete": "Flase"
+  }
+]
