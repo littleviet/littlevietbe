@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LittleViet.Api.Controllers
 {
-    [Route("api/Counpon")]
+    [Route("api/counpon")]
     [ApiController]
     public class CouponController : BaseController
     {
