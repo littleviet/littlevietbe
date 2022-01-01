@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "LittleViet.Data": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "LittleVietContext": ""
+      }
+    }
+  }
+}

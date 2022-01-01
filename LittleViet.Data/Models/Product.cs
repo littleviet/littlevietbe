@@ -1,20 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using LittleViet.Data.ServiceHelper;
 
 namespace LittleViet.Data.Models
 {
-    internal class Product
+    internal class Product : AuditableEntity
     {
-        public string Id { get; set; }
         public string Name { get; set; }
+        public string ESName { get; set; }
+        public string CAName { get; set; }
         public string Description { get; set; }
-        public int ProductType { get; set; }
-        public string CreatedBy { get; set; }
-        public string UpdatedBy { get; set; }
+        public Guid ProductTypeId { get; set; }
         public int Status { get; set; }
-        public bool IsDeleted { get; set; }
     }
 }

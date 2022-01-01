@@ -1,13 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LittleViet.Data.Models.Repositories
+﻿namespace LittleViet.Data.Models.Repositories
 {
-    internal class OrderRepository
+    public interface IOrderRepository
     {
-       
+
+    }
+    internal class OrderRepository : BaseRepository<Order>, IOrderRepository
+    {
+        public OrderRepository(LittleVietContext context) : base(context)
+        {
+
+        }
     }
 }

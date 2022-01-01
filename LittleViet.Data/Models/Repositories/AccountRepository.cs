@@ -1,32 +1,43 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LittleViet.Data.Models.Repositories
+﻿namespace LittleViet.Data.Models.Repositories
 {
     public interface IAccountRepository
     {
-        Account GetAccountByLogin(string email, string password);
+        void Create(Account account);
+        void Update(Account account);
+        void DeactivateAccount(Account account);
+        Account GetById(Guid id);
+        Account GetByEmail(String email);
     }
 
-    internal class AccountRepository : IAccountRepository
+    internal class AccountRepository : BaseRepository<Account>, IAccountRepository
     {
-        List<Account> accList;
-
-        public AccountRepository()
+        public AccountRepository(LittleVietContext context): base(context)
         {
-            var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/";
-            var data = File.ReadAllText(@"D:\Project\LittleViet\BE\LittleViet.Data\TestData\AccountData.json");
-            accList = JsonConvert.DeserializeObject<List<Account>>(data) ?? new List<Account>();
         }
 
-        public Account GetAccountByLogin(string email, string password)
+        public void Create(Account account)
         {
-            return accList.FirstOrDefault(q => q.Email == email && q.Password == password);
+            Add(account);
+        }
+
+        public void Update(Account account)
+        {
+            Edit(account);
+        }
+
+        public void DeactivateAccount(Account account)
+        {
+            Deactivate(account);
+        }
+
+        public Account GetById(Guid id)
+        {
+            return FirstOrDefault(q => q.Id == id);
+        }
+
+        public Account GetByEmail(String email)
+        {
+            return ActiveOnly().FirstOrDefault(q => q.Email == email);
         }
     }
 }

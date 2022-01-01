@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LittleViet.Data.Models.Repositories
+﻿namespace LittleViet.Data.Models.Repositories
 {
-    internal class CouponRepository
+    public interface ICouponRepository
     {
-      
+
+    }
+    internal class CouponRepository: BaseRepository<Coupon>, ICouponRepository
+    {
+        public CouponRepository(LittleVietContext context) : base(context)
+        {
+        }
     }
 }
