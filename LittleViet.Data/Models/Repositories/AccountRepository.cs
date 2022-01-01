@@ -2,10 +2,9 @@
 {
     public interface IAccountRepository
     {
-        //Account GetAccountByLogin(string email, string password);
-        void CreateAccount(Account account);
-        void UpdateAccount(Account account);
-        void DeactiveAccount(Account account);
+        void Create(Account account);
+        void Update(Account account);
+        void DeactivateAccount(Account account);
         Account GetById(Guid id);
         Account GetByEmail(String email);
     }
@@ -16,34 +15,29 @@
         {
         }
 
-        //public Account GetAccountByLogin(string email, string password)
-        //{
-        //    return FirstOrDefaultActive(q => q.Email == email && q.Password == password);
-        //}
-
-        public void CreateAccount(Account account)
+        public void Create(Account account)
         {
             Add(account);
         }
 
-        public void UpdateAccount(Account account)
+        public void Update(Account account)
         {
             Edit(account);
         }
 
-        public void DeactiveAccount(Account account)
+        public void DeactivateAccount(Account account)
         {
             Deactivate(account);
         }
 
         public Account GetById(Guid id)
         {
-            return FirstOrDefaultActive(q => q.Id == id);
+            return FirstOrDefault(q => q.Id == id);
         }
 
         public Account GetByEmail(String email)
         {
-            return FirstOrDefaultActive(q => q.Email == email);
+            return ActiveOnly().FirstOrDefault(q => q.Email == email);
         }
     }
 }

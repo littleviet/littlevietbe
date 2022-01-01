@@ -16,7 +16,7 @@ namespace LittleViet.Data.Domains
     public interface IAccountDomain
     {
         ResponseVM Login(string email, string password);
-        ResponseVM Deactive(Guid id);
+        ResponseVM Deactivate(Guid id);
         ResponseVM Create(AccountVM accountVM);
         ResponseVM Update(AccountVM accountVM);
     }
@@ -52,7 +52,7 @@ namespace LittleViet.Data.Domains
                     Subject = new ClaimsIdentity(new Claim[]
                     {
                     new Claim(ClaimTypes.Name, accVM.Id.ToString()),
-                    new Claim(ClaimTypes.Role, EnumHelper<RoleEnum>.GetDisplayValue((RoleEnum)accVM.AccountType))
+                    new Claim(ClaimTypes.Role, accVM.AccountType.ToString())
                     }),
                     Expires = DateTime.UtcNow.AddDays(7),
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -75,13 +75,13 @@ namespace LittleViet.Data.Domains
             {
                 var existedAccount = _accRepo.GetByEmail(accountVM.Email);
 
-                if(existedAccount != null)
+                if (existedAccount != null)
                 {
                     return new ResponseVM { Success = false, Message = "This email already existed" };
                 }
                 var account = _mapper.Map<Account>(accountVM);
 
-                var datetime = DateTime.Now.ToUniversalTime();
+                var datetime = DateTime.UtcNow;
 
                 account.Id = Guid.NewGuid();
                 account.Password = BrcyptNet.HashPassword(accountVM.Password);
@@ -89,10 +89,10 @@ namespace LittleViet.Data.Domains
                 account.UpdatedDate = datetime;
                 account.CreatedDate = datetime;
 
-                _accRepo.CreateAccount(account);
+                _accRepo.Create(account);
                 _uow.Save();
 
-                return new ResponseVM { Success = true ,Message="Create succeed"};
+                return new ResponseVM { Success = true, Message = "Create successful" };
             }
             catch (Exception e)
             {
@@ -106,15 +106,15 @@ namespace LittleViet.Data.Domains
             {
                 var account = _mapper.Map<Account>(accountVM);
 
-                var datetime = DateTime.Now.ToUniversalTime();
+                var datetime = DateTime.UtcNow;
 
                 account.UpdatedDate = datetime;
                 account.CreatedDate = datetime;
 
-                _accRepo.UpdateAccount(account);
+                _accRepo.Update(account);
                 _uow.Save();
 
-                return new ResponseVM { Success = true, Message = "Update succeed" };
+                return new ResponseVM { Success = true, Message = "Update successful" };
             }
             catch (Exception e)
             {
@@ -122,15 +122,15 @@ namespace LittleViet.Data.Domains
             }
         }
 
-        public ResponseVM Deactive(Guid id)
+        public ResponseVM Deactivate(Guid id)
         {
             try
             {
                 var account = _accRepo.GetById(id);
-                _accRepo.DeactiveAccount(account);
+                _accRepo.DeactivateAccount(account);
 
                 _uow.Save();
-                return new ResponseVM {Message = "Delete succeed", Success = true };
+                return new ResponseVM { Message = "Delete successful", Success = true };
             }
             catch (Exception e)
             {

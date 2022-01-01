@@ -6,6 +6,16 @@ namespace LittleViet.Data.Models.Repositories
 {
     public interface IBaseRepository<TEntity> : IRepository where TEntity : class, IEntity
     {
+        IQueryable<TEntity> Get();
+        IQueryable<TEntity> ActiveOnly();
+        TEntity Get<TKey>(TKey id);
+        IQueryable<TEntity> Get(Expression<Func<TEntity, bool>> predicate);
+        TEntity FirstOrDefault();
+        TEntity FirstOrDefault(Expression<Func<TEntity, bool>> predicate);
+        void Add(TEntity entity);
+        void AddRange(List<TEntity> entityList);
+        void Edit(TEntity entity);
+        void Deactivate(TEntity entity);
     }
     public class BaseRepository<TEntity> : IBaseRepository<TEntity>, IRepository where TEntity : class, IEntity
     {
@@ -34,26 +44,9 @@ namespace LittleViet.Data.Models.Repositories
             return Queryable.Where<TEntity>((IQueryable<TEntity>)this._dbSet, predicate);
         }
 
-        public virtual IQueryable<TEntity> GetActive()
+        public virtual IQueryable<TEntity> ActiveOnly()
         {
-            if (typeof(IActive).IsAssignableFrom(typeof(TEntity)))
-            {
-                Expression<Func<TEntity, bool>> node = (TEntity q) => !((IActive)q).IsDeleted;
-                node = (Expression<Func<TEntity, bool>>)RemoveCastsVisitor.Visit(node);
-                return Queryable.Where<TEntity>(this.Get(), node);
-            }
-            return this.Get();
-        }
-
-        public virtual IQueryable<TEntity> GetActive(Expression<Func<TEntity, bool>> predicate)
-        {
-            if (typeof(IActive).IsAssignableFrom(typeof(TEntity)))
-            {
-                Expression<Func<TEntity, bool>> node = (TEntity q) => !((IActive)q).IsDeleted;
-                node = (Expression<Func<TEntity, bool>>)RemoveCastsVisitor.Visit(node);
-                return Queryable.Where<TEntity>(Queryable.Where<TEntity>(this.Get(), node), predicate);
-            }
-            return this.Get(predicate);
+            return Queryable.AsQueryable<TEntity>((IEnumerable<TEntity>)this._dbSet).Where(a => a.IsDeleted == false);
         }
 
         public virtual TEntity FirstOrDefault()
@@ -61,31 +54,9 @@ namespace LittleViet.Data.Models.Repositories
             return Queryable.FirstOrDefault<TEntity>((IQueryable<TEntity>)this._dbSet);
         }
 
-        public virtual TEntity FirstOrDefaultActive()
-        {
-            if (typeof(IActive).IsAssignableFrom(typeof(TEntity)))
-            {
-                Expression<Func<TEntity, bool>> node = (TEntity q) => !((IActive)q).IsDeleted;
-                node = (Expression<Func<TEntity, bool>>)RemoveCastsVisitor.Visit(node);
-                return Queryable.FirstOrDefault<TEntity>((IQueryable<TEntity>)this._dbSet, node);
-            }
-            return this.FirstOrDefault();
-        }
-
         public virtual TEntity FirstOrDefault(Expression<Func<TEntity, bool>> predicate)
         {
             return Queryable.FirstOrDefault<TEntity>((IQueryable<TEntity>)this._dbSet, predicate);
-        }
-
-        public virtual TEntity FirstOrDefaultActive(Expression<Func<TEntity, bool>> predicate)
-        {
-            if (typeof(IActive).IsAssignableFrom(typeof(TEntity)))
-            {
-                Expression<Func<TEntity, bool>> node = (TEntity q) => !((IActive)q).IsDeleted;
-                node = (Expression<Func<TEntity, bool>>)RemoveCastsVisitor.Visit(node);
-                return Queryable.FirstOrDefault<TEntity>(Queryable.Where<TEntity>((IQueryable<TEntity>)this._dbSet, predicate), node);
-            }
-            return this.FirstOrDefault(predicate);
         }
 
         public virtual void Add(TEntity entity)

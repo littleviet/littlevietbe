@@ -1,12 +1,13 @@
 ﻿using LittleViet.Data.ServiceHelper;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LittleViet.Data.Models
 {
-    [Table("ProductType")]
     internal class ProductType: AuditableEntity
     {
-        [Column("Name")]
         public string Name { get; set; }
+        public string ENName { get; set; }
+        public string CAName { get; set; }
+        public string Description { get; set; }
+        public int Status { get; set; }
     }
 }

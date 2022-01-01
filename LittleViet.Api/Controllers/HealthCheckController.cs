@@ -4,17 +4,16 @@ using Microsoft.AspNetCore.Mvc;
 namespace LittleViet.Api.Controllers
 {
     
-    [Route("api/healthCheck")]
+    [Route("api/healthcheck")]
     [ApiController]
-    public class HealthCheckController : BaseController
+    public class HealthcheckController : BaseController
     {
         [Authorize]
-        [HttpGet("apicheck")]
+        [HttpGet("api-check")]
         public IActionResult ApiCheck()
         {
             try
             {
-                
                 return Ok("Woking");
             }
             catch (Exception e)
@@ -22,12 +21,11 @@ namespace LittleViet.Api.Controllers
                 return StatusCode(500);
             }
         }
-        [HttpGet("dbcheck")]
+        [HttpGet("db-check")]
         public IActionResult DBCheck()
         {
             try
             {
-
                 return Ok("Working");
             }
             catch (Exception e)

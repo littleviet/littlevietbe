@@ -7,7 +7,7 @@ namespace LittleViet.Data.ServiceHelper
     internal class AuditableClass
     {
     }
-    public class AuditableEntity: IEntity, IActive
+    public class AuditableEntity: IEntity
     {
         [Key]
         [Column("Id")]
@@ -24,7 +24,7 @@ namespace LittleViet.Data.ServiceHelper
         public Guid UpdatedBy { get; set; }
     }
 
-    public interface IEntity
+    public interface IEntity : IActive
     {
 
     }

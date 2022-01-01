@@ -65,7 +65,7 @@ namespace LittleViet.Api.Controllers
         {
             try
             {
-                var result = _accountDomain.Deactive(accountVM.Id);
+                var result = _accountDomain.Deactivate(accountVM.Id);
                 return Ok(result);
             }
             catch (Exception e)

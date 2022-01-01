@@ -9,13 +9,9 @@ namespace LittleViet.Data.ServiceHelper
 {
 
     public enum RoleEnum{
-        [Display(Name = "ADMIN")]
         ADMIN = 1,
-        [Display(Name = "MANAGER")]
         MANAGER = 2,
-        [Display(Name = "AUTHORIZED")]
         AUTHORIZED = 3,
-        [Display(Name = "UNAUTHORIZED")]
         UNAUTHORIZED = 4
     }
 }
