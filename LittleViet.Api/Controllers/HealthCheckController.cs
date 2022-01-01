@@ -8,7 +8,12 @@ namespace LittleViet.Api.Controllers
     [ApiController]
     public class HealthcheckController : BaseController
     {
-        [Authorize]
+        [HttpGet()]
+        public IActionResult Get()
+        {
+            return Ok("LittleViet API is working okay!");
+        }
+
         [HttpGet("api-check")]
         public IActionResult ApiCheck()
         {
