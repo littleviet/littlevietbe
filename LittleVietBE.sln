@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LittleViet.Api", "LittleViet.Api\LittleViet.Api.csproj", "{928E19C6-08B6-46C0-8496-90DB8E7799A9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LittleViet.Data", "LittleViet.Data\LittleViet.Data.csproj", "{D10A2049-2C7D-48F6-8D93-4F203D3A2BA9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LittleViet.Data", "LittleViet.Data\LittleViet.Data.csproj", "{68F8E345-E6B6-4519-A1AD-AD03437A519F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{928E19C6-08B6-46C0-8496-90DB8E7799A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{928E19C6-08B6-46C0-8496-90DB8E7799A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{928E19C6-08B6-46C0-8496-90DB8E7799A9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D10A2049-2C7D-48F6-8D93-4F203D3A2BA9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D10A2049-2C7D-48F6-8D93-4F203D3A2BA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D10A2049-2C7D-48F6-8D93-4F203D3A2BA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D10A2049-2C7D-48F6-8D93-4F203D3A2BA9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68F8E345-E6B6-4519-A1AD-AD03437A519F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68F8E345-E6B6-4519-A1AD-AD03437A519F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68F8E345-E6B6-4519-A1AD-AD03437A519F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68F8E345-E6B6-4519-A1AD-AD03437A519F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

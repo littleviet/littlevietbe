@@ -1,21 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using LittleViet.Data.ServiceHelper;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LittleViet.Data.Models
 {
-    internal class Serving
+    [Table("Serving")]
+    internal class Serving : AuditableEntity
     {
-        public string Id { get; set; }
+        [Column("ProductId")]
+        public Guid ProductId { get; set; }
+        [Column("Name")]
         public string Name { get; set; }
+        [Column("NumberOfPeople")]
         public int NumberOfPeople { get; set; }
+        [Column("Description")]
         public string Description { get; set; }
-        public string CreatedBy { get; set; }
-        public string UpdatedBy { get; set; }
+        [Column("Status")]
         public int Status { get; set; }
+        [Column("Price")]
         public double Price { get; set; }
-        public bool IsDeleted { get; set; }
     }
 }

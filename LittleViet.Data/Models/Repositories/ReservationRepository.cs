@@ -1,12 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LittleViet.Data.Models.Repositories
+﻿namespace LittleViet.Data.Models.Repositories
 {
-    internal class ReservationRepository
+    public interface IReservationRepository
     {
+
+    }
+    internal class ReservationRepository:BaseRepository<Reservation>, IReservationRepository
+    {
+        public ReservationRepository(LittleVietContext context) : base(context)
+        {
+
+        }
     }
 }

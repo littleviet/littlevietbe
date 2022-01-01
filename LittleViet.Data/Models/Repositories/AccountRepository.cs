@@ -1,32 +1,49 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LittleViet.Data.Models.Repositories
+﻿namespace LittleViet.Data.Models.Repositories
 {
     public interface IAccountRepository
     {
-        Account GetAccountByLogin(string email, string password);
+        //Account GetAccountByLogin(string email, string password);
+        void CreateAccount(Account account);
+        void UpdateAccount(Account account);
+        void DeactiveAccount(Account account);
+        Account GetById(Guid id);
+        Account GetByEmail(String email);
     }
 
-    internal class AccountRepository : IAccountRepository
+    internal class AccountRepository : BaseRepository<Account>, IAccountRepository
     {
-        List<Account> accList;
-
-        public AccountRepository()
+        public AccountRepository(LittleVietContext context): base(context)
         {
-            var path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "/";
-            var data = File.ReadAllText(@"D:\Project\LittleViet\BE\LittleViet.Data\TestData\AccountData.json");
-            accList = JsonConvert.DeserializeObject<List<Account>>(data) ?? new List<Account>();
         }
 
-        public Account GetAccountByLogin(string email, string password)
+        //public Account GetAccountByLogin(string email, string password)
+        //{
+        //    return FirstOrDefaultActive(q => q.Email == email && q.Password == password);
+        //}
+
+        public void CreateAccount(Account account)
         {
-            return accList.FirstOrDefault(q => q.Email == email && q.Password == password);
+            Add(account);
+        }
+
+        public void UpdateAccount(Account account)
+        {
+            Edit(account);
+        }
+
+        public void DeactiveAccount(Account account)
+        {
+            Deactivate(account);
+        }
+
+        public Account GetById(Guid id)
+        {
+            return FirstOrDefaultActive(q => q.Id == id);
+        }
+
+        public Account GetByEmail(String email)
+        {
+            return FirstOrDefaultActive(q => q.Email == email);
         }
     }
 }

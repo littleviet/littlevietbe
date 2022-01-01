@@ -2,7 +2,7 @@
 
 namespace LittleViet.Api.Controllers
 {
-    [Route("api/ProdcutImage")]
+    [Route("api/prodcutImage")]
     [ApiController]
     public class ProductImageController : Controller
     {

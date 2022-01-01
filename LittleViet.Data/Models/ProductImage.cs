@@ -1,17 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using LittleViet.Data.ServiceHelper;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LittleViet.Data.Models
-{ 
-    internal class ProductImage
+{
+    [Table("ProductImage")]
+    internal class ProductImage : AuditableEntity
     {
-        public string Id { get; set; }
+        [Column("ProductId")]
+        public Guid ProductId { get; set; }
+        [Column("Name")]
         public string Name { get; set; }
+        [Column("Url")]
         public string Url { get; set; }
+        [Column("IsMain")]
         public bool IsMain { get; set; }
-        public bool IsDelete { get; set; }
     }
 }

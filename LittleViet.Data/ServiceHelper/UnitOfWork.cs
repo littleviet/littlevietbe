@@ -1,44 +1,37 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LittleViet.Data.Models.Global
 {
     public partial interface IUnitOfWork
     {
         T GetService<T>();
-        int SaveChanges();
-        IDbContextTransaction BeginTransation();
+        void Save();
     }
 
     public class UnitOfWork : IUnitOfWork
     {
         public UnitOfWork(IServiceProvider service, LittleVietContext context)
         {
-            this.service = service;
-            this.context = context;
+            this._service = service;
+            this._context = context;
         }
 
-        protected readonly IServiceProvider service;
-        protected readonly LittleVietContext context;
-
-        public IDbContextTransaction BeginTransation()
-        {
-            throw new NotImplementedException();
-        }
+        protected readonly IServiceProvider _service;
+        protected readonly LittleVietContext _context;
 
         public T GetService<T>()
         {
-            return service.GetService<T>();
+            return _service.GetService<T>();
+        }
+        public void Save()
+        {
+            _context.SaveChanges();
         }
 
-        public int SaveChanges()
+        public IDbContextTransaction BeginTransation()
         {
-            return context.SaveChanges();
+            return _context.Database.BeginTransaction();
         }
     }
 }

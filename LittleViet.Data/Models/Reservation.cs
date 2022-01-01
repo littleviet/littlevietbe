@@ -1,23 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using LittleViet.Data.ServiceHelper;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LittleViet.Data.Models
 {
-    internal class Reservation
+    [Table("Reservation")]
+    internal class Reservation : AuditableEntity
     {
-        public string Id { get; set; }
+        [Column("NoOfPeople")]
         public int NoOfPeople { get; set; }
+        [Column("BookingDate")]
         public DateTime BookingDate { get; set; }
-        public int AccountType { get; set; }
+        [Column("AccountId")]
+        public Guid AccountId { get; set; }
+        [Column("Status")]
         public int Status { get; set; }
-        public string PhoneNumber1 { get; set; }
+        [Column("PhoneNumber")]
+        public string PhoneNumber { get; set; }
+        [Column("Firstname")]
         public string Firstname { get; set; }
+        [Column("Lastname")]
         public string Lastname { get; set; }
+        [Column("Email")]
         public string Email { get; set; }
+        [Column("FurtherRequest")]
         public string FurtherRequest { get; set; }
-        public bool IsDeleted { get; set; }
     }
 }

@@ -1,16 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using LittleViet.Data.ServiceHelper;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LittleViet.Data.Models
 {
-    internal class OrderDetail
+    [Table("OrderDetail")]
+    internal class OrderDetail : AuditableEntity
     {
-        public string ServingId { get; set; }
-        public string OrderId { get; set; }
+        [Column("ServingId")]
+        public Guid ServingId { get; set; }
+        [Column("OrderId")]
+        public Guid OrderId { get; set; }
+        [Column("Amount")]
         public double Amount { get; set; }
+        [Column("Price")]
         public double Price { get; set; }
     }
 }

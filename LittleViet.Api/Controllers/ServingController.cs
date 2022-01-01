@@ -2,7 +2,7 @@
 
 namespace LittleViet.Api.Controllers
 {
-    [Route("api/Serving")]
+    [Route("api/serving")]
     [ApiController]
     public class ServingController : Controller
     {

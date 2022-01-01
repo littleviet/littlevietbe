@@ -1,19 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using LittleViet.Data.ServiceHelper;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LittleViet.Data.Models
 {
-    internal class Coupon
+    [Table("Coupon")]
+    internal class Coupon : AuditableEntity
     {
-        public string Id { get; set; }
+        [Column("Amount")]
         public double Amount { get; set; }
+        [Column("Email")]
         public string Email { get; set; }
+        [Column("PhoneNumber")]
         public string PhoneNumber { get; set; }
+        [Column("Status")]
         public int Status { get; set; }
+        [Column("CouponCode")]
         public string CouponCode { get; set; }
-        public bool IsDelete { get; set; }
     }
 }
