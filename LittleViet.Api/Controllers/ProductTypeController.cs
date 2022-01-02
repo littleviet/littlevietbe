@@ -5,23 +5,23 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LittleViet.Api.Controllers;
 
-[Route("api/product")]
+[AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
+[Route("api/product-type")]
 [ApiController]
-public class ProductController : Controller
+public class ProductTypeController : BaseController
 {
-    private IProductDomain _productDomain;
-    public ProductController(IProductDomain productDomain)
+    private IProductTypeDomain _productTypeDomain;
+    public ProductTypeController(IProductTypeDomain productTypeDomain)
     {
-        _productDomain = productDomain;
+        _productTypeDomain = productTypeDomain;
     }
 
-    [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpPost("")]
-    public IActionResult Create(CreateProductViewModel productVM)
+    public IActionResult Create(CreateProductTypeViewModel productTypeVM)
     {
         try
         {
-            var result = _productDomain.Create(productVM);
+            var result = _productTypeDomain.Create(productTypeVM);
             return Ok(result);
         }
         catch (Exception e)
@@ -30,14 +30,13 @@ public class ProductController : Controller
         }
     }
 
-    [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpPut("{id}")]
-    public IActionResult Update(Guid id, UpdateProductViewModel productVM)
+    public IActionResult Update(Guid id, UpdateProductTypeViewModel productTypeVM)
     {
         try
         {
-            productVM.Id = id;
-            var result = _productDomain.Update(productVM);
+            productTypeVM.Id = id;
+            var result = _productTypeDomain.Update(productTypeVM);
             return Ok(result);
         }
         catch (Exception e)
@@ -46,13 +45,12 @@ public class ProductController : Controller
         }
     }
 
-    [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpDelete("{id}")]
     public IActionResult DeactiveAccount(Guid id)
     {
         try
         {
-            var result = _productDomain.Deactivate(id);
+            var result = _productTypeDomain.Deactivate(id);
             return Ok(result);
         }
         catch (Exception e)
@@ -61,12 +59,12 @@ public class ProductController : Controller
         }
     }
 
-    [HttpGet("landing-page/products")]
-    public IActionResult GetProductsForLP()
+    [HttpGet]
+    public IActionResult GetListProductTypes()
     {
         try
         {
-            var result = _productDomain.GetActivesForLP();
+            var result = _productTypeDomain.GetListProductType();
             return Ok(result);
         }
         catch (Exception e)
@@ -75,4 +73,3 @@ public class ProductController : Controller
         }
     }
 }
-

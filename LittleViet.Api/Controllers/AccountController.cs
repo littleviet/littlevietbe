@@ -4,74 +4,92 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using LittleViet.Data.ServiceHelper;
 
-namespace LittleViet.Api.Controllers
+namespace LittleViet.Api.Controllers;
+
+[Route("api/account")]
+[ApiController]
+public class AccountController : BaseController
 {
-    [Route("api/account")]
-    [ApiController]
-    public class AccountController : BaseController
+    private IAccountDomain _accountDomain;
+    public AccountController(IAccountDomain accountDomain)
     {
-        private IAccountDomain _accountDomain;
-        public AccountController(IAccountDomain accountDomain)
-        {
-            _accountDomain = accountDomain;
-        }
-        [HttpPost("login")]
-        public IActionResult Login(AccountVM accountVM)
-        {
-            try
-            {
-                var result = _accountDomain.Login(accountVM.Email, accountVM.Password);
-                return Ok(result);
-            }
-            catch(Exception e)
-            {
-                return StatusCode(500, new ResponseVM { Message = e.Message, Success = false });
-            }
-        }
+        _accountDomain = accountDomain;
+    }
 
-        [Authorize(Roles = Role.ADMIN)]
-        [HttpPost("create")]
-        public IActionResult Create(AccountVM accountVM)
+    [HttpPost("login")]
+    public IActionResult Login(LoginViewModel loginViewModel)
+    {
+        try
         {
-            try
-            {
-                var result = _accountDomain.Create(accountVM);
-                return Ok(result);
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500, new ResponseVM { Message = e.Message, Success = false });
-            }
+            var result = _accountDomain.Login(loginViewModel.Email, loginViewModel.Password);
+            return Ok(result);
         }
-
-        [Authorize(Roles = Role.ADMIN)]
-        [HttpPut("update")]
-        public IActionResult Update(AccountVM accountVM)
+        catch (Exception e)
         {
-            try
-            {
-                var result = _accountDomain.Update(accountVM);
-                return Ok(result);
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500, new ResponseVM { Message = e.Message, Success = false });
-            }
+            return StatusCode(500, new ResponseViewModel { Message = e.Message, Success = false });
         }
+    }
 
-        [Authorize(Roles = Role.ADMIN)]
-        [HttpPut("deactive")]
-        public IActionResult DeactiveAccount(AccountVM accountVM)
+    [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
+    [HttpPost("")]
+    public IActionResult Create(CreateAccountViewModel createAccountViewModel)
+    {
+        try
         {
-            try
-            {
-                var result = _accountDomain.Deactivate(accountVM.Id);
-                return Ok(result);
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500, new ResponseVM { Message = e.Message, Success = false });
-            }
+            var result = _accountDomain.Create(createAccountViewModel);
+            return Ok(result);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, new ResponseViewModel { Message = e.Message, Success = false });
+        }
+    }
+
+    [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
+    [HttpPut("{id}")]
+    public IActionResult Update(Guid id, UpdateAccountViewModel accountVM)
+    {
+        try
+        {
+            accountVM.Id = id;
+            var result = _accountDomain.Update(accountVM);
+            return Ok(result);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, new ResponseViewModel { Message = e.Message, Success = false });
+        }
+    }
+
+    [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
+    [HttpPut("{id}/reset-password")]
+    public IActionResult UpdatePassword(Guid id, UpdatePasswordViewModel accountVM)
+    {
+        try
+        {
+            accountVM.Id = id;
+            var result = _accountDomain.UpdatePassword(accountVM);
+            return Ok(result);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, new ResponseViewModel { Message = e.Message, Success = false });
+        }
+    }
+
+    [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
+    [HttpDelete("{id}")]
+    public IActionResult DeactiveAccount(Guid id)
+    {
+        try
+        {
+            var result = _accountDomain.Deactivate(id);
+            return Ok(result);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, new ResponseViewModel { Message = e.Message, Success = false });
         }
     }
 }
+

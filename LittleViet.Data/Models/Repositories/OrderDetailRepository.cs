@@ -1,14 +1,13 @@
-﻿namespace LittleViet.Data.Models.Repositories
+﻿namespace LittleViet.Data.Models.Repositories;
+
+public interface IOrderDetailRepository
 {
-    public interface IOrderDetailRepository
+
+}
+internal class OrderDetailRepository : BaseRepository<OrderDetail>, IOrderDetailRepository
+{
+    public OrderDetailRepository(LittleVietContext context) : base(context)
     {
 
-    }
-    internal class OrderDetailRepository: BaseRepository<OrderDetail>, IOrderDetailRepository
-    {
-        public OrderDetailRepository(LittleVietContext context) : base(context)
-        {
-
-        }
     }
 }

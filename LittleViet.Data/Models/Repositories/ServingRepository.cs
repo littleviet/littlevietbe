@@ -1,14 +1,14 @@
-﻿namespace LittleViet.Data.Models.Repositories
+﻿namespace LittleViet.Data.Models.Repositories;
+
+public interface IServingRepository
 {
-    public interface IServingRepository
+
+}
+internal class ServingRepository : BaseRepository<Serving>, IServingRepository
+{
+    public ServingRepository(LittleVietContext context) : base(context)
     {
 
-    }
-    internal class ServingRepository:BaseRepository<Serving>, IServingRepository
-    {
-        public ServingRepository(LittleVietContext context) : base(context)
-        {
-
-        }
     }
 }
+

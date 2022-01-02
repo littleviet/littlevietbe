@@ -3,6 +3,7 @@ using System;
 using LittleViet.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LittleViet.Data.Migrations
 {
     [DbContext(typeof(LittleVietContext))]
-    partial class LittleVietContextModelSnapshot : ModelSnapshot
+    [Migration("20220103000127_LittleViet-Change_ESNAME_CSName_Column_To_EsName_CsName")]
+    partial class LittleVietChange_ESNAME_CSName_Column_To_EsName_CsName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

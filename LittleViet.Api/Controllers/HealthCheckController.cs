@@ -1,42 +1,45 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using LittleViet.Data.Domains;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace LittleViet.Api.Controllers
-{
-    
-    [Route("api/healthcheck")]
-    [ApiController]
-    public class HealthcheckController : BaseController
-    {
-        [HttpGet()]
-        public IActionResult Get()
-        {
-            return Ok("LittleViet API is working okay!");
-        }
+namespace LittleViet.Api.Controllers;
 
+[Route("api/healthcheck")]
+[ApiController]
+public class HealthcheckController : BaseController
+{
+    private IProductDomain _productDomain;
+    public HealthcheckController(IProductDomain productDomain)
+    {
+        _productDomain = productDomain;
+    }
+
+    [HttpGet("api-check")]
+    public IActionResult ApiCheck()
+    {
         [HttpGet("api-check")]
         public IActionResult ApiCheck()
         {
-            try
-            {
-                return Ok("Woking");
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500);
-            }
+            return Ok("LittleViet API is working okay!");
         }
-        [HttpGet("db-check")]
-        public IActionResult DBCheck()
+        catch (Exception)
         {
-            try
-            {
-                return Ok("Working");
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500);
-            }
+            return StatusCode(500);
+        }
+    }
+    
+    [HttpGet("db-check")]
+    public IActionResult DBCheck()
+    {
+        try
+        {
+            _productDomain.GetActivesForLP();
+            return Ok("Working");
+        }
+        catch (Exception)
+        {
+            return StatusCode(500);
         }
     }
 }
+

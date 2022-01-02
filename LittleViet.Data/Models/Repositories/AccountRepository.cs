@@ -1,43 +1,43 @@
-﻿namespace LittleViet.Data.Models.Repositories
+﻿namespace LittleViet.Data.Models.Repositories;
+
+public interface IAccountRepository
 {
-    public interface IAccountRepository
+    void Create(Account account);
+    void Update(Account account);
+    void DeactivateAccount(Account account);
+    Account GetActiveById(Guid id);
+    Account GetActiveByEmail(String email);
+}
+
+internal class AccountRepository : BaseRepository<Account>, IAccountRepository
+{
+    public AccountRepository(LittleVietContext context) : base(context)
     {
-        void Create(Account account);
-        void Update(Account account);
-        void DeactivateAccount(Account account);
-        Account GetById(Guid id);
-        Account GetByEmail(String email);
     }
 
-    internal class AccountRepository : BaseRepository<Account>, IAccountRepository
+    public void Create(Account account)
     {
-        public AccountRepository(LittleVietContext context): base(context)
-        {
-        }
+        Add(account);
+    }
 
-        public void Create(Account account)
-        {
-            Add(account);
-        }
+    public void Update(Account account)
+    {
+        Edit(account);
+    }
 
-        public void Update(Account account)
-        {
-            Edit(account);
-        }
+    public void DeactivateAccount(Account account)
+    {
+        Deactivate(account);
+    }
 
-        public void DeactivateAccount(Account account)
-        {
-            Deactivate(account);
-        }
+    public Account GetActiveById(Guid id)
+    {
+        return ActiveOnly().FirstOrDefault(q => q.Id == id);
+    }
 
-        public Account GetById(Guid id)
-        {
-            return FirstOrDefault(q => q.Id == id);
-        }
-
-        public Account GetByEmail(String email)
-        {
-            return ActiveOnly().FirstOrDefault(q => q.Email == email);
-        }
+    public Account GetActiveByEmail(String email)
+    {
+        return ActiveOnly().FirstOrDefault(q => q.Email == email);
     }
 }
+

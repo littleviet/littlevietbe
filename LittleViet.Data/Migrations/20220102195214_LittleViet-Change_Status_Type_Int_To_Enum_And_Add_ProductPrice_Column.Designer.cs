@@ -3,6 +3,7 @@ using System;
 using LittleViet.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LittleViet.Data.Migrations
 {
     [DbContext(typeof(LittleVietContext))]
-    partial class LittleVietContextModelSnapshot : ModelSnapshot
+    [Migration("20220102195214_LittleViet-Change_Status_Type_Int_To_Enum_And_Add_ProductPrice_Column")]
+    partial class LittleVietChange_Status_Type_Int_To_Enum_And_Add_ProductPrice_Column
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -198,7 +200,7 @@ namespace LittleViet.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("CaName")
+                    b.Property<string>("CAName")
                         .HasColumnType("text");
 
                     b.Property<Guid>("CreatedBy")
@@ -210,7 +212,7 @@ namespace LittleViet.Data.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
-                    b.Property<string>("EsName")
+                    b.Property<string>("ESName")
                         .HasColumnType("text");
 
                     b.Property<bool>("IsDeleted")
@@ -285,7 +287,7 @@ namespace LittleViet.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("CaName")
+                    b.Property<string>("CAName")
                         .HasColumnType("text");
 
                     b.Property<Guid>("CreatedBy")
@@ -297,7 +299,7 @@ namespace LittleViet.Data.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
-                    b.Property<string>("EsName")
+                    b.Property<string>("ESName")
                         .HasColumnType("text");
 
                     b.Property<bool>("IsDeleted")

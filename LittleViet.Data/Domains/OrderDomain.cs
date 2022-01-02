@@ -1,16 +1,15 @@
 ﻿using LittleViet.Data.Models.Global;
 
-namespace LittleViet.Data.Domains
+namespace LittleViet.Data.Domains;
+
+public interface IOrderDomain
 {
-    public interface IOrderDomain
+
+}
+internal class OrderDomain : BaseDomain, IOrderDomain
+{
+    public OrderDomain(IUnitOfWork uow) : base(uow)
     {
 
-    }
-    internal class OrderDomain : BaseDomain, IOrderDomain
-    {
-        public OrderDomain(IUnitOfWork uow): base(uow)
-        {
-
-        }
     }
 }
