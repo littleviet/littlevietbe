@@ -17,15 +17,17 @@ public class HealthcheckController : BaseController
     [HttpGet("api-check")]
     public IActionResult ApiCheck()
     {
-        try
+        [HttpGet("api-check")]
+        public IActionResult ApiCheck()
         {
-            return Ok("Woking");
+            return Ok("LittleViet API is working okay!");
         }
         catch (Exception)
         {
             return StatusCode(500);
         }
     }
+    
     [HttpGet("db-check")]
     public IActionResult DBCheck()
     {
