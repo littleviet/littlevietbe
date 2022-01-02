@@ -1,7 +1,7 @@
 ﻿using LittleViet.Data.Models.Global;
 
-namespace LittleViet.Data.Domains
-{
+namespace LittleViet.Data.Domains;
+
     public interface IOrderDomain
     {
 
@@ -13,4 +13,4 @@ namespace LittleViet.Data.Domains
 
         }
     }
-}
+

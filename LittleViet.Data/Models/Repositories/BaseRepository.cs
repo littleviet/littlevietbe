@@ -2,8 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
-namespace LittleViet.Data.Models.Repositories
-{
+namespace LittleViet.Data.Models.Repositories;
+
     public interface IBaseRepository<TEntity> : IRepository where TEntity : class, IEntity
     {
         IQueryable<TEntity> Get();
@@ -16,6 +16,7 @@ namespace LittleViet.Data.Models.Repositories
         void AddRange(List<TEntity> entityList);
         void Edit(TEntity entity);
         void Deactivate(TEntity entity);
+        IQueryable<TEntity> Include(Expression<Func<TEntity, object>> predicate);
     }
     public class BaseRepository<TEntity> : IBaseRepository<TEntity>, IRepository where TEntity : class, IEntity
     {
@@ -42,6 +43,11 @@ namespace LittleViet.Data.Models.Repositories
         public virtual IQueryable<TEntity> Get(Expression<Func<TEntity, bool>> predicate)
         {
             return Queryable.Where<TEntity>((IQueryable<TEntity>)this._dbSet, predicate);
+        }
+
+        public virtual IQueryable<TEntity> Include(Expression<Func<TEntity, object>> predicate)
+        {
+            return this._dbSet.Include(predicate);
         }
 
         public virtual IQueryable<TEntity> ActiveOnly()
@@ -84,4 +90,4 @@ namespace LittleViet.Data.Models.Repositories
             throw new NotSupportedException("TEntity must implement IActivable to use this method. TEntity: " + typeof(TEntity).FullName);
         }
     }
-}
+

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace LittleViet.Data.Models
-{
+namespace LittleViet.Data.Models;
+
     public class LittleVietContext : DbContext
     {
         public LittleVietContext(DbContextOptions<LittleVietContext> options)
@@ -22,4 +22,4 @@ namespace LittleViet.Data.Models
         //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         //    => optionsBuilder.UseNpgsql("Host=littlevietdev.postgres.database.azure.com; Port=5432; Username=littleviet; Password=natteam@2021; Database=LittleViet");
     }
-}
+

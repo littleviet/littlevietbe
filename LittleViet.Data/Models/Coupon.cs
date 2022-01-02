@@ -1,7 +1,7 @@
 ﻿using LittleViet.Data.ServiceHelper;
 
-namespace LittleViet.Data.Models
-{
+namespace LittleViet.Data.Models;
+
     internal class Coupon : AuditableEntity
     {
         public double Amount { get; set; }
@@ -10,4 +10,4 @@ namespace LittleViet.Data.Models
         public int Status { get; set; }
         public string CouponCode { get; set; }
     }
-}
+

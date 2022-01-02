@@ -1,7 +1,7 @@
 ﻿using LittleViet.Data.ServiceHelper;
 
-namespace LittleViet.Data.Models
-{
+namespace LittleViet.Data.Models;
+
     public class Account : AuditableEntity
     {
         public string Email { get; set; }
@@ -14,4 +14,4 @@ namespace LittleViet.Data.Models
         public string PhoneNumber1 { get; set; }
         public string PhoneNumber2 { get; set; }
     }
-}
+

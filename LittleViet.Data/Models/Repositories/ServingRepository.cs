@@ -1,5 +1,5 @@
-﻿namespace LittleViet.Data.Models.Repositories
-{
+﻿namespace LittleViet.Data.Models.Repositories;
+
     public interface IServingRepository
     {
 
@@ -11,4 +11,4 @@
 
         }
     }
-}
+

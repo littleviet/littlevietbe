@@ -2,25 +2,19 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq.Expressions;
 
-namespace LittleViet.Data.ServiceHelper
-{
+namespace LittleViet.Data.ServiceHelper;
+
     internal class AuditableClass
     {
     }
     public class AuditableEntity: IEntity
     {
         [Key]
-        [Column("Id")]
         public Guid Id { get; set; }
-        [Column("IsDeleted")]
         public bool IsDeleted { get; set; }
-        [Column("CreatedDate")]
         public DateTime? CreatedDate { get; set; }
-        [Column("CreatedBy")]
         public Guid CreatedBy { get; set; }
-        [Column("UpdatedDate")]
         public DateTime? UpdatedDate { get; set; }
-        [Column("UpdatedBy")]
         public Guid UpdatedBy { get; set; }
     }
 
@@ -71,4 +65,4 @@ namespace LittleViet.Data.ServiceHelper
         public const string UNAUTHORIZED = "UNAUTHORIZED";
         public const string MANAGER = "MANAGER";
     }
-}
+

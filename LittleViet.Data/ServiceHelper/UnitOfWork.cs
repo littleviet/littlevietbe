@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace LittleViet.Data.Models.Global
-{
+namespace LittleViet.Data.Models.Global;
+
     public partial interface IUnitOfWork
     {
         T GetService<T>();
@@ -34,4 +34,4 @@ namespace LittleViet.Data.Models.Global
             return _context.Database.BeginTransaction();
         }
     }
-}
+

@@ -1,10 +1,19 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Authorization;
+using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
-namespace LittleViet.Data.ServiceHelper
-{
+namespace LittleViet.Data.ServiceHelper;
+
     internal class HelperClass
     {
+    }
+
+    public class AuthorizeRolesAttribute : AuthorizeAttribute
+    {
+        public AuthorizeRolesAttribute(params string[] roles) : base()
+        {
+            Roles = string.Join(",", roles);
+        }
     }
     public static class EnumHelper<T>
     where T : struct, Enum // This constraint requires C# 7.3 or later.
@@ -62,4 +71,4 @@ namespace LittleViet.Data.ServiceHelper
             return (descriptionAttributes.Length > 0) ? descriptionAttributes[0].Name : value.ToString();
         }
     }
-}
+

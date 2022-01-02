@@ -1,17 +1,17 @@
-﻿namespace LittleViet.Data.Models.Repositories
-{
+﻿namespace LittleViet.Data.Models.Repositories;
+
     public interface IAccountRepository
     {
         void Create(Account account);
         void Update(Account account);
         void DeactivateAccount(Account account);
-        Account GetById(Guid id);
-        Account GetByEmail(String email);
+        Account GetActiveById(Guid id);
+        Account GetActiveByEmail(String email);
     }
 
     internal class AccountRepository : BaseRepository<Account>, IAccountRepository
     {
-        public AccountRepository(LittleVietContext context): base(context)
+        public AccountRepository(LittleVietContext context) : base(context)
         {
         }
 
@@ -30,14 +30,14 @@
             Deactivate(account);
         }
 
-        public Account GetById(Guid id)
+        public Account GetActiveById(Guid id)
         {
-            return FirstOrDefault(q => q.Id == id);
+            return ActiveOnly().FirstOrDefault(q => q.Id == id);
         }
 
-        public Account GetByEmail(String email)
+        public Account GetActiveByEmail(String email)
         {
             return ActiveOnly().FirstOrDefault(q => q.Email == email);
         }
     }
-}
+

@@ -3,12 +3,12 @@ using LittleViet.Data.Domains;
 using LittleViet.Data.Models;
 using LittleViet.Data.Models.Global;
 using LittleViet.Data.Models.Repositories;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore;
 using LittleViet.Data.ViewModels;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace LittleViet.Data.Global
-{
+namespace LittleViet.Data.Global;
+
     public static partial class StartupConfiguration
     {
         public static IMapper Mapper { get; private set; }
@@ -52,14 +52,13 @@ namespace LittleViet.Data.Global
             MapperConfigs.Add(cfg =>
             {
                 cfg.CreateMap<Account, AccountVM>().ReverseMap();
-                cfg.CreateMap<Coupon, CouponVM>().ReverseMap();
-                cfg.CreateMap<Order, OrderVM>().ReverseMap();
-                cfg.CreateMap<OrderDetail, OrderDetailVM>().ReverseMap();
-                cfg.CreateMap<Product, ProductVM>().ReverseMap();
-                cfg.CreateMap<ProductImage, ProductImageVM>().ReverseMap();
-                cfg.CreateMap<ProductType, ProductTypeVM>().ReverseMap();
-                cfg.CreateMap<Reservation, ReservationVM>().ReverseMap();
-                cfg.CreateMap<Serving, ServingVM>().ReverseMap();
+                cfg.CreateMap<Account, CreateAccountVM>().ReverseMap();
+                cfg.CreateMap<Account, UpdateAccountVM>().ReverseMap();
+                cfg.CreateMap<ProductType, CreateProductTypeVM>().ReverseMap();
+                cfg.CreateMap<ProductType, UpdateProductTypeVM>().ReverseMap();
+                cfg.CreateMap<Product, ProductsLP>().ReverseMap();
+                cfg.CreateMap<Product, CreateProductVM>().ReverseMap();
+                cfg.CreateMap<Product, UpdateProductVM>().ReverseMap();
 
             });
 
@@ -81,4 +80,4 @@ namespace LittleViet.Data.Global
 
         }
     }
-}
+

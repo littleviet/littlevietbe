@@ -1,7 +1,7 @@
 ﻿using LittleViet.Data.ServiceHelper;
 
-namespace LittleViet.Data.Models
-{
+namespace LittleViet.Data.Models;
+
     internal class ProductImage : AuditableEntity
     {
         public Guid ProductId { get; set; }
@@ -9,4 +9,3 @@ namespace LittleViet.Data.Models
         public string Url { get; set; }
         public bool IsMain { get; set; }
     }
-}

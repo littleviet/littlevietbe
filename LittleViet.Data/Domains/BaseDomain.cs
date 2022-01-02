@@ -1,7 +1,7 @@
 ﻿using LittleViet.Data.Models.Global;
 
-namespace LittleViet.Data.Domains
-{
+namespace LittleViet.Data.Domains;
+
     public partial class BaseDomain
     {
         protected IUnitOfWork _uow;
@@ -10,4 +10,4 @@ namespace LittleViet.Data.Domains
             _uow = uow;
         }
     }
-}
+

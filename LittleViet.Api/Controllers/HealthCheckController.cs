@@ -1,14 +1,19 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using LittleViet.Data.Domains;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace LittleViet.Api.Controllers
-{
-    
+namespace LittleViet.Api.Controllers;
+
     [Route("api/healthcheck")]
     [ApiController]
     public class HealthcheckController : BaseController
     {
-        [Authorize]
+        private IProductDomain _productDomain;
+        public HealthcheckController(IProductDomain productDomain)
+        {
+            _productDomain = productDomain;
+        }
+
         [HttpGet("api-check")]
         public IActionResult ApiCheck()
         {
@@ -16,7 +21,7 @@ namespace LittleViet.Api.Controllers
             {
                 return Ok("Woking");
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return StatusCode(500);
             }
@@ -26,12 +31,13 @@ namespace LittleViet.Api.Controllers
         {
             try
             {
+                _productDomain.GetActivesForLP();
                 return Ok("Working");
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return StatusCode(500);
             }
         }
     }
-}
+

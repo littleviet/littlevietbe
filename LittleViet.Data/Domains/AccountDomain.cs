@@ -2,24 +2,23 @@
 using LittleViet.Data.Models;
 using LittleViet.Data.Models.Global;
 using LittleViet.Data.Models.Repositories;
-using LittleViet.Data.ServiceHelper;
 using LittleViet.Data.ViewModels;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using BrcyptNet = BCrypt.Net.BCrypt;
 
-namespace LittleViet.Data.Domains
-{
-    public interface IAccountDomain
+namespace LittleViet.Data.Domains;
+
+public interface IAccountDomain
     {
         ResponseVM Login(string email, string password);
         ResponseVM Deactivate(Guid id);
-        ResponseVM Create(AccountVM accountVM);
-        ResponseVM Update(AccountVM accountVM);
+        ResponseVM Create(CreateAccountVM accountVM);
+        ResponseVM Update(UpdateAccountVM accountVM);
+        ResponseVM UpdatePassword(UpdatePasswordVM accountVM);
     }
     public class AccountDomain : BaseDomain, IAccountDomain
     {
@@ -39,7 +38,7 @@ namespace LittleViet.Data.Domains
         {
             try
             {
-                var account = _accRepo.GetByEmail(email);
+                var account = _accRepo.GetActiveByEmail(email);
                 if (account is null || !BrcyptNet.Verify(password, account.Password))
                 {
                     return new ResponseVM { Message = "Invalid username or password", Success = false };
@@ -53,8 +52,8 @@ namespace LittleViet.Data.Domains
                 {
                     Subject = new ClaimsIdentity(new Claim[]
                     {
-                    new Claim(ClaimTypes.Name, accVM.Id.ToString()),
-                    new Claim(ClaimTypes.Role, accVM.AccountType.ToString())
+                            new Claim(ClaimTypes.Name, accVM.Id.ToString()),
+                            new Claim(ClaimTypes.Role, accVM.AccountType.ToString())
                     }),
                     Expires = DateTime.UtcNow.AddDays(7),
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -62,7 +61,7 @@ namespace LittleViet.Data.Domains
                 var token = tokenHandler.CreateToken(tokenDescriptor);
 
                 accVM.Token = tokenHandler.WriteToken(token);
-                return new ResponseVM { Data = accVM, Success = true };
+                return new ResponseVM { Payload = accVM, Success = true };
 
             }
             catch (Exception e)
@@ -71,11 +70,11 @@ namespace LittleViet.Data.Domains
             }
         }
 
-        public ResponseVM Create(AccountVM accountVM)
+        public ResponseVM Create(CreateAccountVM accountVM)
         {
             try
             {
-                var existedAccount = _accRepo.GetByEmail(accountVM.Email);
+                var existedAccount = _accRepo.GetActiveByEmail(accountVM.Email);
 
                 if (existedAccount != null)
                 {
@@ -90,6 +89,7 @@ namespace LittleViet.Data.Domains
                 account.IsDeleted = false;
                 account.UpdatedDate = datetime;
                 account.CreatedDate = datetime;
+                account.UpdatedBy = accountVM.CreatedBy;
 
                 _accRepo.Create(account);
                 _uow.Save();
@@ -102,21 +102,31 @@ namespace LittleViet.Data.Domains
             }
         }
 
-        public ResponseVM Update(AccountVM accountVM)
+        public ResponseVM Update(UpdateAccountVM accountVM)
         {
             try
             {
-                var account = _mapper.Map<Account>(accountVM);
+                var existedAccount = _accRepo.GetActiveById(accountVM.Id);
 
-                var datetime = DateTime.UtcNow;
+                if (existedAccount != null)
+                {
+                    existedAccount.Lastname = accountVM.Lastname;
+                    existedAccount.Firstname = accountVM.Firstname;
+                    existedAccount.PostalCode = accountVM.PostalCode;
+                    existedAccount.PhoneNumber1 = accountVM.PhoneNumber1;
+                    existedAccount.PhoneNumber2 = accountVM.PhoneNumber2;
+                    existedAccount.Address = accountVM.Address;
+                    existedAccount.AccountType = accountVM.AccountType;
+                    existedAccount.UpdatedDate = DateTime.UtcNow;
+                    existedAccount.UpdatedBy = existedAccount.UpdatedBy;
 
-                account.UpdatedDate = datetime;
-                account.CreatedDate = datetime;
+                    _accRepo.Update(existedAccount);
+                    _uow.Save();
 
-                _accRepo.Update(account);
-                _uow.Save();
+                    return new ResponseVM { Success = true, Message = "Update successful" };
+                }
 
-                return new ResponseVM { Success = true, Message = "Update successful" };
+                return new ResponseVM { Success = false, Message = "This account does not exist" };
             }
             catch (Exception e)
             {
@@ -124,11 +134,49 @@ namespace LittleViet.Data.Domains
             }
         }
 
-        public ResponseVM Deactivate(Guid id)
+    public ResponseVM UpdatePassword(UpdatePasswordVM accountVM)
+    {
+        try
+        {
+            
+
+            if (accountVM.ConfirmPassword.Equals(accountVM.NewPassword))
+            {
+                var existedAccount = _accRepo.GetActiveById(accountVM.Id);
+
+                
+
+                if (existedAccount != null)
+                {
+                    if (!BrcyptNet.Verify(accountVM.OldPassword, existedAccount.Password))
+                    {
+                        return new ResponseVM { Message = "Wrong password", Success = false };
+                    }
+
+                    existedAccount.Password = BrcyptNet.HashPassword(accountVM.NewPassword);
+
+                    _accRepo.Update(existedAccount);
+                    _uow.Save();
+
+                    return new ResponseVM { Success = true, Message = "Update successful" };
+                }
+
+                return new ResponseVM { Success = false, Message = "This account does not exist" };
+            }
+
+            return new ResponseVM { Success = false, Message = "New password and confirmation password do not match" };
+        }
+        catch (Exception e)
+        {
+            return new ResponseVM { Success = false, Message = e.Message };
+        }
+    }
+
+    public ResponseVM Deactivate(Guid id)
         {
             try
             {
-                var account = _accRepo.GetById(id);
+                var account = _accRepo.GetActiveById(id);
                 _accRepo.DeactivateAccount(account);
 
                 _uow.Save();
@@ -140,4 +188,4 @@ namespace LittleViet.Data.Domains
             }
         }
     }
-}
+

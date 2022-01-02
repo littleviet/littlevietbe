@@ -6,8 +6,8 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LittleViet.Data.ServiceHelper
-{
+namespace LittleViet.Data.ServiceHelper;
+
     internal class ExtensionClass
     {
     }
@@ -28,4 +28,4 @@ namespace LittleViet.Data.ServiceHelper
             return displayName;
         }
     }
-}
+
