@@ -8,7 +8,6 @@ public interface IProductRepository
     void Update(Product product);
     void DeactivateProduct(Product product);
     Product GetActiveById(Guid id);
-    IQueryable<Product> GetActiveProducs();
 }
 internal class ProductRepository : BaseRepository<Product>, IProductRepository
 {
@@ -33,11 +32,6 @@ internal class ProductRepository : BaseRepository<Product>, IProductRepository
     public Product GetActiveById(Guid id)
     {
         return ActiveOnly().FirstOrDefault(q => q.Id == id);
-    }
-
-    public IQueryable<Product> GetActiveProducs()
-    {
-        return Include(q => q.ProductType).Where(q => q.IsDeleted == false);
     }
 }
 

@@ -60,19 +60,5 @@ public class ProductController : Controller
             return StatusCode(500, new ResponseViewModel { Message = e.Message, Success = false });
         }
     }
-
-    [HttpGet("landing-page/products")]
-    public IActionResult GetProductsForLP()
-    {
-        try
-        {
-            var result = _productDomain.GetActivesForLP();
-            return Ok(result);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, new ResponseViewModel { Message = e.Message, Success = false });
-        }
-    }
 }
 

@@ -55,9 +55,11 @@ public static partial class StartupConfiguration
             cfg.CreateMap<Account, UpdateAccountViewModel>().ReverseMap();
             cfg.CreateMap<ProductType, CreateProductTypeViewModel>().ReverseMap();
             cfg.CreateMap<ProductType, UpdateProductTypeViewModel>().ReverseMap();
+            cfg.CreateMap<ProductType, ProductLandingPageViewModel>().ReverseMap();
             cfg.CreateMap<Product, ProductsLandingPageViewModel>().ReverseMap();
             cfg.CreateMap<Product, CreateProductViewModel>().ReverseMap();
             cfg.CreateMap<Product, UpdateProductViewModel>().ReverseMap();
+            cfg.CreateMap<Product, ProductsLandingPageViewModel>().ReverseMap();
         });
 
         ConfigureAutomapper();

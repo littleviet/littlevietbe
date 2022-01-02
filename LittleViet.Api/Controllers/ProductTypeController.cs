@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LittleViet.Api.Controllers;
 
-[AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
 [Route("api/product-type")]
 [ApiController]
 public class ProductTypeController : BaseController
@@ -16,6 +15,7 @@ public class ProductTypeController : BaseController
         _productTypeDomain = productTypeDomain;
     }
 
+    [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpPost("")]
     public IActionResult Create(CreateProductTypeViewModel productTypeVM)
     {
@@ -30,6 +30,7 @@ public class ProductTypeController : BaseController
         }
     }
 
+    [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpPut("{id}")]
     public IActionResult Update(Guid id, UpdateProductTypeViewModel productTypeVM)
     {
@@ -45,6 +46,7 @@ public class ProductTypeController : BaseController
         }
     }
 
+    [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpDelete("{id}")]
     public IActionResult DeactiveAccount(Guid id)
     {
@@ -59,6 +61,7 @@ public class ProductTypeController : BaseController
         }
     }
 
+    [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpGet]
     public IActionResult GetListProductTypes()
     {
@@ -72,4 +75,19 @@ public class ProductTypeController : BaseController
             return StatusCode(500, new ResponseViewModel { Message = e.Message, Success = false });
         }
     }
+
+    [HttpGet("landing-page/products")]
+    public IActionResult GetProductsForLP()
+    {
+        try
+        {
+            var result = _productTypeDomain.GetProductsGroupByType();
+            return Ok(result);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, new ResponseViewModel { Message = e.Message, Success = false });
+        }
+    }
+
 }

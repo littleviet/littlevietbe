@@ -8,10 +8,10 @@ namespace LittleViet.Api.Controllers;
 [ApiController]
 public class HealthcheckController : BaseController
 {
-    private IProductDomain _productDomain;
-    public HealthcheckController(IProductDomain productDomain)
+    private IProductTypeDomain _productTypeDomain;
+    public HealthcheckController(IProductTypeDomain productTypeDomain)
     {
-        _productDomain = productDomain;
+        _productTypeDomain = productTypeDomain;
     }
 
     [HttpGet("api-check")]
@@ -32,7 +32,7 @@ public class HealthcheckController : BaseController
     {
         try
         {
-            _productDomain.GetActivesForLP();
+            _productTypeDomain.GetProductsGroupByType();
             return Ok("Working");
         }
         catch (Exception)

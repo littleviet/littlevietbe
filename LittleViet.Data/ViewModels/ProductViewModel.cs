@@ -2,20 +2,6 @@
 
 namespace LittleViet.Data.ViewModels;
 
-internal class ProductLandingPageViewModel
-{
-    public string ProductType { get; set; }
-    public ProductsLandingPageViewModel Products { get; set; }
-}
-
-internal class ProductsLandingPageViewModel
-{
-    public string Name { get; set; }
-    public string EsName { get; set; }
-    public string CaName { get; set; }
-    public double Price { get; set; }
-}
-
 public class CreateProductViewModel
 {
     public Guid CreatedBy { get; set; }
