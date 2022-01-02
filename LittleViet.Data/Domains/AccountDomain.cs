@@ -4,6 +4,7 @@ using LittleViet.Data.Models.Global;
 using LittleViet.Data.Models.Repositories;
 using LittleViet.Data.ServiceHelper;
 using LittleViet.Data.ViewModels;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -24,13 +25,14 @@ namespace LittleViet.Data.Domains
     {
         private IAccountRepository _accRepo;
         private readonly IMapper _mapper;
-        private readonly AppSettings _appSettings;
+        private readonly IConfiguration _configuration;
 
-        public AccountDomain(IUnitOfWork uow, IAccountRepository accountRepository, IMapper mapper, IOptions<AppSettings> appSettings) : base(uow)
+
+        public AccountDomain(IUnitOfWork uow, IAccountRepository accountRepository, IMapper mapper, IConfiguration configuration) : base(uow)
         {
             _accRepo = accountRepository;
             _mapper = mapper;
-            _appSettings = appSettings.Value;
+            _configuration = configuration;
         }
 
         public ResponseVM Login(string email, string password)
@@ -46,7 +48,7 @@ namespace LittleViet.Data.Domains
                 var accVM = _mapper.Map<AccountVM>(account);
 
                 var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
+                var key = Encoding.ASCII.GetBytes(_configuration["AppSettings:Secret"]);
                 var tokenDescriptor = new SecurityTokenDescriptor
                 {
                     Subject = new ClaimsIdentity(new Claim[]
