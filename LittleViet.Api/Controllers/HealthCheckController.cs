@@ -17,8 +17,7 @@ public class HealthcheckController : BaseController
     [HttpGet("api-check")]
     public IActionResult ApiCheck()
     {
-        [HttpGet("api-check")]
-        public IActionResult ApiCheck()
+        try
         {
             return Ok("LittleViet API is working okay!");
         }
@@ -27,7 +26,7 @@ public class HealthcheckController : BaseController
             return StatusCode(500);
         }
     }
-    
+
     [HttpGet("db-check")]
     public IActionResult DBCheck()
     {
