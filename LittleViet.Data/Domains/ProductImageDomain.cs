@@ -2,15 +2,14 @@
 
 namespace LittleViet.Data.Domains;
 
-    public interface IProductImageDomain
+public interface IProductImageDomain
+{
+
+}
+internal class ProductImageDomain : BaseDomain, IProductImageDomain
+{
+    public ProductImageDomain(IUnitOfWork uow) : base(uow)
     {
 
     }
-    internal class ProductImageDomain : BaseDomain, IProductImageDomain
-    {
-        public ProductImageDomain(IUnitOfWork uow) : base(uow)
-        {
-
-        }
-    }
-
+}

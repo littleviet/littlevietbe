@@ -1,13 +1,12 @@
 ﻿namespace LittleViet.Data.Models.Repositories;
 
-    public interface ICouponRepository
-    {
+public interface ICouponRepository
+{
 
-    }
-    internal class CouponRepository: BaseRepository<Coupon>, ICouponRepository
+}
+internal class CouponRepository : BaseRepository<Coupon>, ICouponRepository
+{
+    public CouponRepository(LittleVietContext context) : base(context)
     {
-        public CouponRepository(LittleVietContext context) : base(context)
-        {
-        }
     }
-
+}

@@ -4,40 +4,40 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LittleViet.Api.Controllers;
 
-    [Route("api/healthcheck")]
-    [ApiController]
-    public class HealthcheckController : BaseController
+[Route("api/healthcheck")]
+[ApiController]
+public class HealthcheckController : BaseController
+{
+    private IProductDomain _productDomain;
+    public HealthcheckController(IProductDomain productDomain)
     {
-        private IProductDomain _productDomain;
-        public HealthcheckController(IProductDomain productDomain)
-        {
-            _productDomain = productDomain;
-        }
+        _productDomain = productDomain;
+    }
 
-        [HttpGet("api-check")]
-        public IActionResult ApiCheck()
+    [HttpGet("api-check")]
+    public IActionResult ApiCheck()
+    {
+        try
         {
-            try
-            {
-                return Ok("Woking");
-            }
-            catch (Exception)
-            {
-                return StatusCode(500);
-            }
+            return Ok("Woking");
         }
-        [HttpGet("db-check")]
-        public IActionResult DBCheck()
+        catch (Exception)
         {
-            try
-            {
-                _productDomain.GetActivesForLP();
-                return Ok("Working");
-            }
-            catch (Exception)
-            {
-                return StatusCode(500);
-            }
+            return StatusCode(500);
         }
     }
+    [HttpGet("db-check")]
+    public IActionResult DBCheck()
+    {
+        try
+        {
+            _productDomain.GetActivesForLP();
+            return Ok("Working");
+        }
+        catch (Exception)
+        {
+            return StatusCode(500);
+        }
+    }
+}
 

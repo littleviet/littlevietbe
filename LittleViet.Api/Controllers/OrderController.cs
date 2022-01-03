@@ -2,10 +2,10 @@
 
 namespace LittleViet.Api.Controllers;
 
-    [Route("api/order")]
-    [ApiController]
-    public class OrderController : Controller
-    {
-        
-    }
+[Route("api/order")]
+[ApiController]
+public class OrderController : Controller
+{
+
+}
 

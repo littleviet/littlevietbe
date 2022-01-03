@@ -2,10 +2,10 @@
 
 namespace LittleViet.Data.Models;
 
-    internal class ProductImage : AuditableEntity
-    {
-        public Guid ProductId { get; set; }
-        public string Name { get; set; }
-        public string Url { get; set; }
-        public bool IsMain { get; set; }
-    }
+internal class ProductImage : AuditableEntity
+{
+    public Guid ProductId { get; set; }
+    public string Name { get; set; }
+    public string Url { get; set; }
+    public bool IsMain { get; set; }
+}

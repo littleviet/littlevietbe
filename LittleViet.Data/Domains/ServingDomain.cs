@@ -2,15 +2,15 @@
 
 namespace LittleViet.Data.Domains;
 
-    public interface IServingDomain
+public interface IServingDomain
+{
+
+}
+internal class ServingDomain : BaseDomain, IServingDomain
+{
+    public ServingDomain(IUnitOfWork uow) : base(uow)
     {
 
     }
-    internal class ServingDomain : BaseDomain, IServingDomain
-    {
-        public ServingDomain(IUnitOfWork uow) : base(uow)
-        {
-
-        }
-    }
+}
 

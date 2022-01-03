@@ -2,7 +2,7 @@
 
 namespace LittleViet.Data.ViewModels;
 
-    internal class OrderDetailViewModel : OrderDetail
-    {
-    }
+internal class OrderDetailViewModel : OrderDetail
+{
+}
 

@@ -2,7 +2,7 @@
 
 namespace LittleViet.Api.Controllers;
 
-    public class BaseController : ControllerBase
-    {
-    }
+public class BaseController : ControllerBase
+{
+}
 

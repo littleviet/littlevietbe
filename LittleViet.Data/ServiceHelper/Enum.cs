@@ -2,34 +2,34 @@
 
 namespace LittleViet.Data.ServiceHelper;
 
-    public enum RoleEnum
-    {
-        ADMIN = 1,
-        MANAGER = 2,
-        AUTHORIZED = 3,
-        UNAUTHORIZED = 4
-    }
+public enum RoleEnum
+{
+    ADMIN = 1,
+    MANAGER = 2,
+    AUTHORIZED = 3,
+    UNAUTHORIZED = 4
+}
 
-    public enum ProductSatus
-    {
-        [Display(Name = "In stock")]
-        InStock = 1,
-        [Display(Name = "Out of stock")]
-        OutOfStock = 2
-    }
+public enum ProductSatus
+{
+    [Display(Name = "In stock")]
+    InStock = 1,
+    [Display(Name = "Out of stock")]
+    OutOfStock = 2
+}
 
-    public enum ReservationStatus
-    {
-        Reserved = 1,
-        Cancelled = 2,
-        Completed = 3
+public enum ReservationStatus
+{
+    Reserved = 1,
+    Cancelled = 2,
+    Completed = 3
 
-    }
-    public enum OrderType
-    {
-        [Display(Name = "Eat-in")]
-        EatIn = 1,
-        [Display(Name = "Take away")]
-        TakeAway = 2
-    }
+}
+public enum OrderType
+{
+    [Display(Name = "Eat-in")]
+    EatIn = 1,
+    [Display(Name = "Take away")]
+    TakeAway = 2
+}
 

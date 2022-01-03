@@ -1,14 +1,13 @@
 ﻿namespace LittleViet.Data.Models.Repositories;
 
-    public interface IProductImageRepository
+public interface IProductImageRepository
+{
+
+}
+internal class ProductImageRepository : BaseRepository<ProductImage>, IProductImageRepository
+{
+    public ProductImageRepository(LittleVietContext context) : base(context)
     {
 
     }
-    internal class ProductImageRepository:BaseRepository<ProductImage>, IProductImageRepository
-    {
-        public ProductImageRepository(LittleVietContext context) : base(context)
-        {
-
-        }
-    }
-
+}

@@ -2,6 +2,6 @@
 
 namespace LittleViet.Data.ViewModels;
 
-    internal class ProductImageViewModel : ProductImage
-    {
-    }
+internal class ProductImageViewModel : ProductImage
+{
+}

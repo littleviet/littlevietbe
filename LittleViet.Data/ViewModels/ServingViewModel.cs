@@ -2,7 +2,7 @@
 
 namespace LittleViet.Data.ViewModels;
 
-    internal class ServingViewModel : Serving
-    {
-    }
+internal class ServingViewModel : Serving
+{
+}
 

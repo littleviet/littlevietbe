@@ -2,7 +2,7 @@
 
 namespace LittleViet.Data.ViewModels;
 
-    internal class CouponViewModel : Coupon
-    {
-    }
+internal class CouponViewModel : Coupon
+{
+}
 
