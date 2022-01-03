@@ -17,6 +17,7 @@ public interface IProductTypeDomain
     ResponseViewModel Update(UpdateProductTypeViewModel productTypeVM);
     ResponseViewModel Deactivate(Guid id);
     ResponseViewModel GetListProductType();
+    ResponseViewModel GetProductsGroupByType();
 }
 internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
 {
@@ -105,6 +106,29 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
             var productTypes = _productTypeRepo.GetActiveProductTypes();
 
             return new ResponseViewModel { Payload = productTypes, Success = true };
+        }
+        catch (Exception e)
+        {
+            return new ResponseViewModel { Success = false, Message = e.Message };
+        }
+    }
+
+    public ResponseViewModel GetProductsGroupByType()
+    {
+        try
+        {
+            var productTypes = _productTypeRepo.GetActiveProductsGroupByType();
+            var result = new List<ProductLandingPageViewModel>();
+
+            foreach (var item in productTypes)
+            {
+                var productLandingPageViewModel = _mapper.Map<ProductLandingPageViewModel>(item);
+
+                productLandingPageViewModel.Products = _mapper.Map<List<ProductsLandingPageViewModel>>(item.Products);
+                result.Add(productLandingPageViewModel);
+            }
+
+            return new ResponseViewModel { Payload = result, Success = true };
         }
         catch (Exception e)
         {

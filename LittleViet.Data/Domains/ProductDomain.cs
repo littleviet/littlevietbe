@@ -11,7 +11,6 @@ public interface IProductDomain
     ResponseViewModel Create(CreateProductViewModel productVM);
     ResponseViewModel Update(UpdateProductViewModel productVM);
     ResponseViewModel Deactivate(Guid id);
-    ResponseViewModel GetActivesForLP();
 }
 internal class ProductDomain : BaseDomain, IProductDomain
 {
@@ -89,31 +88,6 @@ internal class ProductDomain : BaseDomain, IProductDomain
 
             _uow.Save();
             return new ResponseViewModel { Message = "Delete successful", Success = true };
-        }
-        catch (Exception e)
-        {
-            return new ResponseViewModel { Success = false, Message = e.Message };
-        }
-    }
-
-    public ResponseViewModel GetActivesForLP()
-    {
-        try
-        {
-            var products = _productRepo.GetActiveProducs();
-            var result = new List<ProductLandingPageViewModel>();
-
-            foreach (var item in products)
-            {
-                var pro = _mapper.Map<ProductsLandingPageViewModel>(item);
-                result.Add(new ProductLandingPageViewModel
-                {
-                    Products = pro,
-                    ProductType = item.ProductType.Name
-                });
-            }
-
-            return new ResponseViewModel { Payload = result, Success = true };
         }
         catch (Exception e)
         {

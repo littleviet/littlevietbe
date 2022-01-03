@@ -7,6 +7,7 @@ public interface IProductTypeRepository
     void DeactivateProductType(ProductType productType);
     ProductType GetActiveById(Guid id);
     IQueryable<ProductType> GetActiveProductTypes();
+    IQueryable<ProductType> GetActiveProductsGroupByType();
 }
 internal class ProductTypeRepository : BaseRepository<ProductType>, IProductTypeRepository
 {
@@ -38,6 +39,11 @@ internal class ProductTypeRepository : BaseRepository<ProductType>, IProductType
     public IQueryable<ProductType> GetActiveProductTypes()
     {
         return ActiveOnly();
+    }
+
+    public IQueryable<ProductType> GetActiveProductsGroupByType()
+    {
+        return Include(q => q.Products.Where(c => c.IsDeleted == false));
     }
 }
 
