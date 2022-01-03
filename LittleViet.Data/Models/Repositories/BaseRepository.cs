@@ -3,18 +3,20 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace LittleViet.Data.Models.Repositories;
+public interface IRepository
+{
+}
 
 public interface IBaseRepository<TEntity> : IRepository where TEntity : class, IEntity
 {
-    IQueryable<TEntity> Get();
-    IQueryable<TEntity> ActiveOnly();
+    IQueryable<TEntity> DbSet();
     TEntity Get<TKey>(TKey id);
     IQueryable<TEntity> Get(Expression<Func<TEntity, bool>> predicate);
     TEntity FirstOrDefault();
     TEntity FirstOrDefault(Expression<Func<TEntity, bool>> predicate);
     void Add(TEntity entity);
     void AddRange(List<TEntity> entityList);
-    void Edit(TEntity entity);
+    void Modify(TEntity entity);
     void Deactivate(TEntity entity);
     IQueryable<TEntity> Include(Expression<Func<TEntity, object>> predicate);
 }
@@ -27,22 +29,17 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>, IRepository whe
     public BaseRepository(DbContext context)
     {
         this._dbContext = context;
-        this._dbSet = this._dbContext.Set<TEntity>();
-    }
-
-    public virtual IQueryable<TEntity> Get()
-    {
-        return Queryable.AsQueryable<TEntity>((IEnumerable<TEntity>)this._dbSet);
+        this._dbSet = _dbContext.Set<TEntity>();
     }
 
     public virtual TEntity Get<TKey>(TKey id)
     {
-        return (TEntity)this._dbSet.Find(new object[1] { id });
+        return this._dbSet.Find(new object[1] { id });
     }
 
     public virtual IQueryable<TEntity> Get(Expression<Func<TEntity, bool>> predicate)
     {
-        return Queryable.Where<TEntity>((IQueryable<TEntity>)this._dbSet, predicate);
+        return Queryable.Where(DbSet(), predicate);
     }
 
     public virtual IQueryable<TEntity> Include(Expression<Func<TEntity, object>> predicate)
@@ -50,19 +47,19 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>, IRepository whe
         return this._dbSet.Include(predicate);
     }
 
-    public virtual IQueryable<TEntity> ActiveOnly()
+    public virtual IQueryable<TEntity> DbSet()
     {
-        return Queryable.AsQueryable<TEntity>((IEnumerable<TEntity>)this._dbSet).Where(a => a.IsDeleted == false);
+        return Queryable.AsQueryable(_dbSet).Where(a => a.IsDeleted == false);
     }
 
     public virtual TEntity FirstOrDefault()
     {
-        return Queryable.FirstOrDefault<TEntity>((IQueryable<TEntity>)this._dbSet);
+        return Queryable.FirstOrDefault(DbSet());
     }
 
     public virtual TEntity FirstOrDefault(Expression<Func<TEntity, bool>> predicate)
     {
-        return Queryable.FirstOrDefault<TEntity>((IQueryable<TEntity>)this._dbSet, predicate);
+        return Queryable.FirstOrDefault(DbSet(), predicate);
     }
 
     public virtual void Add(TEntity entity)
@@ -75,19 +72,26 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>, IRepository whe
         this._dbSet.AddRange(entityList);
     }
 
-    public virtual void Edit(TEntity entity)
+    public virtual void Modify(TEntity entity)
     {
-        this._dbContext.Update<TEntity>(entity);
+        this._dbSet.Update(entity);
+    }
+
+    public virtual IQueryable<TEntity> DbSetWithDeletedEntities()
+    {
+        return Queryable.AsQueryable(_dbSet);
     }
 
     public virtual void Deactivate(TEntity entity)
     {
-        if (((object)entity) is IActive)
+        if (entity.IsDeleted == false)
         {
-            ((IActive)(object)entity).IsDeleted = true;
-            return;
+            entity.IsDeleted = true;
         }
-        throw new NotSupportedException("TEntity must implement IActivable to use this method. TEntity: " + typeof(TEntity).FullName);
+        else
+        {
+            throw new InvalidOperationException("Cannot deactivate already deactivated entity!");
+        }
     }
 }
 

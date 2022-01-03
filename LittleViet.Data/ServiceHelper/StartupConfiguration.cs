@@ -17,7 +17,6 @@ public static partial class StartupConfiguration
 
     private static void ConfigureAutomapper()
     {
-        //AutoMapper
         var mapConfig = new MapperConfiguration(cfg =>
         {
             foreach (var c in MapperConfigs)
@@ -25,13 +24,13 @@ public static partial class StartupConfiguration
                 c.Invoke(cfg);
             }
         });
-        StartupConfiguration.Mapper = mapConfig.CreateMapper();
+
+        Mapper = mapConfig.CreateMapper();
 
     }
 
     private static void ConfigureIoC(IServiceCollection services)
     {
-        //IoC
         services.AddScoped<UnitOfWork>()
             .AddScoped<IUnitOfWork, UnitOfWork>()
             .AddScoped<DbContext, LittleVietContext>()
@@ -44,6 +43,17 @@ public static partial class StartupConfiguration
             .AddScoped<IProductRepository, ProductRepository>()
             .AddScoped<IServingRepository, ServingRepository>()
             .AddScoped<IReservationRepository, ReservationRepository>();
+
+        services.AddScoped<IAccountDomain, AccountDomain>()
+            .AddScoped<ICouponDomain, CouponDomain>()
+            .AddScoped<IOrderDomain, OrderDomain>()
+            .AddScoped<IOrderDetailDomain, OrderDetailDomain>()
+            .AddScoped<IProductDomain, ProductDomain>()
+            .AddScoped<IProductImageDomain, ProductImageDomain>()
+            .AddScoped<IProductTypeDomain, ProductTypeDomain>()
+            .AddScoped<ILandingPageDomain, LandingPageDomain>()
+            .AddScoped<IReservationDomain, ReservationDomain>()
+            .AddScoped<IServingDomain, ServingDomain>();
     }
 
     public static void Configure(IServiceCollection services)
@@ -67,16 +77,6 @@ public static partial class StartupConfiguration
         services.AddDbContext<LittleVietContext>();
         ConfigureIoC(services);
 
-        //extra
-        services.AddScoped<IAccountDomain, AccountDomain>()
-        .AddScoped<ICouponDomain, CouponDomain>()
-        .AddScoped<IOrderDomain, OrderDomain>()
-        .AddScoped<IOrderDetailDomain, OrderDetailDomain>()
-        .AddScoped<IProductDomain, ProductDomain>()
-        .AddScoped<IProductImageDomain, ProductImageDomain>()
-        .AddScoped<IProductTypeDomain, ProductTypeDomain>()
-        .AddScoped<IReservationDomain, ReservationDomain>()
-        .AddScoped<IServingDomain, ServingDomain>();
     }
 }
 

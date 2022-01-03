@@ -17,7 +17,6 @@ public interface IProductTypeDomain
     ResponseViewModel Update(UpdateProductTypeViewModel productTypeVM);
     ResponseViewModel Deactivate(Guid id);
     ResponseViewModel GetListProductType();
-    ResponseViewModel GetProductsGroupByType();
 }
 internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
 {
@@ -58,7 +57,7 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
     {
         try
         {
-            var existedProType = _productTypeRepo.GetActiveById(updateProductTypeViewModel.Id);
+            var existedProType = _productTypeRepo.GetById(updateProductTypeViewModel.Id);
 
             if (existedProType != null)
             {
@@ -69,7 +68,7 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
                 existedProType.UpdatedDate = DateTime.UtcNow;
                 existedProType.UpdatedBy = existedProType.UpdatedBy;
 
-                _productTypeRepo.Update(existedProType);
+                _productTypeRepo.Modify(existedProType);
                 _uow.Save();
 
                 return new ResponseViewModel { Success = true, Message = "Update successful" };
@@ -87,7 +86,7 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
     {
         try
         {
-            var productType = _productTypeRepo.GetActiveById(id);
+            var productType = _productTypeRepo.GetById(id);
             _productTypeRepo.DeactivateProductType(productType);
 
             _uow.Save();
@@ -103,32 +102,9 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
     {
         try
         {
-            var productTypes = _productTypeRepo.GetActiveProductTypes();
+            var productTypes = _productTypeRepo.GetProductType();
 
             return new ResponseViewModel { Payload = productTypes, Success = true };
-        }
-        catch (Exception e)
-        {
-            return new ResponseViewModel { Success = false, Message = e.Message };
-        }
-    }
-
-    public ResponseViewModel GetProductsGroupByType()
-    {
-        try
-        {
-            var productTypes = _productTypeRepo.GetActiveProductsGroupByType();
-            var result = new List<ProductLandingPageViewModel>();
-
-            foreach (var item in productTypes)
-            {
-                var productLandingPageViewModel = _mapper.Map<ProductLandingPageViewModel>(item);
-
-                productLandingPageViewModel.Products = _mapper.Map<List<ProductsLandingPageViewModel>>(item.Products);
-                result.Add(productLandingPageViewModel);
-            }
-
-            return new ResponseViewModel { Payload = result, Success = true };
         }
         catch (Exception e)
         {

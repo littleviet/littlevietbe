@@ -51,7 +51,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
     {
         try
         {
-            var existedPro = _productRepo.GetActiveById(updateProductViewModel.Id);
+            var existedPro = _productRepo.GetById(updateProductViewModel.Id);
 
             if (existedPro != null)
             {
@@ -65,7 +65,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
                 existedPro.UpdatedDate = DateTime.UtcNow;
                 existedPro.UpdatedBy = updateProductViewModel.UpdatedBy;
 
-                _productRepo.Update(existedPro);
+                _productRepo.Modify(existedPro);
                 _uow.Save();
 
                 return new ResponseViewModel { Success = true, Message = "Update successful" };
@@ -83,7 +83,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
     {
         try
         {
-            var product = _productRepo.GetActiveById(id);
+            var product = _productRepo.GetById(id);
             _productRepo.DeactivateProduct(product);
 
             _uow.Save();

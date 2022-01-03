@@ -21,6 +21,7 @@ public static class EnumExtensions
             .FirstOrDefault()
             .GetCustomAttribute<DisplayAttribute>()?
             .GetName();
+
         if (String.IsNullOrEmpty(displayName))
         {
             displayName = enumValue.ToString();

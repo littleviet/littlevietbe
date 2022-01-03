@@ -1,13 +1,12 @@
 ﻿namespace LittleViet.Data.Models.Repositories;
 
-public interface IProductTypeRepository
+public interface IProductTypeRepository : IBaseRepository<ProductType>
 {
     void Create(ProductType productType);
     void Update(ProductType productType);
     void DeactivateProductType(ProductType productType);
-    ProductType GetActiveById(Guid id);
-    IQueryable<ProductType> GetActiveProductTypes();
-    IQueryable<ProductType> GetActiveProductsGroupByType();
+    ProductType GetById(Guid id);
+    IQueryable<ProductType> GetProductType();
 }
 internal class ProductTypeRepository : BaseRepository<ProductType>, IProductTypeRepository
 {
@@ -23,7 +22,7 @@ internal class ProductTypeRepository : BaseRepository<ProductType>, IProductType
 
     public void Update(ProductType productType)
     {
-        Edit(productType);
+        Modify(productType);
     }
 
     public void DeactivateProductType(ProductType productType)
@@ -31,19 +30,14 @@ internal class ProductTypeRepository : BaseRepository<ProductType>, IProductType
         Deactivate(productType);
     }
 
-    public ProductType GetActiveById(Guid id)
+    public ProductType GetById(Guid id)
     {
-        return ActiveOnly().FirstOrDefault(q => q.Id == id);
+        return DbSet().FirstOrDefault(q => q.Id == id);
     }
 
-    public IQueryable<ProductType> GetActiveProductTypes()
+    public IQueryable<ProductType> GetProductType()
     {
-        return ActiveOnly();
-    }
-
-    public IQueryable<ProductType> GetActiveProductsGroupByType()
-    {
-        return Include(q => q.Products.Where(c => c.IsDeleted == false));
+        return DbSet();
     }
 }
 

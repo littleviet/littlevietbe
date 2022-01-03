@@ -1,6 +1,9 @@
-﻿using LittleViet.Data.Domains;
-using Microsoft.AspNetCore.Authorization;
+﻿using LittleViet.Data.Models;
+using System.Data.Entity;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using LittleViet.Data.ViewModels;
+using System.Net;
 
 namespace LittleViet.Api.Controllers;
 
@@ -8,10 +11,10 @@ namespace LittleViet.Api.Controllers;
 [ApiController]
 public class HealthcheckController : BaseController
 {
-    private IProductTypeDomain _productTypeDomain;
-    public HealthcheckController(IProductTypeDomain productTypeDomain)
+    private readonly LittleVietContext _context;
+    public HealthcheckController(LittleVietContext context)
     {
-        _productTypeDomain = productTypeDomain;
+        _context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
     [HttpGet("api-check")]
@@ -21,23 +24,34 @@ public class HealthcheckController : BaseController
         {
             return Ok("LittleViet API is working okay!");
         }
-        catch (Exception)
+        catch
         {
-            return StatusCode(500);
+            return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
 
     [HttpGet("db-check")]
-    public IActionResult DBCheck()
+    public IActionResult DbCheck()
     {
         try
         {
-            _productTypeDomain.GetProductsGroupByType();
-            return Ok("Working");
+            if (_context.Database.CanConnect() == true)
+            {
+                return Ok("Database Working");
+            }
+            else
+            {
+                return Ok(new ResponseViewModel
+                {
+                    Message = "Database not reachable",
+                    Success = false
+                });;
+
+            }
         }
-        catch (Exception)
+        catch
         {
-            return StatusCode(500);
+            return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
 }

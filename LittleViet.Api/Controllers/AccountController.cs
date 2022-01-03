@@ -1,6 +1,5 @@
 ﻿using LittleViet.Data.Domains;
 using LittleViet.Data.ViewModels;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using LittleViet.Data.ServiceHelper;
 
@@ -10,7 +9,7 @@ namespace LittleViet.Api.Controllers;
 [ApiController]
 public class AccountController : BaseController
 {
-    private IAccountDomain _accountDomain;
+    private readonly IAccountDomain _accountDomain;
     public AccountController(IAccountDomain accountDomain)
     {
         _accountDomain = accountDomain;
@@ -31,7 +30,7 @@ public class AccountController : BaseController
     }
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
-    [HttpPost("")]
+    [HttpPost]
     public IActionResult Create(CreateAccountViewModel createAccountViewModel)
     {
         try
@@ -41,18 +40,18 @@ public class AccountController : BaseController
         }
         catch (Exception e)
         {
-            return StatusCode(500, new ResponseViewModel { Message = e.Message, Success = false });
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseViewModel { Message = e.Message, Success = false });
         }
     }
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
-    [HttpPut("{id}")]
-    public IActionResult Update(Guid id, UpdateAccountViewModel accountVM)
+    [HttpPut("{id:guid}")]
+    public IActionResult Update(Guid id, UpdateAccountViewModel accountVm)
     {
         try
         {
-            accountVM.Id = id;
-            var result = _accountDomain.Update(accountVM);
+            accountVm.Id = id;
+            var result = _accountDomain.Update(accountVm);
             return Ok(result);
         }
         catch (Exception e)
@@ -62,24 +61,24 @@ public class AccountController : BaseController
     }
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
-    [HttpPut("{id}/reset-password")]
-    public IActionResult UpdatePassword(Guid id, UpdatePasswordViewModel accountVM)
+    [HttpPut("{id:guid}/reset-password")]
+    public IActionResult UpdatePassword(Guid id, UpdatePasswordViewModel accountVm)
     {
         try
         {
-            accountVM.Id = id;
-            var result = _accountDomain.UpdatePassword(accountVM);
+            accountVm.Id = id;
+            var result = _accountDomain.UpdatePassword(accountVm);
             return Ok(result);
         }
         catch (Exception e)
         {
-            return StatusCode(500, new ResponseViewModel { Message = e.Message, Success = false });
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseViewModel { Message = e.Message, Success = false });
         }
     }
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
-    [HttpDelete("{id}")]
-    public IActionResult DeactiveAccount(Guid id)
+    [HttpDelete("{id:guid}")]
+    public IActionResult DeactivateAccount(Guid id)
     {
         try
         {
@@ -88,7 +87,7 @@ public class AccountController : BaseController
         }
         catch (Exception e)
         {
-            return StatusCode(500, new ResponseViewModel { Message = e.Message, Success = false });
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseViewModel { Message = e.Message, Success = false });
         }
     }
 }

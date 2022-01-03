@@ -75,19 +75,4 @@ public class ProductTypeController : BaseController
             return StatusCode(500, new ResponseViewModel { Message = e.Message, Success = false });
         }
     }
-
-    [HttpGet("landing-page/products")]
-    public IActionResult GetProductsForLP()
-    {
-        try
-        {
-            var result = _productTypeDomain.GetProductsGroupByType();
-            return Ok(result);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, new ResponseViewModel { Message = e.Message, Success = false });
-        }
-    }
-
 }

@@ -22,7 +22,7 @@ internal class AccountRepository : BaseRepository<Account>, IAccountRepository
 
     public void Update(Account account)
     {
-        Edit(account);
+        base.Modify(account);
     }
 
     public void DeactivateAccount(Account account)
@@ -32,12 +32,12 @@ internal class AccountRepository : BaseRepository<Account>, IAccountRepository
 
     public Account GetActiveById(Guid id)
     {
-        return ActiveOnly().FirstOrDefault(q => q.Id == id);
+        return DbSet().FirstOrDefault(q => q.Id == id);
     }
 
     public Account GetActiveByEmail(String email)
     {
-        return ActiveOnly().FirstOrDefault(q => q.Email == email);
+        return DbSet().FirstOrDefault(q => q.Email == email);
     }
 }
 

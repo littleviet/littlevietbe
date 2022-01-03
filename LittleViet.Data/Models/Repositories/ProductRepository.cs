@@ -2,12 +2,12 @@
 
 namespace LittleViet.Data.Models.Repositories;
 
-public interface IProductRepository
+public interface IProductRepository : IBaseRepository<Product>
 {
     void Create(Product product);
     void Update(Product product);
     void DeactivateProduct(Product product);
-    Product GetActiveById(Guid id);
+    Product GetById(Guid id);
 }
 internal class ProductRepository : BaseRepository<Product>, IProductRepository
 {
@@ -21,7 +21,7 @@ internal class ProductRepository : BaseRepository<Product>, IProductRepository
 
     public void Update(Product product)
     {
-        Edit(product);
+        Modify(product);
     }
 
     public void DeactivateProduct(Product product)
@@ -29,9 +29,9 @@ internal class ProductRepository : BaseRepository<Product>, IProductRepository
         Deactivate(product);
     }
 
-    public Product GetActiveById(Guid id)
+    public Product GetById(Guid id)
     {
-        return ActiveOnly().FirstOrDefault(q => q.Id == id);
+        return DbSet().FirstOrDefault(q => q.Id == id);
     }
 }
 
