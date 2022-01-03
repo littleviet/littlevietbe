@@ -6,6 +6,7 @@
         void Update(ProductType productType);
         void DeactivateProductType(ProductType productType);
         ProductType GetActiveById(Guid id);
+    IQueryable<ProductType> GetActiveProductTypes();
     }
     internal class ProductTypeRepository : BaseRepository<ProductType>, IProductTypeRepository
     {

@@ -2,6 +2,7 @@
 
 namespace LittleViet.Data.ViewModels;
 
-    internal class ReservationVM:Reservation
+    internal class ServingViewModel : Serving
     {
     }
+

@@ -2,7 +2,6 @@
 
 namespace LittleViet.Data.ViewModels;
 
-    internal class CouponVM:Coupon
+    internal class ReservationViewModel : Reservation
     {
     }
-

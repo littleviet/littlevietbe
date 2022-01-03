@@ -3,7 +3,7 @@ using LittleViet.Data.ServiceHelper;
 
 namespace LittleViet.Data.ViewModels;
 
-    public class AccountVM
+    public class AccountViewModel
     {
         public string Email { get; set; }
         public RoleEnum AccountType { get; set; }
@@ -22,14 +22,14 @@ namespace LittleViet.Data.ViewModels;
         public string Token { get; set; }
     }
 
-    public class LoginVM
-    {
+    public class LoginViewModel
+{
         public string Email { get; set; }
         public string Password { get; set; }
     }
 
-    public class CreateAccountVM
-    {
+    public class CreateAccountViewModel
+{
         public string Email { get; set; }
         public string Password { get; set; }
         public RoleEnum AccountType { get; set; }
@@ -41,7 +41,7 @@ namespace LittleViet.Data.ViewModels;
         public string PhoneNumber2 { get; set; }
         public Guid CreatedBy { get; set; }
     }
-    public class UpdateAccountVM
+    public class UpdateAccountViewModel
     {
         public Guid Id { get; set; }
         public string Email { get; set; }
@@ -56,7 +56,7 @@ namespace LittleViet.Data.ViewModels;
         public Guid UpdatedBy { get; set; }
     }
     
-    public class UpdatePasswordVM
+    public class UpdatePasswordViewModel
     {
         public Guid Id { get; set; }
         public string OldPassword { get; set; }

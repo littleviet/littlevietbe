@@ -13,9 +13,10 @@ namespace LittleViet.Data.Domains;
 
     public interface IProductTypeDomain
     {
-        ResponseVM Create(CreateProductTypeVM productTypeVM);
-        ResponseVM Update(UpdateProductTypeVM productTypeVM);
-        ResponseVM Deactivate(Guid id);
+        ResponseViewModel Create(CreateProductTypeViewModel productTypeVM);
+        ResponseViewModel Update(UpdateProductTypeViewModel productTypeVM);
+        ResponseViewModel Deactivate(Guid id);
+        ResponseViewModel GetListProductType();
     }
     internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
     {
@@ -27,11 +28,11 @@ namespace LittleViet.Data.Domains;
             _mapper = mapper;
         }
 
-        public ResponseVM Create(CreateProductTypeVM productTypeVM)
+        public ResponseViewModel Create(CreateProductTypeViewModel createProductTypeViewModel)
         {
             try
             {
-                var productType = _mapper.Map<ProductType>(productTypeVM);
+                var productType = _mapper.Map<ProductType>(createProductTypeViewModel);
 
                 var datetime = DateTime.UtcNow;
 
@@ -39,49 +40,49 @@ namespace LittleViet.Data.Domains;
                 productType.IsDeleted = false;
                 productType.UpdatedDate = datetime;
                 productType.CreatedDate = datetime;
-                productType.UpdatedBy = productTypeVM.CreatedBy;
+                productType.UpdatedBy = createProductTypeViewModel.CreatedBy;
 
                 _productTypeRepo.Create(productType);
                 _uow.Save();
 
-                return new ResponseVM { Success = true, Message = "Create successful" };
+                return new ResponseViewModel { Success = true, Message = "Create successful" };
             }
             catch (Exception e)
             {
-                return new ResponseVM { Success = false, Message = e.Message };
+                return new ResponseViewModel { Success = false, Message = e.Message };
             }
         }
 
-        public ResponseVM Update(UpdateProductTypeVM productTypeVM)
+        public ResponseViewModel Update(UpdateProductTypeViewModel updateProductTypeViewModel)
         {
             try
             {
-                var existedProType = _productTypeRepo.GetActiveById(productTypeVM.Id);
+                var existedProType = _productTypeRepo.GetActiveById(updateProductTypeViewModel.Id);
 
                 if (existedProType != null)
                 {
-                    existedProType.Name = productTypeVM.Name;
-                    existedProType.Description = productTypeVM.Description;
-                    existedProType.ESName = productTypeVM.ESName;
-                    existedProType.CAName = productTypeVM.CAName;
+                    existedProType.Name = updateProductTypeViewModel.Name;
+                    existedProType.Description = updateProductTypeViewModel.Description;
+                    existedProType.EsName = updateProductTypeViewModel.EsName;
+                    existedProType.CaName = updateProductTypeViewModel.CaName;
                     existedProType.UpdatedDate = DateTime.UtcNow;
                     existedProType.UpdatedBy = existedProType.UpdatedBy;
 
                     _productTypeRepo.Update(existedProType);
                     _uow.Save();
 
-                    return new ResponseVM { Success = true, Message = "Update successful" };
+                    return new ResponseViewModel { Success = true, Message = "Update successful" };
                 }
 
-                return new ResponseVM { Success = false, Message = "This product type does not exist" };
+                return new ResponseViewModel { Success = false, Message = "This product type does not exist" };
             }
             catch (Exception e)
             {
-                return new ResponseVM { Success = false, Message = e.Message };
+                return new ResponseViewModel { Success = false, Message = e.Message };
             }
         }
 
-        public ResponseVM Deactivate(Guid id)
+        public ResponseViewModel Deactivate(Guid id)
         {
             try
             {
@@ -89,11 +90,25 @@ namespace LittleViet.Data.Domains;
                 _productTypeRepo.DeactivateProductType(productType);
 
                 _uow.Save();
-                return new ResponseVM { Message = "Delete successful", Success = true };
+                return new ResponseViewModel { Message = "Delete successful", Success = true };
             }
             catch (Exception e)
             {
-                return new ResponseVM { Success = false, Message = e.Message };
+                return new ResponseViewModel { Success = false, Message = e.Message };
+            }
+        }
+
+        public ResponseViewModel GetListProductType()
+        {
+            try
+            {
+                var productTypes = _productTypeRepo.GetActiveProductTypes();
+
+                return new ResponseViewModel { Payload = productTypes, Success = true };
+            }
+            catch (Exception e)
+            {
+                return new ResponseViewModel { Success = false, Message = e.Message };
             }
         }
     }

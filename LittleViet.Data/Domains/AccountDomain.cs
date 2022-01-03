@@ -14,11 +14,11 @@ namespace LittleViet.Data.Domains;
 
 public interface IAccountDomain
     {
-        ResponseVM Login(string email, string password);
-        ResponseVM Deactivate(Guid id);
-        ResponseVM Create(CreateAccountVM accountVM);
-        ResponseVM Update(UpdateAccountVM accountVM);
-        ResponseVM UpdatePassword(UpdatePasswordVM accountVM);
+        ResponseViewModel Login(string email, string password);
+        ResponseViewModel Deactivate(Guid id);
+        ResponseViewModel Create(CreateAccountViewModel accountViewModel);
+        ResponseViewModel Update(UpdateAccountViewModel accountViewModel);
+        ResponseViewModel UpdatePassword(UpdatePasswordViewModel accountViewModel);
     }
     public class AccountDomain : BaseDomain, IAccountDomain
     {
@@ -34,17 +34,17 @@ public interface IAccountDomain
             _configuration = configuration;
         }
 
-        public ResponseVM Login(string email, string password)
+        public ResponseViewModel Login(string email, string password)
         {
             try
             {
                 var account = _accRepo.GetActiveByEmail(email);
                 if (account is null || !BrcyptNet.Verify(password, account.Password))
                 {
-                    return new ResponseVM { Message = "Invalid username or password", Success = false };
+                    return new ResponseViewModel { Message = "Invalid username or password", Success = false };
                 }
 
-                var accVM = _mapper.Map<AccountVM>(account);
+                var accountViewModel = _mapper.Map<AccountViewModel>(account);
 
                 var tokenHandler = new JwtSecurityTokenHandler();
                 var key = Encoding.ASCII.GetBytes(_configuration["AppSettings:Secret"]);
@@ -52,127 +52,127 @@ public interface IAccountDomain
                 {
                     Subject = new ClaimsIdentity(new Claim[]
                     {
-                            new Claim(ClaimTypes.Name, accVM.Id.ToString()),
-                            new Claim(ClaimTypes.Role, accVM.AccountType.ToString())
+                            new Claim(ClaimTypes.Name, accountViewModel.Id.ToString()),
+                            new Claim(ClaimTypes.Role, accountViewModel.AccountType.ToString())
                     }),
                     Expires = DateTime.UtcNow.AddDays(7),
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
                 };
                 var token = tokenHandler.CreateToken(tokenDescriptor);
 
-                accVM.Token = tokenHandler.WriteToken(token);
-                return new ResponseVM { Payload = accVM, Success = true };
+                accountViewModel.Token = tokenHandler.WriteToken(token);
+                return new ResponseViewModel { Payload = accountViewModel, Success = true };
 
             }
             catch (Exception e)
             {
-                return new ResponseVM { Success = false, Message = e.Message };
+                return new ResponseViewModel { Success = false, Message = e.Message };
             }
         }
 
-        public ResponseVM Create(CreateAccountVM accountVM)
+        public ResponseViewModel Create(CreateAccountViewModel createAccountViewModel)
         {
             try
             {
-                var existedAccount = _accRepo.GetActiveByEmail(accountVM.Email);
+                var existedAccount = _accRepo.GetActiveByEmail(createAccountViewModel.Email);
 
                 if (existedAccount != null)
                 {
-                    return new ResponseVM { Success = false, Message = "This email already existed" };
+                    return new ResponseViewModel { Success = false, Message = "This email already existed" };
                 }
-                var account = _mapper.Map<Account>(accountVM);
+                var account = _mapper.Map<Account>(createAccountViewModel);
 
                 var datetime = DateTime.UtcNow;
 
                 account.Id = Guid.NewGuid();
-                account.Password = BrcyptNet.HashPassword(accountVM.Password);
+                account.Password = BrcyptNet.HashPassword(createAccountViewModel.Password);
                 account.IsDeleted = false;
                 account.UpdatedDate = datetime;
                 account.CreatedDate = datetime;
-                account.UpdatedBy = accountVM.CreatedBy;
+                account.UpdatedBy = createAccountViewModel.CreatedBy;
 
                 _accRepo.Create(account);
                 _uow.Save();
 
-                return new ResponseVM { Success = true, Message = "Create successful" };
+                return new ResponseViewModel { Success = true, Message = "Create successful" };
             }
             catch (Exception e)
             {
-                return new ResponseVM { Success = false, Message = e.Message };
+                return new ResponseViewModel { Success = false, Message = e.Message };
             }
         }
 
-        public ResponseVM Update(UpdateAccountVM accountVM)
+        public ResponseViewModel Update(UpdateAccountViewModel updateAccountViewModel)
         {
             try
             {
-                var existedAccount = _accRepo.GetActiveById(accountVM.Id);
+                var existedAccount = _accRepo.GetActiveById(updateAccountViewModel.Id);
 
                 if (existedAccount != null)
                 {
-                    existedAccount.Lastname = accountVM.Lastname;
-                    existedAccount.Firstname = accountVM.Firstname;
-                    existedAccount.PostalCode = accountVM.PostalCode;
-                    existedAccount.PhoneNumber1 = accountVM.PhoneNumber1;
-                    existedAccount.PhoneNumber2 = accountVM.PhoneNumber2;
-                    existedAccount.Address = accountVM.Address;
-                    existedAccount.AccountType = accountVM.AccountType;
+                    existedAccount.Lastname = updateAccountViewModel.Lastname;
+                    existedAccount.Firstname = updateAccountViewModel.Firstname;
+                    existedAccount.PostalCode = updateAccountViewModel.PostalCode;
+                    existedAccount.PhoneNumber1 = updateAccountViewModel.PhoneNumber1;
+                    existedAccount.PhoneNumber2 = updateAccountViewModel.PhoneNumber2;
+                    existedAccount.Address = updateAccountViewModel.Address;
+                    existedAccount.AccountType = updateAccountViewModel.AccountType;
                     existedAccount.UpdatedDate = DateTime.UtcNow;
                     existedAccount.UpdatedBy = existedAccount.UpdatedBy;
 
                     _accRepo.Update(existedAccount);
                     _uow.Save();
 
-                    return new ResponseVM { Success = true, Message = "Update successful" };
+                    return new ResponseViewModel { Success = true, Message = "Update successful" };
                 }
 
-                return new ResponseVM { Success = false, Message = "This account does not exist" };
+                return new ResponseViewModel { Success = false, Message = "This account does not exist" };
             }
             catch (Exception e)
             {
-                return new ResponseVM { Success = false, Message = e.Message };
+                return new ResponseViewModel { Success = false, Message = e.Message };
             }
         }
 
-    public ResponseVM UpdatePassword(UpdatePasswordVM accountVM)
+    public ResponseViewModel UpdatePassword(UpdatePasswordViewModel updatePasswordViewModel)
     {
         try
         {
             
 
-            if (accountVM.ConfirmPassword.Equals(accountVM.NewPassword))
+            if (updatePasswordViewModel.ConfirmPassword.Equals(updatePasswordViewModel.NewPassword))
             {
-                var existedAccount = _accRepo.GetActiveById(accountVM.Id);
+                var existedAccount = _accRepo.GetActiveById(updatePasswordViewModel.Id);
 
                 
 
                 if (existedAccount != null)
                 {
-                    if (!BrcyptNet.Verify(accountVM.OldPassword, existedAccount.Password))
+                    if (!BrcyptNet.Verify(updatePasswordViewModel.OldPassword, existedAccount.Password))
                     {
-                        return new ResponseVM { Message = "Wrong password", Success = false };
+                        return new ResponseViewModel { Message = "Wrong password", Success = false };
                     }
 
-                    existedAccount.Password = BrcyptNet.HashPassword(accountVM.NewPassword);
+                    existedAccount.Password = BrcyptNet.HashPassword(updatePasswordViewModel.NewPassword);
 
                     _accRepo.Update(existedAccount);
                     _uow.Save();
 
-                    return new ResponseVM { Success = true, Message = "Update successful" };
+                    return new ResponseViewModel { Success = true, Message = "Update successful" };
                 }
 
-                return new ResponseVM { Success = false, Message = "This account does not exist" };
+                return new ResponseViewModel { Success = false, Message = "This account does not exist" };
             }
 
-            return new ResponseVM { Success = false, Message = "New password and confirmation password do not match" };
+            return new ResponseViewModel { Success = false, Message = "New password and confirmation password do not match" };
         }
         catch (Exception e)
         {
-            return new ResponseVM { Success = false, Message = e.Message };
+            return new ResponseViewModel { Success = false, Message = e.Message };
         }
     }
 
-    public ResponseVM Deactivate(Guid id)
+    public ResponseViewModel Deactivate(Guid id)
         {
             try
             {
@@ -180,11 +180,11 @@ public interface IAccountDomain
                 _accRepo.DeactivateAccount(account);
 
                 _uow.Save();
-                return new ResponseVM { Message = "Delete successful", Success = true };
+                return new ResponseViewModel { Message = "Delete successful", Success = true };
             }
             catch (Exception e)
             {
-                return new ResponseVM { Success = false, Message = e.Message };
+                return new ResponseViewModel { Success = false, Message = e.Message };
             }
         }
     }

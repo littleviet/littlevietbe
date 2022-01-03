@@ -10,8 +10,8 @@ namespace LittleViet.Data.Models;
         }
 
         public string Name { get; set; }
-        public string ESName { get; set; }
-        public string CAName { get; set; }
+        public string EsName { get; set; }
+        public string CaName { get; set; }
         public string Description { get; set; }
 
         public virtual ICollection<Product> Products { get; set; }

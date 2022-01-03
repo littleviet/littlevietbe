@@ -17,7 +17,7 @@ namespace LittleViet.Api.Controllers;
         }
 
         [HttpPost("")]
-        public IActionResult Create(CreateProductTypeVM productTypeVM)
+        public IActionResult Create(CreateProductTypeViewModel productTypeVM)
         {
             try
             {
@@ -26,12 +26,12 @@ namespace LittleViet.Api.Controllers;
             }
             catch (Exception e)
             {
-                return StatusCode(500, new ResponseVM { Message = e.Message, Success = false });
+                return StatusCode(500, new ResponseViewModel { Message = e.Message, Success = false });
             }
         }
 
-        [HttpPut("id")]
-        public IActionResult Update(Guid id, UpdateProductTypeVM productTypeVM)
+        [HttpPut("{id}")]
+        public IActionResult Update(Guid id, UpdateProductTypeViewModel productTypeVM)
         {
             try
             {
@@ -41,11 +41,11 @@ namespace LittleViet.Api.Controllers;
             }
             catch (Exception e)
             {
-                return StatusCode(500, new ResponseVM { Message = e.Message, Success = false });
+                return StatusCode(500, new ResponseViewModel { Message = e.Message, Success = false });
             }
         }
 
-        [HttpDelete("id")]
+        [HttpDelete("{id}")]
         public IActionResult DeactiveAccount(Guid id)
         {
             try
@@ -55,7 +55,21 @@ namespace LittleViet.Api.Controllers;
             }
             catch (Exception e)
             {
-                return StatusCode(500, new ResponseVM { Message = e.Message, Success = false });
+                return StatusCode(500, new ResponseViewModel { Message = e.Message, Success = false });
+            }
+        }
+
+        [HttpGet]
+        public IActionResult GetListProductTypes()
+        {
+            try
+            {
+                var result = _productTypeDomain.GetListProductType();
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new ResponseViewModel { Message = e.Message, Success = false });
             }
         }
     }

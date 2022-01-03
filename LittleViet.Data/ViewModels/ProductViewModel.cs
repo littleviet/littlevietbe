@@ -2,39 +2,39 @@
 
 namespace LittleViet.Data.ViewModels;
 
-    internal class ProductLPVM
+    internal class ProductLandingPageViewModel
     {
         public string ProductType { get; set; }
-        public ProductsLP Products { get; set; }
+        public ProductsLandingPageViewModel Products { get; set; }
     }
 
-    internal class ProductsLP
+    internal class ProductsLandingPageViewModel
     {
         public string Name { get; set; }
-        public string ESName { get; set; }
-        public string CAName { get; set; }
+        public string EsName { get; set; }
+        public string CaName { get; set; }
         public double Price { get; set; }
     }
 
-    public class CreateProductVM
+    public class CreateProductViewModel
     {
         public Guid CreatedBy { get; set; }
         public string Name { get; set; }
-        public string ESName { get; set; }
-        public string CAName { get; set; }
+        public string EsName { get; set; }
+        public string CaName { get; set; }
         public string Description { get; set; }
         public double Price { get; set; }
         public ProductSatus Status { get; set; }
         public Guid ProductTypeId { get; set; }
     }
 
-    public class UpdateProductVM
+    public class UpdateProductViewModel
     {
         public Guid UpdatedBy { get; set; }
         public Guid Id { get; set; }
         public string Name { get; set; }
-        public string ESName { get; set; }
-        public string CAName { get; set; }
+        public string EsName { get; set; }
+        public string CaName { get; set; }
         public string Description { get; set; }
         public double Price { get; set; }
         public ProductSatus Status { get; set; }

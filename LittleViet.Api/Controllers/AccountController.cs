@@ -15,38 +15,39 @@ namespace LittleViet.Api.Controllers;
         {
             _accountDomain = accountDomain;
         }
+
         [HttpPost("login")]
-        public IActionResult Login(LoginVM accountVM)
+        public IActionResult Login(LoginViewModel loginViewModel)
         {
             try
             {
-                var result = _accountDomain.Login(accountVM.Email, accountVM.Password);
+                var result = _accountDomain.Login(loginViewModel.Email, loginViewModel.Password);
                 return Ok(result);
             }
             catch (Exception e)
             {
-                return StatusCode(500, new ResponseVM { Message = e.Message, Success = false });
+                return StatusCode(500, new ResponseViewModel { Message = e.Message, Success = false });
             }
         }
 
         [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
         [HttpPost("")]
-        public IActionResult Create(CreateAccountVM accountVM)
+        public IActionResult Create(CreateAccountViewModel createAccountViewModel)
         {
             try
             {
-                var result = _accountDomain.Create(accountVM);
+                var result = _accountDomain.Create(createAccountViewModel);
                 return Ok(result);
             }
             catch (Exception e)
             {
-                return StatusCode(500, new ResponseVM { Message = e.Message, Success = false });
+                return StatusCode(500, new ResponseViewModel { Message = e.Message, Success = false });
             }
         }
 
         [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
-        [HttpPut("id")]
-        public IActionResult Update(Guid id, UpdateAccountVM accountVM)
+        [HttpPut("{id}")]
+        public IActionResult Update(Guid id, UpdateAccountViewModel accountVM)
         {
             try
             {
@@ -56,13 +57,13 @@ namespace LittleViet.Api.Controllers;
             }
             catch (Exception e)
             {
-                return StatusCode(500, new ResponseVM { Message = e.Message, Success = false });
+                return StatusCode(500, new ResponseViewModel { Message = e.Message, Success = false });
             }
         }
 
         [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
-        [HttpPut("password/id")]
-        public IActionResult UpdatePassword(Guid id, UpdatePasswordVM accountVM)
+        [HttpPut("{id}/reset-password")]
+        public IActionResult UpdatePassword(Guid id, UpdatePasswordViewModel accountVM)
         {
             try
             {
@@ -72,12 +73,12 @@ namespace LittleViet.Api.Controllers;
             }
             catch (Exception e)
             {
-                return StatusCode(500, new ResponseVM { Message = e.Message, Success = false });
+                return StatusCode(500, new ResponseViewModel { Message = e.Message, Success = false });
             }
         }
 
         [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
-        [HttpDelete("id")]
+        [HttpDelete("{id}")]
         public IActionResult DeactiveAccount(Guid id)
         {
             try
@@ -87,7 +88,7 @@ namespace LittleViet.Api.Controllers;
             }
             catch (Exception e)
             {
-                return StatusCode(500, new ResponseVM { Message = e.Message, Success = false });
+                return StatusCode(500, new ResponseViewModel { Message = e.Message, Success = false });
             }
         }
     }

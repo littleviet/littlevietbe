@@ -17,7 +17,7 @@ namespace LittleViet.Api.Controllers;
 
         [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
         [HttpPost("")]
-        public IActionResult Create(CreateProductVM productVM)
+        public IActionResult Create(CreateProductViewModel productVM)
         {
             try
             {
@@ -26,13 +26,13 @@ namespace LittleViet.Api.Controllers;
             }
             catch (Exception e)
             {
-                return StatusCode(500, new ResponseVM { Message = e.Message, Success = false });
+                return StatusCode(500, new ResponseViewModel { Message = e.Message, Success = false });
             }
         }
 
         [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
-        [HttpPut("id")]
-        public IActionResult Update(Guid id, UpdateProductVM productVM)
+        [HttpPut("{id}")]
+        public IActionResult Update(Guid id, UpdateProductViewModel productVM)
         {
             try
             {
@@ -42,12 +42,12 @@ namespace LittleViet.Api.Controllers;
             }
             catch (Exception e)
             {
-                return StatusCode(500, new ResponseVM { Message = e.Message, Success = false });
+                return StatusCode(500, new ResponseViewModel { Message = e.Message, Success = false });
             }
         }
 
         [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
-        [HttpDelete("id")]
+        [HttpDelete("{id}")]
         public IActionResult DeactiveAccount(Guid id)
         {
             try
@@ -57,11 +57,11 @@ namespace LittleViet.Api.Controllers;
             }
             catch (Exception e)
             {
-                return StatusCode(500, new ResponseVM { Message = e.Message, Success = false });
+                return StatusCode(500, new ResponseViewModel { Message = e.Message, Success = false });
             }
         }
 
-        [HttpGet("landing-page")]
+        [HttpGet("landing-page/products")]
         public IActionResult GetProductsForLP()
         {
             try
@@ -71,7 +71,7 @@ namespace LittleViet.Api.Controllers;
             }
             catch (Exception e)
             {
-                return StatusCode(500, new ResponseVM { Message = e.Message, Success = false });
+                return StatusCode(500, new ResponseViewModel { Message = e.Message, Success = false });
             }
         }
     }

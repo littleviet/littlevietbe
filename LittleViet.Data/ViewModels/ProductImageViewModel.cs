@@ -2,7 +2,6 @@
 
 namespace LittleViet.Data.ViewModels;
 
-    internal class OrderVM:Order
+    internal class ProductImageViewModel : ProductImage
     {
     }
-

@@ -2,7 +2,7 @@
 
 namespace LittleViet.Data.ViewModels;
 
-    internal class ServingVM:Serving
+    internal class OrderViewModel : Order
     {
     }
 

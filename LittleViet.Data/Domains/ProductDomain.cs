@@ -8,10 +8,10 @@ namespace LittleViet.Data.Domains;
 
     public interface IProductDomain
     {
-        ResponseVM Create(CreateProductVM productVM);
-        ResponseVM Update(UpdateProductVM productVM);
-        ResponseVM Deactivate(Guid id);
-        ResponseVM GetActivesForLP();
+        ResponseViewModel Create(CreateProductViewModel productVM);
+        ResponseViewModel Update(UpdateProductViewModel productVM);
+        ResponseViewModel Deactivate(Guid id);
+        ResponseViewModel GetActivesForLP();
     }
     internal class ProductDomain : BaseDomain, IProductDomain
     {
@@ -23,11 +23,11 @@ namespace LittleViet.Data.Domains;
             _mapper = mapper;
         }
 
-        public ResponseVM Create(CreateProductVM productVM)
+        public ResponseViewModel Create(CreateProductViewModel createProductViewModel)
         {
             try
             {
-                var product = _mapper.Map<Product>(productVM);
+                var product = _mapper.Map<Product>(createProductViewModel);
 
                 var datetime = DateTime.UtcNow;
 
@@ -35,52 +35,52 @@ namespace LittleViet.Data.Domains;
                 product.IsDeleted = false;
                 product.UpdatedDate = datetime;
                 product.CreatedDate = datetime;
-                product.UpdatedBy = productVM.CreatedBy;
+                product.UpdatedBy = createProductViewModel.CreatedBy;
 
                 _productRepo.Create(product);
                 _uow.Save();
 
-                return new ResponseVM { Success = true, Message = "Create successful" };
+                return new ResponseViewModel { Success = true, Message = "Create successful" };
             }
             catch (Exception e)
             {
-                return new ResponseVM { Success = false, Message = e.Message };
+                return new ResponseViewModel { Success = false, Message = e.Message };
             }
         }
 
-        public ResponseVM Update(UpdateProductVM productVM)
+        public ResponseViewModel Update(UpdateProductViewModel updateProductViewModel)
         {
             try
             {
-                var existedPro = _productRepo.GetActiveById(productVM.Id);
+                var existedPro = _productRepo.GetActiveById(updateProductViewModel.Id);
 
                 if (existedPro != null)
                 {
-                    existedPro.Price = productVM.Price;
-                    existedPro.ProductTypeId = productVM.ProductTypeId;
-                    existedPro.Name = productVM.Name;
-                    existedPro.Description = productVM.Description;
-                    existedPro.ESName = productVM.ESName;
-                    existedPro.CAName = productVM.CAName;
-                    existedPro.Status = productVM.Status;
+                    existedPro.Price = updateProductViewModel.Price;
+                    existedPro.ProductTypeId = updateProductViewModel.ProductTypeId;
+                    existedPro.Name = updateProductViewModel.Name;
+                    existedPro.Description = updateProductViewModel.Description;
+                    existedPro.EsName = updateProductViewModel.EsName;
+                    existedPro.CaName = updateProductViewModel.CaName;
+                    existedPro.Status = updateProductViewModel.Status;
                     existedPro.UpdatedDate = DateTime.UtcNow;
-                    existedPro.UpdatedBy = productVM.UpdatedBy;
+                    existedPro.UpdatedBy = updateProductViewModel.UpdatedBy;
 
                     _productRepo.Update(existedPro);
                     _uow.Save();
 
-                    return new ResponseVM { Success = true, Message = "Update successful" };
+                    return new ResponseViewModel { Success = true, Message = "Update successful" };
                 }
 
-                return new ResponseVM { Success = false, Message = "This product does not exist" };
+                return new ResponseViewModel { Success = false, Message = "This product does not exist" };
             }
             catch (Exception e)
             {
-                return new ResponseVM { Success = false, Message = e.Message };
+                return new ResponseViewModel { Success = false, Message = e.Message };
             }
         }
 
-        public ResponseVM Deactivate(Guid id)
+        public ResponseViewModel Deactivate(Guid id)
         {
             try
             {
@@ -88,36 +88,36 @@ namespace LittleViet.Data.Domains;
                 _productRepo.DeactivateProduct(product);
 
                 _uow.Save();
-                return new ResponseVM { Message = "Delete successful", Success = true };
+                return new ResponseViewModel { Message = "Delete successful", Success = true };
             }
             catch (Exception e)
             {
-                return new ResponseVM { Success = false, Message = e.Message };
+                return new ResponseViewModel { Success = false, Message = e.Message };
             }
         }
 
-        public ResponseVM GetActivesForLP()
+        public ResponseViewModel GetActivesForLP()
         {
             try
             {
                 var products = _productRepo.GetActiveProducs();
-                var result = new List<ProductLPVM>();
+                var result = new List<ProductLandingPageViewModel>();
 
                 foreach (var item in products)
                 {
-                    var pro = _mapper.Map<ProductsLP>(item);
-                    result.Add(new ProductLPVM
+                    var pro = _mapper.Map<ProductsLandingPageViewModel>(item);
+                    result.Add(new ProductLandingPageViewModel
                     {
                         Products = pro,
                         ProductType = item.ProductType.Name
                     });
                 }
 
-                return new ResponseVM { Payload = result, Success = true };
+                return new ResponseViewModel { Payload = result, Success = true };
             }
             catch (Exception e)
             {
-                return new ResponseVM { Success = false, Message = e.Message };
+                return new ResponseViewModel { Success = false, Message = e.Message };
             }
         }
     }

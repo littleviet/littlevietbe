@@ -44,22 +44,20 @@ namespace LittleViet.Data.Global;
                 .AddScoped<IProductRepository, ProductRepository>()
                 .AddScoped<IServingRepository, ServingRepository>()
                 .AddScoped<IReservationRepository, ReservationRepository>();
-
         }
 
         public static void Configure(IServiceCollection services)
         {
             MapperConfigs.Add(cfg =>
             {
-                cfg.CreateMap<Account, AccountVM>().ReverseMap();
-                cfg.CreateMap<Account, CreateAccountVM>().ReverseMap();
-                cfg.CreateMap<Account, UpdateAccountVM>().ReverseMap();
-                cfg.CreateMap<ProductType, CreateProductTypeVM>().ReverseMap();
-                cfg.CreateMap<ProductType, UpdateProductTypeVM>().ReverseMap();
-                cfg.CreateMap<Product, ProductsLP>().ReverseMap();
-                cfg.CreateMap<Product, CreateProductVM>().ReverseMap();
-                cfg.CreateMap<Product, UpdateProductVM>().ReverseMap();
-
+                cfg.CreateMap<Account, AccountViewModel>().ReverseMap();
+                cfg.CreateMap<Account, CreateAccountViewModel>().ReverseMap();
+                cfg.CreateMap<Account, UpdateAccountViewModel>().ReverseMap();
+                cfg.CreateMap<ProductType, CreateProductTypeViewModel>().ReverseMap();
+                cfg.CreateMap<ProductType, UpdateProductTypeViewModel>().ReverseMap();
+                cfg.CreateMap<Product, ProductsLandingPageViewModel>().ReverseMap();
+                cfg.CreateMap<Product, CreateProductViewModel>().ReverseMap();
+                cfg.CreateMap<Product, UpdateProductViewModel>().ReverseMap();
             });
 
             ConfigureAutomapper();
@@ -77,7 +75,6 @@ namespace LittleViet.Data.Global;
             .AddScoped<IProductTypeDomain, ProductTypeDomain>()
             .AddScoped<IReservationDomain, ReservationDomain>()
             .AddScoped<IServingDomain, ServingDomain>();
-
         }
     }
 
