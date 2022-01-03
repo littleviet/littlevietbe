@@ -1,22 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LittleViet.Data.ServiceHelper;
 
-internal class ExtensionClass
-{
-}
 public static class EnumExtensions
 {
     public static string GetDisplayName(this Enum enumValue)
     {
-        string displayName;
-        displayName = enumValue.GetType()
+        var displayName = enumValue.GetType()
             .GetMember(enumValue.ToString())
             .FirstOrDefault()
             .GetCustomAttribute<DisplayAttribute>()?
@@ -27,6 +19,14 @@ public static class EnumExtensions
             displayName = enumValue.ToString();
         }
         return displayName;
+    }
+}
+
+public static class IQueryableExtensions
+{
+    public static IQueryable<TSource> Paginate<TSource>(this IQueryable<TSource> query, int pageNum, int pageSize)
+    {
+        return query.Skip(pageNum * pageSize).Take(pageSize);
     }
 }
 

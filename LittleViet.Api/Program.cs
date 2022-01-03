@@ -6,6 +6,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Microsoft.VisualBasic;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,9 +42,12 @@ builder.Services.AddSwaggerGen(c =>
                      Id = "Bearer"
                    }
                   },
-                  new string[] { }
-                }
+                 new [] {
+                     "Bearer"
+                 }
+               }
               });
+    c.UseInlineDefinitionsForEnums();
 });
 
 var appSettingsSection = builder.Configuration.GetSection("AppSettings");

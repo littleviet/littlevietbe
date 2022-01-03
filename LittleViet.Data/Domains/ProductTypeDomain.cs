@@ -3,24 +3,23 @@ using LittleViet.Data.Models;
 using LittleViet.Data.Models.Global;
 using LittleViet.Data.Models.Repositories;
 using LittleViet.Data.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using LittleViet.Data.ServiceHelper;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace LittleViet.Data.Domains;
 
 public interface IProductTypeDomain
 {
-    ResponseViewModel Create(CreateProductTypeViewModel productTypeVM);
-    ResponseViewModel Update(UpdateProductTypeViewModel productTypeVM);
-    ResponseViewModel Deactivate(Guid id);
-    ResponseViewModel GetListProductType();
+    Task<ResponseViewModel> Create(CreateProductTypeViewModel productTypeVm);
+    Task<ResponseViewModel> Update(UpdateProductTypeViewModel productTypeVm);
+    Task<ResponseViewModel> Deactivate(Guid id);
+    Task<BaseListQueryResponseViewModel> GetListProductType(BaseListQueryParameters parameters);
+    Task<BaseListQueryResponseViewModel> Search(BaseSearchParameters parameters);
 }
 internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
 {
-    private IProductTypeRepository _productTypeRepo;
+    private readonly IProductTypeRepository _productTypeRepo;
     private readonly IMapper _mapper;
     public ProductTypeDomain(IUnitOfWork uow, IProductTypeRepository productTypeRepository, IMapper mapper) : base(uow)
     {
@@ -28,7 +27,7 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
         _mapper = mapper;
     }
 
-    public ResponseViewModel Create(CreateProductTypeViewModel createProductTypeViewModel)
+    public async Task<ResponseViewModel> Create(CreateProductTypeViewModel createProductTypeViewModel)
     {
         try
         {
@@ -43,7 +42,7 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
             productType.UpdatedBy = createProductTypeViewModel.CreatedBy;
 
             _productTypeRepo.Create(productType);
-            _uow.Save();
+            await _uow.SaveAsync();
 
             return new ResponseViewModel { Success = true, Message = "Create successful" };
         }
@@ -53,11 +52,11 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
         }
     }
 
-    public ResponseViewModel Update(UpdateProductTypeViewModel updateProductTypeViewModel)
+    public async Task<ResponseViewModel> Update(UpdateProductTypeViewModel updateProductTypeViewModel)
     {
         try
         {
-            var existedProType = _productTypeRepo.GetById(updateProductTypeViewModel.Id);
+            var existedProType = await _productTypeRepo.GetById(updateProductTypeViewModel.Id);
 
             if (existedProType != null)
             {
@@ -69,7 +68,7 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
                 existedProType.UpdatedBy = existedProType.UpdatedBy;
 
                 _productTypeRepo.Modify(existedProType);
-                _uow.Save();
+                await _uow.SaveAsync();
 
                 return new ResponseViewModel { Success = true, Message = "Update successful" };
             }
@@ -82,14 +81,14 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
         }
     }
 
-    public ResponseViewModel Deactivate(Guid id)
+    public async Task<ResponseViewModel> Deactivate(Guid id)
     {
         try
         {
-            var productType = _productTypeRepo.GetById(id);
+            var productType = await _productTypeRepo.GetById(id);
             _productTypeRepo.DeactivateProductType(productType);
 
-            _uow.Save();
+            await _uow.SaveAsync();
             return new ResponseViewModel { Message = "Delete successful", Success = true };
         }
         catch (Exception e)
@@ -98,17 +97,46 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
         }
     }
 
-    public ResponseViewModel GetListProductType()
+    public async Task<BaseListQueryResponseViewModel> GetListProductType(BaseListQueryParameters parameters)
     {
         try
         {
-            var productTypes = _productTypeRepo.GetProductType();
+            var productTypes = _productTypeRepo.DbSet().AsNoTracking();
 
-            return new ResponseViewModel { Payload = productTypes, Success = true };
+            return new BaseListQueryResponseViewModel
+            {
+                Payload = await productTypes.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber).ToListAsync(), 
+                Success = true,
+                Total = await productTypes.CountAsync(),
+                PageNumber = parameters.PageNumber,
+                PageSize = parameters.PageSize,
+            };
         }
         catch (Exception e)
         {
-            return new ResponseViewModel { Success = false, Message = e.Message };
+            return new BaseListQueryResponseViewModel { Success = false, Message = e.Message };
+        }
+    }
+    
+    public async Task<BaseListQueryResponseViewModel> Search(BaseSearchParameters parameters)
+    {
+        try
+        {
+            var productTypes = _productTypeRepo.DbSet().AsNoTracking()
+                .Where(p => p.Name.Contains(parameters.Keyword) || p.CaName.Contains(parameters.Keyword) || p.EsName.Contains(parameters.Keyword));
+
+            return new BaseListQueryResponseViewModel
+            {
+                Payload = await productTypes.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber).ToListAsync(), 
+                Success = true,
+                Total = await productTypes.CountAsync(),
+                PageNumber = parameters.PageNumber,
+                PageSize = parameters.PageSize,
+            };
+        }
+        catch (Exception e)
+        {
+            return new BaseListQueryResponseViewModel { Success = false, Message = e.Message };
         }
     }
 }

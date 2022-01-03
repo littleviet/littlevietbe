@@ -1,12 +1,14 @@
-﻿namespace LittleViet.Data.Models.Repositories;
+﻿using LittleViet.Data.ServiceHelper;
+using Microsoft.EntityFrameworkCore;
+
+namespace LittleViet.Data.Models.Repositories;
 
 public interface IProductTypeRepository : IBaseRepository<ProductType>
 {
     void Create(ProductType productType);
     void Update(ProductType productType);
     void DeactivateProductType(ProductType productType);
-    ProductType GetById(Guid id);
-    IQueryable<ProductType> GetProductType();
+    Task<ProductType> GetById(Guid id);
 }
 internal class ProductTypeRepository : BaseRepository<ProductType>, IProductTypeRepository
 {
@@ -30,14 +32,9 @@ internal class ProductTypeRepository : BaseRepository<ProductType>, IProductType
         Deactivate(productType);
     }
 
-    public ProductType GetById(Guid id)
+    public Task<ProductType> GetById(Guid id)
     {
-        return DbSet().FirstOrDefault(q => q.Id == id);
-    }
-
-    public IQueryable<ProductType> GetProductType()
-    {
-        return DbSet();
+        return DbSet().FirstOrDefaultAsync(q => q.Id == id);
     }
 }
 

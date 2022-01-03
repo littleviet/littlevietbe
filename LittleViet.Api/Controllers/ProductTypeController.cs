@@ -5,11 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LittleViet.Api.Controllers;
 
-[Route("api/product-type")]
+[Route("api/[controller]")]
 [ApiController]
 public class ProductTypeController : BaseController
 {
-    private IProductTypeDomain _productTypeDomain;
+    private readonly IProductTypeDomain _productTypeDomain;
     public ProductTypeController(IProductTypeDomain productTypeDomain)
     {
         _productTypeDomain = productTypeDomain;
@@ -17,62 +17,77 @@ public class ProductTypeController : BaseController
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpPost("")]
-    public IActionResult Create(CreateProductTypeViewModel productTypeVM)
+    public async Task<IActionResult> Create(CreateProductTypeViewModel productTypeVm)
     {
         try
         {
-            var result = _productTypeDomain.Create(productTypeVM);
+            var result = await _productTypeDomain.Create(productTypeVm);
             return Ok(result);
         }
         catch (Exception e)
         {
-            return StatusCode(500, new ResponseViewModel { Message = e.Message, Success = false });
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseViewModel { Message = e.Message, Success = false });
         }
     }
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
-    [HttpPut("{id}")]
-    public IActionResult Update(Guid id, UpdateProductTypeViewModel productTypeVM)
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> Update(Guid id, UpdateProductTypeViewModel productTypeVm)
     {
         try
         {
-            productTypeVM.Id = id;
-            var result = _productTypeDomain.Update(productTypeVM);
+            productTypeVm.Id = id;
+            var result = await _productTypeDomain.Update(productTypeVm);
             return Ok(result);
         }
         catch (Exception e)
         {
-            return StatusCode(500, new ResponseViewModel { Message = e.Message, Success = false });
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseViewModel { Message = e.Message, Success = false });
         }
     }
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
-    [HttpDelete("{id}")]
-    public IActionResult DeactiveAccount(Guid id)
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> DeactivateAccount(Guid id)
     {
         try
         {
-            var result = _productTypeDomain.Deactivate(id);
+            var result = await _productTypeDomain.Deactivate(id);
             return Ok(result);
         }
         catch (Exception e)
         {
-            return StatusCode(500, new ResponseViewModel { Message = e.Message, Success = false });
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseViewModel { Message = e.Message, Success = false });
         }
     }
 
-    [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
+    // [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpGet]
-    public IActionResult GetListProductTypes()
+    public async Task<IActionResult> GetListProductTypes([FromQuery]BaseListQueryParameters parameters)
     {
         try
         {
-            var result = _productTypeDomain.GetListProductType();
+            var result = await _productTypeDomain.GetListProductType(parameters);
             return Ok(result);
         }
         catch (Exception e)
         {
-            return StatusCode(500, new ResponseViewModel { Message = e.Message, Success = false });
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseViewModel { Message = e.Message, Success = false });
+        }
+    }
+    
+    [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
+    [HttpGet("search")]
+    public async Task<IActionResult> SearchProductTypes([FromQuery]BaseSearchParameters parameters)
+    {
+        try
+        {
+            var result = await _productTypeDomain.Search(parameters);
+            return Ok(result);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseViewModel { Message = e.Message, Success = false });
         }
     }
 }

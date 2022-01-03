@@ -15,6 +15,8 @@ public static partial class StartupConfiguration
     private static List<Action<IMapperConfigurationExpression>> MapperConfigs
         = new List<Action<IMapperConfigurationExpression>>();
 
+    
+    
     private static void ConfigureAutomapper()
     {
         var mapConfig = new MapperConfiguration(cfg =>

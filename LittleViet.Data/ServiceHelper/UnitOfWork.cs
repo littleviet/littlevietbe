@@ -7,6 +7,7 @@ public partial interface IUnitOfWork
 {
     T GetService<T>();
     void Save();
+    Task<int> SaveAsync();
 }
 
 public class UnitOfWork : IUnitOfWork
@@ -27,6 +28,11 @@ public class UnitOfWork : IUnitOfWork
     public void Save()
     {
         _context.SaveChanges();
+    }
+    
+    public async Task<int> SaveAsync()
+    {
+        return await _context.SaveChangesAsync();
     }
 
     public IDbContextTransaction BeginTransation()

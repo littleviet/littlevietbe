@@ -9,7 +9,7 @@ namespace LittleViet.Api.Controllers;
 [ApiController]
 public class ProductController : Controller
 {
-    private IProductDomain _productDomain;
+    private readonly IProductDomain _productDomain;
     public ProductController(IProductDomain productDomain)
     {
         _productDomain = productDomain;
@@ -17,11 +17,11 @@ public class ProductController : Controller
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpPost("")]
-    public IActionResult Create(CreateProductViewModel productVM)
+    public IActionResult Create(CreateProductViewModel productVm)
     {
         try
         {
-            var result = _productDomain.Create(productVM);
+            var result = _productDomain.Create(productVm);
             return Ok(result);
         }
         catch (Exception e)
@@ -31,13 +31,13 @@ public class ProductController : Controller
     }
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
-    [HttpPut("{id}")]
-    public IActionResult Update(Guid id, UpdateProductViewModel productVM)
+    [HttpPut("{id:guid}")]
+    public IActionResult Update(Guid id, UpdateProductViewModel productVm)
     {
         try
         {
-            productVM.Id = id;
-            var result = _productDomain.Update(productVM);
+            productVm.Id = id;
+            var result = _productDomain.Update(productVm);
             return Ok(result);
         }
         catch (Exception e)
@@ -47,8 +47,8 @@ public class ProductController : Controller
     }
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
-    [HttpDelete("{id}")]
-    public IActionResult DeactiveAccount(Guid id)
+    [HttpDelete("{id:guid}")]
+    public IActionResult DeactivateAccount(Guid id)
     {
         try
         {
