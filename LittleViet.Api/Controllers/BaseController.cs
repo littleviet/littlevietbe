@@ -5,4 +5,3 @@ namespace LittleViet.Api.Controllers;
 public class BaseController : ControllerBase
 {
 }
-

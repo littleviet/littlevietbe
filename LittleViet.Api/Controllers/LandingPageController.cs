@@ -15,7 +15,7 @@ public class LandingPageController : BaseController
     }
 
     [HttpGet("products")]
-    public IActionResult Get()
+    public IActionResult GetProducts()
     {
         try
         {
@@ -24,7 +24,7 @@ public class LandingPageController : BaseController
         }
         catch (Exception e)
         {
-            return StatusCode(500, new ResponseViewModel { Message = e.Message, Success = false });
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseViewModel { Message = e.Message, Success = false });
         }
     }
 
