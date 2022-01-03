@@ -8,13 +8,13 @@ namespace LittleViet.Data.Domains;
 
 public interface IProductDomain
 {
-    ResponseViewModel Create(CreateProductViewModel productVM);
-    ResponseViewModel Update(UpdateProductViewModel productVM);
+    ResponseViewModel Create(CreateProductViewModel productVm);
+    ResponseViewModel Update(UpdateProductViewModel productVm);
     ResponseViewModel Deactivate(Guid id);
 }
 internal class ProductDomain : BaseDomain, IProductDomain
 {
-    private IProductRepository _productRepo;
+    private readonly IProductRepository _productRepo;
     private readonly IMapper _mapper;
     public ProductDomain(IUnitOfWork uow, IProductRepository productRepository, IMapper mapper) : base(uow)
     {

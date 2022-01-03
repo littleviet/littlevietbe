@@ -8,7 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using BrcyptNet = BCrypt.Net.BCrypt;
+using BCryptNet = BCrypt.Net.BCrypt;
 
 namespace LittleViet.Data.Domains;
 
@@ -22,7 +22,7 @@ public interface IAccountDomain
 }
 public class AccountDomain : BaseDomain, IAccountDomain
 {
-    private IAccountRepository _accRepo;
+    private readonly IAccountRepository _accRepo;
     private readonly IMapper _mapper;
     private readonly IConfiguration _configuration;
 
@@ -39,7 +39,7 @@ public class AccountDomain : BaseDomain, IAccountDomain
         try
         {
             var account = _accRepo.GetActiveByEmail(email);
-            if (account is null || !BrcyptNet.Verify(password, account.Password))
+            if (account is null || !BCryptNet.Verify(password, account.Password))
             {
                 return new ResponseViewModel { Message = "Invalid username or password", Success = false };
             }
@@ -52,8 +52,8 @@ public class AccountDomain : BaseDomain, IAccountDomain
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                            new Claim(ClaimTypes.Name, accountViewModel.Id.ToString()),
-                            new Claim(ClaimTypes.Role, accountViewModel.AccountType.ToString())
+                            new (ClaimTypes.Name, accountViewModel.Id.ToString()),
+                            new (ClaimTypes.Role, accountViewModel.AccountType.ToString())
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
@@ -85,7 +85,7 @@ public class AccountDomain : BaseDomain, IAccountDomain
             var datetime = DateTime.UtcNow;
 
             account.Id = Guid.NewGuid();
-            account.Password = BrcyptNet.HashPassword(createAccountViewModel.Password);
+            account.Password = BCryptNet.HashPassword(createAccountViewModel.Password);
             account.IsDeleted = false;
             account.UpdatedDate = datetime;
             account.CreatedDate = datetime;
@@ -148,12 +148,12 @@ public class AccountDomain : BaseDomain, IAccountDomain
 
                 if (existedAccount != null)
                 {
-                    if (!BrcyptNet.Verify(updatePasswordViewModel.OldPassword, existedAccount.Password))
+                    if (!BCryptNet.Verify(updatePasswordViewModel.OldPassword, existedAccount.Password))
                     {
                         return new ResponseViewModel { Message = "Wrong password", Success = false };
                     }
 
-                    existedAccount.Password = BrcyptNet.HashPassword(updatePasswordViewModel.NewPassword);
+                    existedAccount.Password = BCryptNet.HashPassword(updatePasswordViewModel.NewPassword);
 
                     _accRepo.Update(existedAccount);
                     _uow.Save();

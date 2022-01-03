@@ -7,6 +7,7 @@ internal class Reservation : AuditableEntity
     public int NoOfPeople { get; set; }
     public DateTime BookingDate { get; set; }
     public Guid AccountId { get; set; }
+    public Account Account { get; set; }
     public ReservationStatus Status { get; set; }
     public string PhoneNumber { get; set; }
     public string Firstname { get; set; }
