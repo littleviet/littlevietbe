@@ -61,7 +61,7 @@ public class ProductTypeController : BaseController
         }
     }
 
-    // [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
+    [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpGet]
     public async Task<IActionResult> GetListProductTypes([FromQuery]BaseListQueryParameters parameters)
     {
