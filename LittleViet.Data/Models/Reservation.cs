@@ -2,7 +2,7 @@
 
 namespace LittleViet.Data.Models;
 
-internal class Reservation : AuditableEntity
+public class Reservation : AuditableEntity
 {
     public int NoOfPeople { get; set; }
     public DateTime BookingDate { get; set; }
