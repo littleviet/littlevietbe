@@ -2,6 +2,10 @@
 
 namespace LittleViet.Data.ViewModels;
 
-internal class ReservationViewModel : Reservation
+public class CreateReservationViewModel
 {
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public string Email { get; set; }
+    public string FurtherRequest { get; set; } 
 }
