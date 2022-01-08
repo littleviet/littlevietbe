@@ -1,5 +1,4 @@
-﻿using LittleViet.Data.ServiceHelper;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace LittleViet.Data.Models.Repositories;
 

@@ -17,11 +17,11 @@ public class ProductController : Controller
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpPost("")]
-    public IActionResult Create(CreateProductViewModel productVm)
+    public IActionResult Create(CreateProductViewModel createProductViewModel)
     {
         try
         {
-            var result = _productDomain.Create(productVm);
+            var result = _productDomain.Create(createProductViewModel);
             return Ok(result);
         }
         catch (Exception e)
@@ -32,12 +32,12 @@ public class ProductController : Controller
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpPut("{id:guid}")]
-    public IActionResult Update(Guid id, UpdateProductViewModel productVm)
+    public IActionResult Update(Guid id, UpdateProductViewModel updateProductViewModel)
     {
         try
         {
-            productVm.Id = id;
-            var result = _productDomain.Update(productVm);
+            updateProductViewModel.Id = id;
+            var result = _productDomain.Update(updateProductViewModel);
             return Ok(result);
         }
         catch (Exception e)
@@ -58,6 +58,48 @@ public class ProductController : Controller
         catch (Exception e)
         {
             return StatusCode(500, new ResponseViewModel { Message = e.Message, Success = false });
+        }
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetListProducts([FromQuery] BaseListQueryParameters parameters)
+    {
+        try
+        {
+            var result = await _productDomain.GetListProducts(parameters);
+            return Ok(result);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseViewModel { Message = e.Message, Success = false });
+        }
+    }
+
+    [HttpGet("search")]
+    public async Task<IActionResult> SearchProducts([FromQuery] BaseSearchParameters parameters)
+    {
+        try
+        {
+            var result = await _productDomain.Search(parameters);
+            return Ok(result);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseViewModel { Message = e.Message, Success = false });
+        }
+    }
+
+    [HttpGet("{id:guid}/details")]
+    public async Task<IActionResult> GetProductDetails(Guid id)
+    {
+        try
+        {
+            var result = await _productDomain.GetProductById(id);
+            return Ok(result);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseViewModel { Message = e.Message, Success = false });
         }
     }
 }

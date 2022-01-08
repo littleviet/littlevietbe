@@ -17,11 +17,11 @@ public class ProductTypeController : BaseController
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpPost("")]
-    public async Task<IActionResult> Create(CreateProductTypeViewModel productTypeVm)
+    public async Task<IActionResult> Create(CreateProductTypeViewModel productTypeViewModel)
     {
         try
         {
-            var result = await _productTypeDomain.Create(productTypeVm);
+            var result = await _productTypeDomain.Create(productTypeViewModel);
             return Ok(result);
         }
         catch (Exception e)
@@ -63,7 +63,7 @@ public class ProductTypeController : BaseController
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpGet]
-    public async Task<IActionResult> GetListProductTypes([FromQuery]BaseListQueryParameters parameters)
+    public async Task<IActionResult> GetListProductTypes([FromQuery] BaseListQueryParameters parameters)
     {
         try
         {
@@ -75,14 +75,29 @@ public class ProductTypeController : BaseController
             return StatusCode(StatusCodes.Status500InternalServerError, new ResponseViewModel { Message = e.Message, Success = false });
         }
     }
-    
+
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpGet("search")]
-    public async Task<IActionResult> SearchProductTypes([FromQuery]BaseSearchParameters parameters)
+    public async Task<IActionResult> SearchProductTypes([FromQuery] BaseSearchParameters parameters)
     {
         try
         {
             var result = await _productTypeDomain.Search(parameters);
+            return Ok(result);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseViewModel { Message = e.Message, Success = false });
+        }
+    }
+
+    [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
+    [HttpGet("{id:guid}/details")]
+    public async Task<IActionResult> GetProductTypeDetails(Guid id)
+    {
+        try
+        {
+            var result = await _productTypeDomain.GetProductTypeById(id);
             return Ok(result);
         }
         catch (Exception e)

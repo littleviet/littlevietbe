@@ -2,7 +2,9 @@
 using LittleViet.Data.Models;
 using LittleViet.Data.Models.Global;
 using LittleViet.Data.Models.Repositories;
+using LittleViet.Data.ServiceHelper;
 using LittleViet.Data.ViewModels;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -15,21 +17,24 @@ namespace LittleViet.Data.Domains;
 public interface IAccountDomain
 {
     ResponseViewModel Login(string email, string password);
-    ResponseViewModel Deactivate(Guid id);
-    ResponseViewModel Create(CreateAccountViewModel accountViewModel);
-    ResponseViewModel Update(UpdateAccountViewModel accountViewModel);
-    ResponseViewModel UpdatePassword(UpdatePasswordViewModel accountViewModel);
+    Task<ResponseViewModel> Deactivate(Guid id);
+    Task<ResponseViewModel> Create(CreateAccountViewModel createAccountViewModel);
+    Task<ResponseViewModel> Update(UpdateAccountViewModel updateAccountViewModel);
+    Task<ResponseViewModel> UpdatePassword(UpdatePasswordViewModel updatePasswordViewModel);
+    Task<BaseListQueryResponseViewModel> GetListAccounts(BaseListQueryParameters parameters);
+    Task<BaseListQueryResponseViewModel> Search(BaseSearchParameters parameters);
+    Task<ResponseViewModel> GetAccountById(Guid id);
 }
 public class AccountDomain : BaseDomain, IAccountDomain
 {
-    private readonly IAccountRepository _accRepo;
+    private readonly IAccountRepository _accountRepository;
     private readonly IMapper _mapper;
     private readonly IConfiguration _configuration;
 
 
     public AccountDomain(IUnitOfWork uow, IAccountRepository accountRepository, IMapper mapper, IConfiguration configuration) : base(uow)
     {
-        _accRepo = accountRepository;
+        _accountRepository = accountRepository;
         _mapper = mapper;
         _configuration = configuration;
     }
@@ -38,7 +43,7 @@ public class AccountDomain : BaseDomain, IAccountDomain
     {
         try
         {
-            var account = _accRepo.GetActiveByEmail(email);
+            var account = _accountRepository.GetByEmail(email);
             if (account is null || !BCryptNet.Verify(password, account.Password))
             {
                 return new ResponseViewModel { Message = "Invalid username or password", Success = false };
@@ -70,11 +75,11 @@ public class AccountDomain : BaseDomain, IAccountDomain
         }
     }
 
-    public ResponseViewModel Create(CreateAccountViewModel createAccountViewModel)
+    public async Task<ResponseViewModel> Create(CreateAccountViewModel createAccountViewModel)
     {
         try
         {
-            var existedAccount = _accRepo.GetActiveByEmail(createAccountViewModel.Email);
+            var existedAccount = _accountRepository.GetByEmail(createAccountViewModel.Email);
 
             if (existedAccount != null)
             {
@@ -91,8 +96,8 @@ public class AccountDomain : BaseDomain, IAccountDomain
             account.CreatedDate = datetime;
             account.UpdatedBy = createAccountViewModel.CreatedBy;
 
-            _accRepo.Create(account);
-            _uow.Save();
+            _accountRepository.Create(account);
+            await _uow.SaveAsync();
 
             return new ResponseViewModel { Success = true, Message = "Create successful" };
         }
@@ -102,11 +107,11 @@ public class AccountDomain : BaseDomain, IAccountDomain
         }
     }
 
-    public ResponseViewModel Update(UpdateAccountViewModel updateAccountViewModel)
+    public async Task<ResponseViewModel> Update(UpdateAccountViewModel updateAccountViewModel)
     {
         try
         {
-            var existedAccount = _accRepo.GetActiveById(updateAccountViewModel.Id);
+            var existedAccount = await _accountRepository.GetById(updateAccountViewModel.Id);
 
             if (existedAccount != null)
             {
@@ -120,8 +125,8 @@ public class AccountDomain : BaseDomain, IAccountDomain
                 existedAccount.UpdatedDate = DateTime.UtcNow;
                 existedAccount.UpdatedBy = existedAccount.UpdatedBy;
 
-                _accRepo.Update(existedAccount);
-                _uow.Save();
+                _accountRepository.Update(existedAccount);
+                await _uow.SaveAsync();
 
                 return new ResponseViewModel { Success = true, Message = "Update successful" };
             }
@@ -134,7 +139,7 @@ public class AccountDomain : BaseDomain, IAccountDomain
         }
     }
 
-    public ResponseViewModel UpdatePassword(UpdatePasswordViewModel updatePasswordViewModel)
+    public async Task<ResponseViewModel> UpdatePassword(UpdatePasswordViewModel updatePasswordViewModel)
     {
         try
         {
@@ -142,9 +147,7 @@ public class AccountDomain : BaseDomain, IAccountDomain
 
             if (updatePasswordViewModel.ConfirmPassword.Equals(updatePasswordViewModel.NewPassword))
             {
-                var existedAccount = _accRepo.GetActiveById(updatePasswordViewModel.Id);
-
-
+                var existedAccount = await _accountRepository.GetById(updatePasswordViewModel.Id);
 
                 if (existedAccount != null)
                 {
@@ -155,8 +158,8 @@ public class AccountDomain : BaseDomain, IAccountDomain
 
                     existedAccount.Password = BCryptNet.HashPassword(updatePasswordViewModel.NewPassword);
 
-                    _accRepo.Update(existedAccount);
-                    _uow.Save();
+                    _accountRepository.Update(existedAccount);
+                    await _uow.SaveAsync();
 
                     return new ResponseViewModel { Success = true, Message = "Update successful" };
                 }
@@ -172,15 +175,83 @@ public class AccountDomain : BaseDomain, IAccountDomain
         }
     }
 
-    public ResponseViewModel Deactivate(Guid id)
+    public async Task<ResponseViewModel> Deactivate(Guid id)
     {
         try
         {
-            var account = _accRepo.GetActiveById(id);
-            _accRepo.DeactivateAccount(account);
+            var account = await _accountRepository.GetById(id);
+            _accountRepository.DeactivateAccount(account);
 
-            _uow.Save();
+            await _uow.SaveAsync();
             return new ResponseViewModel { Message = "Delete successful", Success = true };
+        }
+        catch (Exception e)
+        {
+            return new ResponseViewModel { Success = false, Message = e.Message };
+        }
+    }
+
+    public async Task<BaseListQueryResponseViewModel> GetListAccounts(BaseListQueryParameters parameters)
+    {
+        try
+        {
+            var accounts = _accountRepository.DbSet().AsNoTracking();
+            var pagingAccounts = await accounts.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber).ToListAsync();
+            var result = _mapper.Map<List<AccountViewModel>>(pagingAccounts);
+
+            return new BaseListQueryResponseViewModel
+            {
+                Payload = result,
+                Success = true,
+                Total = await accounts.CountAsync(),
+                PageNumber = parameters.PageNumber,
+                PageSize = parameters.PageSize,
+            };
+        }
+        catch (Exception e)
+        {
+            return new BaseListQueryResponseViewModel { Success = false, Message = e.Message };
+        }
+    }
+
+    public async Task<BaseListQueryResponseViewModel> Search(BaseSearchParameters parameters)
+    {
+        try
+        {
+            var keyword = parameters.Keyword.ToLower();
+            var accounts = _accountRepository.DbSet().AsNoTracking()
+                .Where(p => p.Email.ToLower().Contains(keyword) || p.Firstname.ToLower().Contains(keyword) || p.Lastname.ToLower().Contains(keyword));
+
+            var pagingAccounts = await accounts.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber).ToListAsync();
+            var result = _mapper.Map<List<AccountViewModel>>(pagingAccounts);
+
+            return new BaseListQueryResponseViewModel
+            {
+                Payload = result,
+                Success = true,
+                Total = await accounts.CountAsync(),
+                PageNumber = parameters.PageNumber,
+                PageSize = parameters.PageSize,
+            };
+        }
+        catch (Exception e)
+        {
+            return new BaseListQueryResponseViewModel { Success = false, Message = e.Message };
+        }
+    }
+
+    public async Task<ResponseViewModel> GetAccountById(Guid id)
+    {
+        try
+        {
+            var account = await _accountRepository.GetById(id);
+
+            if (account == null)
+            {
+                return new ResponseViewModel { Success = false, Message = "This account does not exist" };
+            }
+
+            return new ResponseViewModel { Success = true, Payload = account };
         }
         catch (Exception e)
         {
