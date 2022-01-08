@@ -1,7 +1,7 @@
 ﻿using LittleViet.Data.Domains;
+using LittleViet.Data.ServiceHelper;
 using LittleViet.Data.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using LittleViet.Data.ServiceHelper;
 
 namespace LittleViet.Api.Controllers;
 
@@ -12,7 +12,7 @@ public class AccountController : BaseController
     private readonly IAccountDomain _accountDomain;
     public AccountController(IAccountDomain accountDomain)
     {
-        _accountDomain = accountDomain;
+        _accountDomain = accountDomain ?? throw new ArgumentNullException(nameof(accountDomain));
     }
 
     [HttpPost("login")]
@@ -31,11 +31,11 @@ public class AccountController : BaseController
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpPost]
-    public IActionResult Create(CreateAccountViewModel createAccountViewModel)
+    public async Task<IActionResult> Create(CreateAccountViewModel createAccountViewModel)
     {
         try
         {
-            var result = _accountDomain.Create(createAccountViewModel);
+            var result = await _accountDomain.Create(createAccountViewModel);
             return Ok(result);
         }
         catch (Exception e)
@@ -46,12 +46,11 @@ public class AccountController : BaseController
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpPut("{id:guid}")]
-    public IActionResult Update(Guid id, UpdateAccountViewModel accountVm)
+    public async Task<IActionResult> Update(UpdateAccountViewModel updateAccountViewModel)
     {
         try
         {
-            accountVm.Id = id;
-            var result = _accountDomain.Update(accountVm);
+            var result = await _accountDomain.Update(updateAccountViewModel);
             return Ok(result);
         }
         catch (Exception e)
@@ -62,12 +61,11 @@ public class AccountController : BaseController
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpPut("{id:guid}/reset-password")]
-    public IActionResult UpdatePassword(Guid id, UpdatePasswordViewModel accountVm)
+    public async Task<IActionResult> UpdatePassword(UpdatePasswordViewModel updatePasswordViewModel)
     {
         try
         {
-            accountVm.Id = id;
-            var result = _accountDomain.UpdatePassword(accountVm);
+            var result = await _accountDomain.UpdatePassword(updatePasswordViewModel);
             return Ok(result);
         }
         catch (Exception e)
@@ -78,11 +76,11 @@ public class AccountController : BaseController
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpDelete("{id:guid}")]
-    public IActionResult DeactivateAccount(Guid id)
+    public async Task<IActionResult> DeactivateAccount(Guid id)
     {
         try
         {
-            var result = _accountDomain.Deactivate(id);
+            var result = await _accountDomain.Deactivate(id);
             return Ok(result);
         }
         catch (Exception e)
@@ -90,5 +88,51 @@ public class AccountController : BaseController
             return StatusCode(StatusCodes.Status500InternalServerError, new ResponseViewModel { Message = e.Message, Success = false });
         }
     }
+
+    [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
+    [HttpGet]
+    public async Task<IActionResult> GetListAccounts([FromQuery] BaseListQueryParameters parameters)
+    {
+        try
+        {
+            var result = await _accountDomain.GetListAccounts(parameters);
+            return Ok(result);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseViewModel { Message = e.Message, Success = false });
+        }
+    }
+
+    [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
+    [HttpGet("search")]
+    public async Task<IActionResult> SearchAccounts([FromQuery] BaseSearchParameters parameters)
+    {
+        try
+        {
+            var result = await _accountDomain.Search(parameters);
+            return Ok(result);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseViewModel { Message = e.Message, Success = false });
+        }
+    }
+
+    [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
+    [HttpGet("{id:guid}/details")]
+    public async Task<IActionResult> GetAccountDetails(Guid id)
+    {
+        try
+        {
+            var result = await _accountDomain.GetAccountById(id);
+            return Ok(result);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseViewModel { Message = e.Message, Success = false });
+        }
+    }
+
 }
 

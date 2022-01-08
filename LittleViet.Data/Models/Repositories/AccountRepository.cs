@@ -1,12 +1,13 @@
-﻿namespace LittleViet.Data.Models.Repositories;
+﻿using Microsoft.EntityFrameworkCore;
+namespace LittleViet.Data.Models.Repositories;
 
-public interface IAccountRepository
+public interface IAccountRepository : IBaseRepository<Account>
 {
     void Create(Account account);
     void Update(Account account);
     void DeactivateAccount(Account account);
-    Account GetActiveById(Guid id);
-    Account GetActiveByEmail(String email);
+    Task<Account> GetById(Guid id);
+    Account GetByEmail(String email);
 }
 
 internal class AccountRepository : BaseRepository<Account>, IAccountRepository
@@ -30,12 +31,12 @@ internal class AccountRepository : BaseRepository<Account>, IAccountRepository
         Deactivate(account);
     }
 
-    public Account GetActiveById(Guid id)
+    public Task<Account> GetById(Guid id)
     {
-        return DbSet().FirstOrDefault(q => q.Id == id);
+        return DbSet().FirstOrDefaultAsync(q => q.Id == id);
     }
 
-    public Account GetActiveByEmail(String email)
+    public Account GetByEmail(String email)
     {
         return DbSet().FirstOrDefault(q => q.Email == email);
     }
