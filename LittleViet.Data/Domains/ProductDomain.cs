@@ -23,8 +23,8 @@ internal class ProductDomain : BaseDomain, IProductDomain
     private readonly IMapper _mapper;
     public ProductDomain(IUnitOfWork uow, IProductRepository productRepository, IMapper mapper) : base(uow)
     {
-        _productRepository = productRepository;
-        _mapper = mapper;
+        _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
+        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     }
 
     public async Task<ResponseViewModel> Create(CreateProductViewModel createProductViewModel)

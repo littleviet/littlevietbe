@@ -24,8 +24,8 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
     private readonly IMapper _mapper;
     public ProductTypeDomain(IUnitOfWork uow, IProductTypeRepository productTypeRepository, IMapper mapper) : base(uow)
     {
-        _productTypeRepository = productTypeRepository;
-        _mapper = mapper;
+        _productTypeRepository = productTypeRepository ?? throw new ArgumentNullException(nameof(productTypeRepository));
+        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     }
 
     public async Task<ResponseViewModel> Create(CreateProductTypeViewModel createProductTypeViewModel)

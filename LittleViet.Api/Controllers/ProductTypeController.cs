@@ -12,7 +12,7 @@ public class ProductTypeController : BaseController
     private readonly IProductTypeDomain _productTypeDomain;
     public ProductTypeController(IProductTypeDomain productTypeDomain)
     {
-        _productTypeDomain = productTypeDomain;
+        _productTypeDomain = productTypeDomain ?? throw new ArgumentNullException(nameof(productTypeDomain));
     }
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
@@ -32,11 +32,10 @@ public class ProductTypeController : BaseController
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(Guid id, UpdateProductTypeViewModel productTypeVm)
+    public async Task<IActionResult> Update(UpdateProductTypeViewModel productTypeVm)
     {
         try
         {
-            productTypeVm.Id = id;
             var result = await _productTypeDomain.Update(productTypeVm);
             return Ok(result);
         }

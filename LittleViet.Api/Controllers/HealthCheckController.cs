@@ -42,7 +42,7 @@ public class HealthcheckController : BaseController
                 {
                     Message = "Database not reachable",
                     Success = false
-                }); ;
+                });
 
             }
         }

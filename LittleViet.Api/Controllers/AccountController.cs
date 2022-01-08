@@ -12,7 +12,7 @@ public class AccountController : BaseController
     private readonly IAccountDomain _accountDomain;
     public AccountController(IAccountDomain accountDomain)
     {
-        _accountDomain = accountDomain;
+        _accountDomain = accountDomain ?? throw new ArgumentNullException(nameof(accountDomain));
     }
 
     [HttpPost("login")]
@@ -31,11 +31,11 @@ public class AccountController : BaseController
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpPost]
-    public IActionResult Create(CreateAccountViewModel createAccountViewModel)
+    public async Task<IActionResult> Create(CreateAccountViewModel createAccountViewModel)
     {
         try
         {
-            var result = _accountDomain.Create(createAccountViewModel);
+            var result = await _accountDomain.Create(createAccountViewModel);
             return Ok(result);
         }
         catch (Exception e)
@@ -46,12 +46,11 @@ public class AccountController : BaseController
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpPut("{id:guid}")]
-    public IActionResult Update(Guid id, UpdateAccountViewModel updateAccountViewModel)
+    public async Task<IActionResult> Update(UpdateAccountViewModel updateAccountViewModel)
     {
         try
         {
-            updateAccountViewModel.Id = id;
-            var result = _accountDomain.Update(updateAccountViewModel);
+            var result = await _accountDomain.Update(updateAccountViewModel);
             return Ok(result);
         }
         catch (Exception e)
@@ -62,12 +61,11 @@ public class AccountController : BaseController
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpPut("{id:guid}/reset-password")]
-    public IActionResult UpdatePassword(Guid id, UpdatePasswordViewModel updatePasswordViewModel)
+    public async Task<IActionResult> UpdatePassword(Guid id, UpdatePasswordViewModel updatePasswordViewModel)
     {
         try
         {
-            updatePasswordViewModel.Id = id;
-            var result = _accountDomain.UpdatePassword(updatePasswordViewModel);
+            var result = await _accountDomain.UpdatePassword(updatePasswordViewModel);
             return Ok(result);
         }
         catch (Exception e)
@@ -78,11 +76,11 @@ public class AccountController : BaseController
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpDelete("{id:guid}")]
-    public IActionResult DeactivateAccount(Guid id)
+    public async Task<IActionResult> DeactivateAccount(Guid id)
     {
         try
         {
-            var result = _accountDomain.Deactivate(id);
+            var result = await _accountDomain.Deactivate(id);
             return Ok(result);
         }
         catch (Exception e)

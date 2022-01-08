@@ -12,16 +12,16 @@ public class ProductController : Controller
     private readonly IProductDomain _productDomain;
     public ProductController(IProductDomain productDomain)
     {
-        _productDomain = productDomain;
+        _productDomain = productDomain ?? throw new ArgumentNullException(nameof(productDomain));
     }
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpPost("")]
-    public IActionResult Create(CreateProductViewModel createProductViewModel)
+    public async Task<IActionResult> Create(CreateProductViewModel createProductViewModel)
     {
         try
         {
-            var result = _productDomain.Create(createProductViewModel);
+            var result = await _productDomain.Create(createProductViewModel);
             return Ok(result);
         }
         catch (Exception e)
@@ -32,12 +32,11 @@ public class ProductController : Controller
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpPut("{id:guid}")]
-    public IActionResult Update(Guid id, UpdateProductViewModel updateProductViewModel)
+    public async Task<IActionResult> Update(UpdateProductViewModel updateProductViewModel)
     {
         try
         {
-            updateProductViewModel.Id = id;
-            var result = _productDomain.Update(updateProductViewModel);
+            var result = await _productDomain.Update(updateProductViewModel);
             return Ok(result);
         }
         catch (Exception e)
@@ -48,11 +47,11 @@ public class ProductController : Controller
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpDelete("{id:guid}")]
-    public IActionResult DeactivateAccount(Guid id)
+    public async Task<IActionResult> DeactivateAccount(Guid id)
     {
         try
         {
-            var result = _productDomain.Deactivate(id);
+            var result = await _productDomain.Deactivate(id);
             return Ok(result);
         }
         catch (Exception e)

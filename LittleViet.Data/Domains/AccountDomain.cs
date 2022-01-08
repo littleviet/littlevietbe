@@ -34,9 +34,9 @@ public class AccountDomain : BaseDomain, IAccountDomain
 
     public AccountDomain(IUnitOfWork uow, IAccountRepository accountRepository, IMapper mapper, IConfiguration configuration) : base(uow)
     {
-        _accountRepository = accountRepository;
-        _mapper = mapper;
-        _configuration = configuration;
+        _accountRepository = accountRepository ?? throw new ArgumentNullException(nameof(accountRepository));
+        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
     }
 
     public ResponseViewModel Login(string email, string password)
