@@ -61,7 +61,7 @@ public class AccountController : BaseController
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpPut("{id:guid}/reset-password")]
-    public async Task<IActionResult> UpdatePassword(Guid id, UpdatePasswordViewModel updatePasswordViewModel)
+    public async Task<IActionResult> UpdatePassword(UpdatePasswordViewModel updatePasswordViewModel)
     {
         try
         {
