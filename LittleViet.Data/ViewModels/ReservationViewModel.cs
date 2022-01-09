@@ -1,4 +1,5 @@
 ﻿using LittleViet.Data.Models;
+using LittleViet.Data.ServiceHelper;
 
 namespace LittleViet.Data.ViewModels;
 
@@ -12,6 +13,10 @@ public class CreateReservationViewModel
     public string FurtherRequest { get; set; } 
     public int NoOfPeople { get; set; }
     public DateTime BookingDate { get; set; }
+
+    public ReservationStatus Status { get; set; }
+
+    public Guid AccountId { get; set; }
 }
 
 public class UpdateReservationViewModel

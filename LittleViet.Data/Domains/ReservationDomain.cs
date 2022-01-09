@@ -40,7 +40,8 @@ public class ReservationDomain : BaseDomain, IReservationDomain
             resevation.FurtherRequest = createReservationViewModel.FurtherRequest;
             resevation.BookingDate = createReservationViewModel.BookingDate;
             resevation.NoOfPeople = createReservationViewModel.NoOfPeople;
-            resevation.CreatedBy = createReservationViewModel.CreatedBy;
+            resevation.Status = createReservationViewModel.Status;
+            resevation.AccountId = createReservationViewModel.AccountId;
 
             _reservationRepository.Create(resevation);
             await _uow.SaveAsync();
@@ -68,14 +69,13 @@ public class ReservationDomain : BaseDomain, IReservationDomain
                 existedReservation.BookingDate = updateReservationViewModel.BookingDate;
                 existedReservation.FurtherRequest = updateReservationViewModel.FurtherRequest;
                 existedReservation.UpdatedBy = updateReservationViewModel.UpdatedBy;
+
+                _reservationRepository.Modify(existedReservation);
+                await _uow.SaveAsync();
+                return new ResponseViewModel { Success = true, Message = "Update successful" };
             }
-            
 
-            
-            _reservationRepository.Modify(existedReservation);
-            await _uow.SaveAsync();
-
-            return new ResponseViewModel { Success = true, Message = "Update successful" };
+            return new ResponseViewModel { Success = false, Message = "This product type does not exist" };
         } catch (Exception e)
         {
             return new ResponseViewModel { Success = false, Message= e.Message };
