@@ -17,7 +17,7 @@ public interface IProductTypeDomain
     Task<BaseListQueryResponseViewModel> GetListProductType(BaseListQueryParameters parameters);
     Task<BaseListQueryResponseViewModel> Search(BaseSearchParameters parameters);
 }
-internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
+public class ProductTypeDomain : BaseDomain, IProductTypeDomain
 {
     private readonly IProductTypeRepository _productTypeRepo;
     private readonly IMapper _mapper;

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LittleViet.Data.Models.Repositories;
 
-public interface IReservationRepository 
+public interface IReservationRepository : IBaseRepository<Reservation>
 {
     void Create(Reservation reservation);
 
@@ -11,7 +11,7 @@ public interface IReservationRepository
 
     void DeactivateReservation(Reservation reservation);
 
-    void GetById(Guid id);
+    Task<Reservation> GetById(Guid id);
 
 }
 internal class ReservationRepository : BaseRepository<Reservation>, IReservationRepository
@@ -38,7 +38,7 @@ internal class ReservationRepository : BaseRepository<Reservation>, IReservation
 
     public Task<Reservation> GetById(Guid id)
     {
-        return DbSet().FirstOrDefault<Reservation>(q => q.Id == id);
+        return DbSet().FirstOrDefaultAsync<Reservation>(q => q.Id == id);
     }
 
 }
