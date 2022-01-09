@@ -57,19 +57,22 @@ public class ReservationDomain : BaseDomain, IReservationDomain
     {
         try
         {
-            var reservation = _mapper.Map<Reservation>(updateReservationViewModel);
+            var existedReservation = await _reservationRepository.GetById(updateReservationViewModel.Id);
 
-            reservation.Id = updateReservationViewModel.Id;
-            reservation.Firstname = updateReservationViewModel.FirstName;
-            reservation.Lastname = updateReservationViewModel.LastName;
-            reservation.Email = updateReservationViewModel.Email;
-            reservation.NoOfPeople = updateReservationViewModel.NoOfPeople;
-            reservation.BookingDate = updateReservationViewModel.BookingDate;
-            reservation.FurtherRequest = updateReservationViewModel.FurtherRequest;
-            reservation.UpdatedBy = updateReservationViewModel.UpdatedBy;
+            if(existedReservation != null)
+            {
+                existedReservation.Firstname = updateReservationViewModel.FirstName;
+                existedReservation.Lastname = updateReservationViewModel.LastName;
+                existedReservation.Email = updateReservationViewModel.Email;
+                existedReservation.NoOfPeople = updateReservationViewModel.NoOfPeople;
+                existedReservation.BookingDate = updateReservationViewModel.BookingDate;
+                existedReservation.FurtherRequest = updateReservationViewModel.FurtherRequest;
+                existedReservation.UpdatedBy = updateReservationViewModel.UpdatedBy;
+            }
+            
 
             
-            _reservationRepository.Update(reservation);
+            _reservationRepository.Modify(existedReservation);
             await _uow.SaveAsync();
 
             return new ResponseViewModel { Success = true, Message = "Update successful" };

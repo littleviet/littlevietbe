@@ -22,7 +22,6 @@ public class ProductTypeController : BaseController
         try
         {
             var result = await _productTypeDomain.Create(productTypeVm);
-            var b = 1 + 1;
             return Ok(result);
         }
         catch (Exception e)
