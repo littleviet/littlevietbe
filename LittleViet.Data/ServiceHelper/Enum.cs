@@ -33,3 +33,9 @@ public enum OrderType
     TakeAway = 2
 }
 
+public enum CouponStatus
+{
+    Created = 1,
+    Expired = 2,
+    Used = 3
+}
