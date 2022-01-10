@@ -47,7 +47,7 @@ public class ServingController : Controller
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeactivateAccount(Guid id)
+    public async Task<IActionResult> Deactivate(Guid id)
     {
         try
         {

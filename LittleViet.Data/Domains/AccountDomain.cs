@@ -180,10 +180,16 @@ public class AccountDomain : BaseDomain, IAccountDomain
         try
         {
             var account = await _accountRepository.GetById(id);
-            _accountRepository.Deactivate(account);
+            
+            if(account != null)
+            {
+                _accountRepository.Deactivate(account);
 
-            await _uow.SaveAsync();
-            return new ResponseViewModel { Message = "Delete successful", Success = true };
+                await _uow.SaveAsync();
+                return new ResponseViewModel { Message = "Delete successful", Success = true };
+            }
+
+            return new ResponseViewModel { Success = false, Message = "This account does not exist" };
         }
         catch (Exception e)
         {

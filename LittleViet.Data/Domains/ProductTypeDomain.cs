@@ -87,10 +87,16 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
         try
         {
             var productType = await _productTypeRepository.GetById(id);
-            _productTypeRepository.Deactivate(productType);
 
-            await _uow.SaveAsync();
-            return new ResponseViewModel { Message = "Delete successful", Success = true };
+            if (productType != null)
+            {
+                _productTypeRepository.Deactivate(productType);
+
+                await _uow.SaveAsync();
+                return new ResponseViewModel { Message = "Delete successful", Success = true };
+            }
+
+            return new ResponseViewModel { Success = false, Message = "This product type does not exist" };
         }
         catch (Exception e)
         {
