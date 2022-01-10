@@ -14,7 +14,7 @@ public interface IProductTypeDomain
     Task<ResponseViewModel> Create(CreateProductTypeViewModel createProductTypeViewModel);
     Task<ResponseViewModel> Update(UpdateProductTypeViewModel updateProductTypeViewModel);
     Task<ResponseViewModel> Deactivate(Guid id);
-    Task<BaseListQueryResponseViewModel> GetListProductType(BaseListQueryParameters parameters);
+    Task<BaseListQueryResponseViewModel> GetListProductTypes(BaseListQueryParameters parameters);
     Task<BaseListQueryResponseViewModel> Search(BaseSearchParameters parameters);
     Task<ResponseViewModel> GetProductTypeById(Guid id);
 }
@@ -42,7 +42,7 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
             productType.CreatedDate = datetime;
             productType.UpdatedBy = createProductTypeViewModel.CreatedBy;
 
-            _productTypeRepository.Create(productType);
+            _productTypeRepository.Add(productType);
             await _uow.SaveAsync();
 
             return new ResponseViewModel { Success = true, Message = "Create successful" };
@@ -57,18 +57,18 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
     {
         try
         {
-            var existedProType = await _productTypeRepository.GetById(updateProductTypeViewModel.Id);
+            var existedProductType = await _productTypeRepository.GetById(updateProductTypeViewModel.Id);
 
-            if (existedProType != null)
+            if (existedProductType != null)
             {
-                existedProType.Name = updateProductTypeViewModel.Name;
-                existedProType.Description = updateProductTypeViewModel.Description;
-                existedProType.EsName = updateProductTypeViewModel.EsName;
-                existedProType.CaName = updateProductTypeViewModel.CaName;
-                existedProType.UpdatedDate = DateTime.UtcNow;
-                existedProType.UpdatedBy = existedProType.UpdatedBy;
+                existedProductType.Name = updateProductTypeViewModel.Name;
+                existedProductType.Description = updateProductTypeViewModel.Description;
+                existedProductType.EsName = updateProductTypeViewModel.EsName;
+                existedProductType.CaName = updateProductTypeViewModel.CaName;
+                existedProductType.UpdatedDate = DateTime.UtcNow;
+                existedProductType.UpdatedBy = existedProductType.UpdatedBy;
 
-                _productTypeRepository.Modify(existedProType);
+                _productTypeRepository.Modify(existedProductType);
                 await _uow.SaveAsync();
 
                 return new ResponseViewModel { Success = true, Message = "Update successful" };
@@ -87,7 +87,7 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
         try
         {
             var productType = await _productTypeRepository.GetById(id);
-            _productTypeRepository.DeactivateProductType(productType);
+            _productTypeRepository.Deactivate(productType);
 
             await _uow.SaveAsync();
             return new ResponseViewModel { Message = "Delete successful", Success = true };
@@ -98,7 +98,7 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
         }
     }
 
-    public async Task<BaseListQueryResponseViewModel> GetListProductType(BaseListQueryParameters parameters)
+    public async Task<BaseListQueryResponseViewModel> GetListProductTypes(BaseListQueryParameters parameters)
     {
         try
         {

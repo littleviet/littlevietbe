@@ -2,10 +2,12 @@
 
 namespace LittleViet.Data.Models;
 
-internal class Order : AuditableEntity
+public class Order : AuditableEntity
 {
     public OrderType OrderType { get; set; }
     public double TotalPrice { get; set; }
-    public int PaymentType { get; set; }
+    public PaymentType PaymentType { get; set; }
     public DateTime PickupTime { get; set; }
+
+    public virtual ICollection<OrderDetail> OrderDetails { get; set; }
 }

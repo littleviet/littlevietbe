@@ -66,7 +66,7 @@ public class ProductTypeController : BaseController
     {
         try
         {
-            var result = await _productTypeDomain.GetListProductType(parameters);
+            var result = await _productTypeDomain.GetListProductTypes(parameters);
             return Ok(result);
         }
         catch (Exception e)

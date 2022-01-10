@@ -41,7 +41,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
             product.CreatedDate = datetime;
             product.UpdatedBy = createProductViewModel.CreatedBy;
 
-            _productRepository.Create(product);
+            _productRepository.Add(product);
             await _uow.SaveAsync();
 
             return new ResponseViewModel { Success = true, Message = "Create successful" };
@@ -56,21 +56,21 @@ internal class ProductDomain : BaseDomain, IProductDomain
     {
         try
         {
-            var existedPro = await _productRepository.GetById(updateProductViewModel.Id);
+            var existedProduct = await _productRepository.GetById(updateProductViewModel.Id);
 
-            if (existedPro != null)
+            if (existedProduct != null)
             {
-                existedPro.Price = updateProductViewModel.Price;
-                existedPro.ProductTypeId = updateProductViewModel.ProductTypeId;
-                existedPro.Name = updateProductViewModel.Name;
-                existedPro.Description = updateProductViewModel.Description;
-                existedPro.EsName = updateProductViewModel.EsName;
-                existedPro.CaName = updateProductViewModel.CaName;
-                existedPro.Status = updateProductViewModel.Status;
-                existedPro.UpdatedDate = DateTime.UtcNow;
-                existedPro.UpdatedBy = updateProductViewModel.UpdatedBy;
+                existedProduct.Price = updateProductViewModel.Price;
+                existedProduct.ProductTypeId = updateProductViewModel.ProductTypeId;
+                existedProduct.Name = updateProductViewModel.Name;
+                existedProduct.Description = updateProductViewModel.Description;
+                existedProduct.EsName = updateProductViewModel.EsName;
+                existedProduct.CaName = updateProductViewModel.CaName;
+                existedProduct.Status = updateProductViewModel.Status;
+                existedProduct.UpdatedDate = DateTime.UtcNow;
+                existedProduct.UpdatedBy = updateProductViewModel.UpdatedBy;
 
-                _productRepository.Modify(existedPro);
+                _productRepository.Modify(existedProduct);
                 await _uow.SaveAsync();
 
                 return new ResponseViewModel { Success = true, Message = "Update successful" };
@@ -89,7 +89,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
         try
         {
             var product = await _productRepository.GetById(id);
-            _productRepository.DeactivateProduct(product);
+            _productRepository.Deactivate(product);
 
             await _uow.SaveAsync();
             return new ResponseViewModel { Message = "Delete successful", Success = true };
