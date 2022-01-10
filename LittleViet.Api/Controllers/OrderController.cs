@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LittleViet.Api.Controllers;
 
-[Route("api/order")]
+[Route("api/[controller]")]
 [ApiController]
 public class OrderController : Controller
 {

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LittleViet.Api.Controllers;
 
-[Route("api/serving")]
+[Route("api/[controller]")]
 [ApiController]
 public class ServingController : Controller
 {
