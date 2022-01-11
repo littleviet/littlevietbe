@@ -1,8 +1,6 @@
-﻿using AutoMapper;
-using LittleViet.Data.Models.Global;
+﻿using LittleViet.Data.Models.Global;
 using LittleViet.Data.Models.Repositories;
 using LittleViet.Data.ViewModels;
-using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
 namespace LittleViet.Data.Domains;

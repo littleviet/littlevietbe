@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LittleViet.Api.Controllers;
 
-[Route("api/landing-page")]
+[Route("api/[controller]")]
 [ApiController]
 public class LandingPageController : BaseController
 {

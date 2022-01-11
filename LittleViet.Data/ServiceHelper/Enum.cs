@@ -33,3 +33,9 @@ public enum OrderType
     TakeAway = 2
 }
 
+public enum PaymentType
+{
+    Cash = 1,
+    Coupon = 2,
+    Wallet = 3
+}

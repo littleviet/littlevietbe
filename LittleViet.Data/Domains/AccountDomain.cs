@@ -96,7 +96,7 @@ public class AccountDomain : BaseDomain, IAccountDomain
             account.CreatedDate = datetime;
             account.UpdatedBy = createAccountViewModel.CreatedBy;
 
-            _accountRepository.Create(account);
+            _accountRepository.Add(account);
             await _uow.SaveAsync();
 
             return new ResponseViewModel { Success = true, Message = "Create successful" };
@@ -125,7 +125,7 @@ public class AccountDomain : BaseDomain, IAccountDomain
                 existedAccount.UpdatedDate = DateTime.UtcNow;
                 existedAccount.UpdatedBy = existedAccount.UpdatedBy;
 
-                _accountRepository.Update(existedAccount);
+                _accountRepository.Modify(existedAccount);
                 await _uow.SaveAsync();
 
                 return new ResponseViewModel { Success = true, Message = "Update successful" };
@@ -158,7 +158,7 @@ public class AccountDomain : BaseDomain, IAccountDomain
 
                     existedAccount.Password = BCryptNet.HashPassword(updatePasswordViewModel.NewPassword);
 
-                    _accountRepository.Update(existedAccount);
+                    _accountRepository.Modify(existedAccount);
                     await _uow.SaveAsync();
 
                     return new ResponseViewModel { Success = true, Message = "Update successful" };
@@ -180,10 +180,16 @@ public class AccountDomain : BaseDomain, IAccountDomain
         try
         {
             var account = await _accountRepository.GetById(id);
-            _accountRepository.DeactivateAccount(account);
+            
+            if(account != null)
+            {
+                _accountRepository.Deactivate(account);
 
-            await _uow.SaveAsync();
-            return new ResponseViewModel { Message = "Delete successful", Success = true };
+                await _uow.SaveAsync();
+                return new ResponseViewModel { Message = "Delete successful", Success = true };
+            }
+
+            return new ResponseViewModel { Success = false, Message = "This account does not exist" };
         }
         catch (Exception e)
         {
