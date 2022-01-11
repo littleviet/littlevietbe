@@ -73,6 +73,11 @@ public static partial class StartupConfiguration
             cfg.CreateMap<Product, UpdateProductViewModel>().ReverseMap();
             cfg.CreateMap<Product, ProductsLandingPageViewModel>().ReverseMap();
             cfg.CreateMap<Coupon, CreateCouponViewModel>().ReverseMap();
+            cfg.CreateMap<Order, CreateOrderViewModel>().ReverseMap();
+            cfg.CreateMap<Order, UpdateOrderViewModel>().ReverseMap();
+            cfg.CreateMap<OrderDetail, CreateOrderDetailViewModel>().ReverseMap();
+            cfg.CreateMap<Serving, CreateServingViewModel>().ReverseMap();
+            cfg.CreateMap<Serving, UpdateServingViewModel>().ReverseMap();
         });
 
         ConfigureAutomapper();

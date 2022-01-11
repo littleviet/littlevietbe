@@ -47,7 +47,7 @@ public class ProductTypeController : BaseController
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeactivateAccount(Guid id)
+    public async Task<IActionResult> Deactivate(Guid id)
     {
         try
         {
@@ -66,7 +66,7 @@ public class ProductTypeController : BaseController
     {
         try
         {
-            var result = await _productTypeDomain.GetListProductType(parameters);
+            var result = await _productTypeDomain.GetListProductTypes(parameters);
             return Ok(result);
         }
         catch (Exception e)

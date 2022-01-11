@@ -39,3 +39,10 @@ public enum CouponStatus
     Expired = 2,
     Used = 3
 }
+
+public enum PaymentType
+{
+    Cash = 1,
+    Coupon = 2,
+    Wallet = 3
+}

@@ -1,8 +1,6 @@
-﻿using LittleViet.Data.ServiceHelper;
+﻿namespace LittleViet.Data.Models;
 
-namespace LittleViet.Data.Models;
-
-internal class Serving : AuditableEntity
+public class Serving : AuditableEntity
 {
     public Guid ProductId { get; set; }
     public Product Product { get; set; }

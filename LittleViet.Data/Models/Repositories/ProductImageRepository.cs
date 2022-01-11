@@ -8,6 +8,5 @@ internal class ProductImageRepository : BaseRepository<ProductImage>, IProductIm
 {
     public ProductImageRepository(LittleVietContext context) : base(context)
     {
-
     }
 }

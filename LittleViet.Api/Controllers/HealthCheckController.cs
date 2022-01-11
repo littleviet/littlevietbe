@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LittleViet.Api.Controllers;
 
-[Route("api/healthcheck")]
+[Route("api/[controller]")]
 [ApiController]
 public class HealthcheckController : BaseController
 {
