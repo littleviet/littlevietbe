@@ -1,13 +1,10 @@
 ﻿using LittleViet.Data.Models;
-using System.Data.Entity;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using LittleViet.Data.ViewModels;
-using System.Net;
+using Microsoft.AspNetCore.Mvc;
 
 namespace LittleViet.Api.Controllers;
 
-[Route("api/healthcheck")]
+[Route("api/[controller]")]
 [ApiController]
 public class HealthcheckController : BaseController
 {
@@ -45,7 +42,7 @@ public class HealthcheckController : BaseController
                 {
                     Message = "Database not reachable",
                     Success = false
-                });;
+                });
 
             }
         }

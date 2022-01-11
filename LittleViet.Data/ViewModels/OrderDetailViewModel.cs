@@ -1,8 +1,8 @@
-﻿using LittleViet.Data.Models;
+﻿namespace LittleViet.Data.ViewModels;
 
-namespace LittleViet.Data.ViewModels;
-
-internal class OrderDetailViewModel : OrderDetail
+public class CreateOrderDetailViewModel
 {
+    public Guid ServingId { get; set; }
+    public double Amount { get; set; }
+    public double Price { get; set; }
 }
-

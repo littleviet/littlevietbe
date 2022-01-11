@@ -2,8 +2,8 @@
 using LittleViet.Data.Models;
 using LittleViet.Data.Models.Global;
 using LittleViet.Data.Models.Repositories;
-using LittleViet.Data.ViewModels;
 using LittleViet.Data.ServiceHelper;
+using LittleViet.Data.ViewModels;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -11,20 +11,21 @@ namespace LittleViet.Data.Domains;
 
 public interface IProductTypeDomain
 {
-    Task<ResponseViewModel> Create(CreateProductTypeViewModel productTypeVm);
-    Task<ResponseViewModel> Update(UpdateProductTypeViewModel productTypeVm);
+    Task<ResponseViewModel> Create(CreateProductTypeViewModel createProductTypeViewModel);
+    Task<ResponseViewModel> Update(UpdateProductTypeViewModel updateProductTypeViewModel);
     Task<ResponseViewModel> Deactivate(Guid id);
-    Task<BaseListQueryResponseViewModel> GetListProductType(BaseListQueryParameters parameters);
+    Task<BaseListQueryResponseViewModel> GetListProductTypes(BaseListQueryParameters parameters);
     Task<BaseListQueryResponseViewModel> Search(BaseSearchParameters parameters);
+    Task<ResponseViewModel> GetProductTypeById(Guid id);
 }
 public class ProductTypeDomain : BaseDomain, IProductTypeDomain
 {
-    private readonly IProductTypeRepository _productTypeRepo;
+    private readonly IProductTypeRepository _productTypeRepository;
     private readonly IMapper _mapper;
     public ProductTypeDomain(IUnitOfWork uow, IProductTypeRepository productTypeRepository, IMapper mapper) : base(uow)
     {
-        _productTypeRepo = productTypeRepository;
-        _mapper = mapper;
+        _productTypeRepository = productTypeRepository ?? throw new ArgumentNullException(nameof(productTypeRepository));
+        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     }
 
     public async Task<ResponseViewModel> Create(CreateProductTypeViewModel createProductTypeViewModel)
@@ -41,7 +42,7 @@ public class ProductTypeDomain : BaseDomain, IProductTypeDomain
             productType.CreatedDate = datetime;
             productType.UpdatedBy = createProductTypeViewModel.CreatedBy;
 
-            _productTypeRepo.Create(productType);
+            _productTypeRepository.Add(productType);
             await _uow.SaveAsync();
 
             return new ResponseViewModel { Success = true, Message = "Create successful" };
@@ -56,18 +57,18 @@ public class ProductTypeDomain : BaseDomain, IProductTypeDomain
     {
         try
         {
-            var existedProType = await _productTypeRepo.GetById(updateProductTypeViewModel.Id);
+            var existedProductType = await _productTypeRepository.GetById(updateProductTypeViewModel.Id);
 
-            if (existedProType != null)
+            if (existedProductType != null)
             {
-                existedProType.Name = updateProductTypeViewModel.Name;
-                existedProType.Description = updateProductTypeViewModel.Description;
-                existedProType.EsName = updateProductTypeViewModel.EsName;
-                existedProType.CaName = updateProductTypeViewModel.CaName;
-                existedProType.UpdatedDate = DateTime.UtcNow;
-                existedProType.UpdatedBy = existedProType.UpdatedBy;
+                existedProductType.Name = updateProductTypeViewModel.Name;
+                existedProductType.Description = updateProductTypeViewModel.Description;
+                existedProductType.EsName = updateProductTypeViewModel.EsName;
+                existedProductType.CaName = updateProductTypeViewModel.CaName;
+                existedProductType.UpdatedDate = DateTime.UtcNow;
+                existedProductType.UpdatedBy = existedProductType.UpdatedBy;
 
-                _productTypeRepo.Modify(existedProType);
+                _productTypeRepository.Modify(existedProductType);
                 await _uow.SaveAsync();
 
                 return new ResponseViewModel { Success = true, Message = "Update successful" };
@@ -85,11 +86,17 @@ public class ProductTypeDomain : BaseDomain, IProductTypeDomain
     {
         try
         {
-            var productType = await _productTypeRepo.GetById(id);
-            _productTypeRepo.DeactivateProductType(productType);
+            var productType = await _productTypeRepository.GetById(id);
 
-            await _uow.SaveAsync();
-            return new ResponseViewModel { Message = "Delete successful", Success = true };
+            if (productType != null)
+            {
+                _productTypeRepository.Deactivate(productType);
+
+                await _uow.SaveAsync();
+                return new ResponseViewModel { Message = "Delete successful", Success = true };
+            }
+
+            return new ResponseViewModel { Success = false, Message = "This product type does not exist" };
         }
         catch (Exception e)
         {
@@ -97,15 +104,15 @@ public class ProductTypeDomain : BaseDomain, IProductTypeDomain
         }
     }
 
-    public async Task<BaseListQueryResponseViewModel> GetListProductType(BaseListQueryParameters parameters)
+    public async Task<BaseListQueryResponseViewModel> GetListProductTypes(BaseListQueryParameters parameters)
     {
         try
         {
-            var productTypes = _productTypeRepo.DbSet().AsNoTracking();
+            var productTypes = _productTypeRepository.DbSet().AsNoTracking();
 
             return new BaseListQueryResponseViewModel
             {
-                Payload = await productTypes.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber).ToListAsync(), 
+                Payload = await productTypes.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber).ToListAsync(),
                 Success = true,
                 Total = await productTypes.CountAsync(),
                 PageNumber = parameters.PageNumber,
@@ -117,17 +124,18 @@ public class ProductTypeDomain : BaseDomain, IProductTypeDomain
             return new BaseListQueryResponseViewModel { Success = false, Message = e.Message };
         }
     }
-    
+
     public async Task<BaseListQueryResponseViewModel> Search(BaseSearchParameters parameters)
     {
         try
         {
-            var productTypes = _productTypeRepo.DbSet().AsNoTracking()
-                .Where(p => p.Name.Contains(parameters.Keyword) || p.CaName.Contains(parameters.Keyword) || p.EsName.Contains(parameters.Keyword));
+            var keyword = parameters.Keyword.ToLower();
+            var productTypes = _productTypeRepository.DbSet().AsNoTracking()
+                .Where(p => p.Name.ToLower().Contains(keyword) || p.CaName.ToLower().Contains(keyword) || p.EsName.ToLower().Contains(keyword));
 
             return new BaseListQueryResponseViewModel
             {
-                Payload = await productTypes.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber).ToListAsync(), 
+                Payload = await productTypes.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber).ToListAsync(),
                 Success = true,
                 Total = await productTypes.CountAsync(),
                 PageNumber = parameters.PageNumber,
@@ -137,6 +145,25 @@ public class ProductTypeDomain : BaseDomain, IProductTypeDomain
         catch (Exception e)
         {
             return new BaseListQueryResponseViewModel { Success = false, Message = e.Message };
+        }
+    }
+
+    public async Task<ResponseViewModel> GetProductTypeById(Guid id)
+    {
+        try
+        {
+            var productType = await _productTypeRepository.GetById(id);
+
+            if (productType == null)
+            {
+                return new ResponseViewModel { Success = false, Message = "This product type does not exist" };
+            }
+
+            return new ResponseViewModel { Success = true, Payload = productType };
+        }
+        catch (Exception e)
+        {
+            return new ResponseViewModel { Success = false, Message = e.Message };
         }
     }
 }

@@ -15,8 +15,8 @@ public static partial class StartupConfiguration
     private static List<Action<IMapperConfigurationExpression>> MapperConfigs
         = new List<Action<IMapperConfigurationExpression>>();
 
-    
-    
+
+
     private static void ConfigureAutomapper()
     {
         var mapConfig = new MapperConfiguration(cfg =>
@@ -74,6 +74,12 @@ public static partial class StartupConfiguration
             cfg.CreateMap<Product, ProductsLandingPageViewModel>().ReverseMap();
             cfg.CreateMap<Reservation, CreateReservationViewModel>().ReverseMap();
             cfg.CreateMap<Reservation, UpdateReservationViewModel>().ReverseMap();
+            cfg.CreateMap<Coupon, CreateCouponViewModel>().ReverseMap();
+            cfg.CreateMap<Order, CreateOrderViewModel>().ReverseMap();
+            cfg.CreateMap<Order, UpdateOrderViewModel>().ReverseMap();
+            cfg.CreateMap<OrderDetail, CreateOrderDetailViewModel>().ReverseMap();
+            cfg.CreateMap<Serving, CreateServingViewModel>().ReverseMap();
+            cfg.CreateMap<Serving, UpdateServingViewModel>().ReverseMap();
         });
 
         ConfigureAutomapper();
