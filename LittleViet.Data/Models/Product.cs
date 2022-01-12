@@ -8,7 +8,7 @@ public class Product : AuditableEntity
     public string EsName { get; set; }
     public string CaName { get; set; }
     public string Description { get; set; }
-    public ProductSatus Status { get; set; }
+    public ProductStatus Status { get; set; }
     public double Price { get; set; }
     public Guid ProductTypeId { get; set; }
 
