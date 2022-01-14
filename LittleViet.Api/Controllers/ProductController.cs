@@ -60,6 +60,7 @@ public class ProductController : Controller
         }
     }
 
+    [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpGet]
     public async Task<IActionResult> GetListProducts([FromQuery] BaseListQueryParameters parameters)
     {
@@ -74,6 +75,7 @@ public class ProductController : Controller
         }
     }
 
+    [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpGet("search")]
     public async Task<IActionResult> SearchProducts([FromQuery] BaseSearchParameters parameters)
     {
@@ -88,12 +90,27 @@ public class ProductController : Controller
         }
     }
 
+    [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpGet("{id:guid}/details")]
     public async Task<IActionResult> GetProductDetails(Guid id)
     {
         try
         {
             var result = await _productDomain.GetProductById(id);
+            return Ok(result);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseViewModel { Message = e.Message, Success = false });
+        }
+    }
+
+    [HttpGet("menu")]
+    public IActionResult GetProductsMenu()
+    {
+        try
+        {
+            var result = _productDomain.GetProductsMenu();
             return Ok(result);
         }
         catch (Exception e)
