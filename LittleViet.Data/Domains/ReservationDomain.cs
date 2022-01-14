@@ -41,7 +41,6 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
             resevation.UpdatedBy = createReservationViewModel.AccountId;
             resevation.IsDeleted = false;
             resevation.Status = ReservationStatus.Reserved;
-            
 
             _reservationRepository.Add(resevation);
             await _uow.SaveAsync();
@@ -91,8 +90,8 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
         try
         {
             var reservation = await _reservationRepository.GetById(Id);
-            
-            if(reservation != null)
+
+            if (reservation != null)
             {
                 _reservationRepository.Deactivate(reservation);
                 await _uow.SaveAsync();
@@ -113,7 +112,7 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
         try
         {
             var reservations = _reservationRepository.DbSet().AsNoTracking()
-                .Where(p => p.Firstname.Contains(parameters.Keyword) || p.PhoneNumber.Contains(parameters.Keyword) 
+                .Where(p => p.Firstname.Contains(parameters.Keyword) || p.PhoneNumber.Contains(parameters.Keyword)
                 || p.Email.Contains(parameters.Keyword) || p.Lastname.Contains(parameters.Keyword) || p.PhoneNumber.Contains(parameters.Keyword));
 
             return new BaseListQueryResponseViewModel

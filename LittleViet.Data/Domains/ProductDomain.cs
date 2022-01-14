@@ -33,7 +33,6 @@ internal class ProductDomain : BaseDomain, IProductDomain
         try
         {
             var product = _mapper.Map<Product>(createProductViewModel);
-
             var datetime = DateTime.UtcNow;
 
             product.Id = Guid.NewGuid();
@@ -90,8 +89,8 @@ internal class ProductDomain : BaseDomain, IProductDomain
         try
         {
             var product = await _productRepository.GetById(id);
-            
-            if(product != null)
+
+            if (product != null)
             {
                 _productRepository.Deactivate(product);
 

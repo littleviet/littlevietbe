@@ -10,7 +10,6 @@ internal class ReservationRepository : BaseRepository<Reservation>, IReservation
 {
     public ReservationRepository(LittleVietContext context) : base(context)
     {
-
     }
 
     public Task<Reservation> GetById(Guid id)

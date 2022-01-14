@@ -17,7 +17,6 @@ public class ReservationController : Controller
         _resevationDomain = reservationDomain;
     }
 
-    [Authorize]
     [HttpPost("")]
     public async Task<IActionResult> Create(CreateReservationViewModel reservationViewModel)
     {
@@ -62,7 +61,7 @@ public class ReservationController : Controller
         }
     }
 
-    [AuthorizeRoles(Role.ADMIN, Role.MANAGER, Role.UNAUTHORIZED, Role.AUTHORIZED)]
+    [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpGet]
     public async Task<IActionResult> GetListReservations([FromQuery] BaseListQueryParameters parameters)
     {
@@ -77,7 +76,7 @@ public class ReservationController : Controller
         }
     }
 
-    [AuthorizeRoles(Role.ADMIN, Role.MANAGER, Role.UNAUTHORIZED, Role.AUTHORIZED)]
+    [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpGet("search")]
     public async Task<IActionResult> SearchReservations([FromQuery] BaseSearchParameters parameters)
     {
@@ -94,7 +93,7 @@ public class ReservationController : Controller
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpGet("{id:guid}/details")]
-    public async Task<IActionResult> GetProductTypeDetails(Guid id)
+    public async Task<IActionResult> GetReservationDetails(Guid id)
     {
         try
         {
