@@ -6,9 +6,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using LittleViet.Infrastructure.Configurations;
+using LittleViet.Infrastructure.Middleware;
+using LittleViet.Infrastructure.Swagger;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.AddConfigurations();
 
 builder.Services.AddDbContext<LittleVietContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("LittleVietContext")));
@@ -20,41 +25,11 @@ builder.Services.AddControllers(options =>
     options.Conventions.Add(new RouteTokenTransformerConvention(new SlugifyParameterTransformer()));
 });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-
-// configure jwt authentication
-builder.Services.AddSwaggerGen(c =>
-{
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        In = ParameterLocation.Header,
-        Description = "Please insert JWT with Bearer into field",
-        Name = "Authorization",
-        Type = SecuritySchemeType.ApiKey
-    });
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            new[]
-            {
-                "Bearer"
-            }
-        }
-    });
-    c.UseInlineDefinitionsForEnums();
-});
+builder.Services.AddEndpointsApiExplorer()
+    .AddApplicationSwagger();
 
 var appSettingsSection = builder.Configuration.GetSection("AppSettings");
 builder.Services.Configure<AppSettings>(appSettingsSection);
-
 
 var appSettings = appSettingsSection.Get<AppSettings>();
 var key = Encoding.ASCII.GetBytes(appSettings.Secret);
@@ -76,24 +51,10 @@ builder.Services.AddAuthentication(x =>
         };
     });
 
-StartupConfiguration.Configure(builder.Services);
+builder.Services.ConfigureLegacy();
 
 var app = builder.Build();
 
-app.UseSwagger();
-app.UseSwaggerUI();
-
-app.UseCors(x => x
-    .AllowAnyOrigin()
-    .AllowAnyMethod()
-    .AllowAnyHeader());
-
-app.UseAuthentication();
-
-app.UseAuthorization();
-
-app.UseHttpsRedirection();
-
-app.MapControllers();
+app.AddAppMiddleware();
 
 app.Run();

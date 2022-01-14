@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\LittleViet.Data\LittleViet.Data.csproj" />
+    <ProjectReference Include="..\LittleViet.Infrastructure\LittleViet.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

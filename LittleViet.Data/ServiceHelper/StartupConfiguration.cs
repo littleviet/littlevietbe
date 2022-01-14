@@ -31,7 +31,7 @@ public static partial class StartupConfiguration
 
     }
 
-    private static void ConfigureIoC(IServiceCollection services)
+    private static IServiceCollection ConfigureIoC(this IServiceCollection services)
     {
         services.AddScoped<UnitOfWork>()
             .AddScoped<IUnitOfWork, UnitOfWork>()
@@ -56,9 +56,11 @@ public static partial class StartupConfiguration
             .AddScoped<ILandingPageDomain, LandingPageDomain>()
             .AddScoped<IReservationDomain, ReservationDomain>()
             .AddScoped<IServingDomain, ServingDomain>();
+
+        return services;
     }
 
-    public static void Configure(IServiceCollection services)
+    public static IServiceCollection ConfigureLegacy(this IServiceCollection services)
     {
         MapperConfigs.Add(cfg =>
         {
@@ -83,8 +85,8 @@ public static partial class StartupConfiguration
         ConfigureAutomapper();
         services.AddSingleton(Mapper);
         services.AddDbContext<LittleVietContext>();
-        ConfigureIoC(services);
-
+        services.ConfigureIoC();
+        return services;
     }
 }
 
