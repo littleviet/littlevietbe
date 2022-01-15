@@ -4,7 +4,7 @@ namespace LittleViet.Infrastructure.Middleware;
 
 public static class StartupMiddlewareExtensions
 {
-    public static WebApplication AddAppMiddleware(this WebApplication webApplication)
+    public static WebApplication UseAppMiddlewares(this WebApplication webApplication)
     {
         webApplication.UseSwagger()
             .UseSwaggerUI();

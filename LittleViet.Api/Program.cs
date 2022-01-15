@@ -55,6 +55,6 @@ builder.Services.ConfigureLegacy();
 
 var app = builder.Build();
 
-app.AddAppMiddleware();
+app.UseAppMiddlewares();
 
 app.Run();
