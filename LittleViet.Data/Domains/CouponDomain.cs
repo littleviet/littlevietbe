@@ -49,7 +49,7 @@ internal class CouponDomain : BaseDomain, ICouponDomain
         }
         catch (Exception e)
         {
-            return new ResponseViewModel { Success = false, Message = e.Message };
+            throw;
         }
     }
 
@@ -76,7 +76,7 @@ internal class CouponDomain : BaseDomain, ICouponDomain
         }
         catch (Exception e)
         {
-            return new ResponseViewModel { Success = false, Message = e.Message };
+            throw;
         }
     }
 
@@ -97,7 +97,7 @@ internal class CouponDomain : BaseDomain, ICouponDomain
         }
         catch (Exception e)
         {
-            return new ResponseViewModel { Success = false, Message = e.Message };
+            throw;
         }
     }
 
@@ -120,7 +120,7 @@ internal class CouponDomain : BaseDomain, ICouponDomain
         }
         catch (Exception e)
         {
-            return new ResponseViewModel { Success = false, Message = e.Message };
+            throw;
         }
     }
 
@@ -141,7 +141,7 @@ internal class CouponDomain : BaseDomain, ICouponDomain
         }
         catch (Exception e)
         {
-            return new BaseListQueryResponseViewModel { Success = false, Message = e.Message };
+            throw;
         }
     }
 
@@ -160,12 +160,13 @@ internal class CouponDomain : BaseDomain, ICouponDomain
         }
         catch (Exception e)
         {
-            return new ResponseViewModel { Success = false, Message = e.Message };
+            throw;
         }
     }
 
     private string GenerateCouponCode()
     {
+        //TODO: fix this logic for collision
         var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         var random = new Random();
         var result = new string(
