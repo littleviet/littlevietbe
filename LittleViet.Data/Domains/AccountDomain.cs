@@ -71,7 +71,7 @@ public class AccountDomain : BaseDomain, IAccountDomain
         }
         catch (Exception e)
         {
-            return new ResponseViewModel { Success = false, Message = e.Message };
+            throw;
         }
     }
 
@@ -103,7 +103,7 @@ public class AccountDomain : BaseDomain, IAccountDomain
         }
         catch (Exception e)
         {
-            return new ResponseViewModel { Success = false, Message = e.Message };
+            throw;
         }
     }
 
@@ -131,11 +131,11 @@ public class AccountDomain : BaseDomain, IAccountDomain
                 return new ResponseViewModel { Success = true, Message = "Update successful" };
             }
 
-            return new ResponseViewModel { Success = false, Message = "This account does not exist" };
+            throw new Exception("This account does not exist");
         }
         catch (Exception e)
         {
-            return new ResponseViewModel { Success = false, Message = e.Message };
+            throw;
         }
     }
 
@@ -171,7 +171,7 @@ public class AccountDomain : BaseDomain, IAccountDomain
         }
         catch (Exception e)
         {
-            return new ResponseViewModel { Success = false, Message = e.Message };
+            throw;
         }
     }
 
@@ -193,7 +193,7 @@ public class AccountDomain : BaseDomain, IAccountDomain
         }
         catch (Exception e)
         {
-            return new ResponseViewModel { Success = false, Message = e.Message };
+            throw;
         }
     }
 
@@ -216,7 +216,7 @@ public class AccountDomain : BaseDomain, IAccountDomain
         }
         catch (Exception e)
         {
-            return new BaseListQueryResponseViewModel { Success = false, Message = e.Message };
+            throw;
         }
     }
 
@@ -242,7 +242,7 @@ public class AccountDomain : BaseDomain, IAccountDomain
         }
         catch (Exception e)
         {
-            return new BaseListQueryResponseViewModel { Success = false, Message = e.Message };
+            throw;
         }
     }
 
@@ -261,7 +261,7 @@ public class AccountDomain : BaseDomain, IAccountDomain
         }
         catch (Exception e)
         {
-            return new ResponseViewModel { Success = false, Message = e.Message };
+            throw;
         }
     }
 }

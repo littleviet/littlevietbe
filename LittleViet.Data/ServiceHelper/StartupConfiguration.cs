@@ -80,6 +80,8 @@ public static partial class StartupConfiguration
             cfg.CreateMap<OrderDetail, CreateOrderDetailViewModel>().ReverseMap();
             cfg.CreateMap<Serving, CreateServingViewModel>().ReverseMap();
             cfg.CreateMap<Serving, UpdateServingViewModel>().ReverseMap();
+            cfg.CreateMap<Reservation, CreateReservationViewModel>().ReverseMap();
+            cfg.CreateMap<Reservation, UpdateReservationViewModel>().ReverseMap();
         });
 
         ConfigureAutomapper();

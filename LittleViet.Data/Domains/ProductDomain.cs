@@ -16,6 +16,7 @@ public interface IProductDomain
     Task<BaseListQueryResponseViewModel> GetListProducts(BaseListQueryParameters parameters);
     Task<BaseListQueryResponseViewModel> Search(BaseSearchParameters parameters);
     Task<ResponseViewModel> GetProductById(Guid id);
+    ResponseViewModel GetProductsMenu();
 }
 internal class ProductDomain : BaseDomain, IProductDomain
 {
@@ -32,7 +33,6 @@ internal class ProductDomain : BaseDomain, IProductDomain
         try
         {
             var product = _mapper.Map<Product>(createProductViewModel);
-
             var datetime = DateTime.UtcNow;
 
             product.Id = Guid.NewGuid();
@@ -48,7 +48,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
         }
         catch (Exception e)
         {
-            return new ResponseViewModel { Success = false, Message = e.Message };
+            throw;
         }
     }
 
@@ -80,7 +80,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
         }
         catch (Exception e)
         {
-            return new ResponseViewModel { Success = false, Message = e.Message };
+            throw;
         }
     }
 
@@ -89,8 +89,8 @@ internal class ProductDomain : BaseDomain, IProductDomain
         try
         {
             var product = await _productRepository.GetById(id);
-            
-            if(product != null)
+
+            if (product != null)
             {
                 _productRepository.Deactivate(product);
 
@@ -102,7 +102,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
         }
         catch (Exception e)
         {
-            return new ResponseViewModel { Success = false, Message = e.Message };
+            throw;
         }
     }
 
@@ -123,7 +123,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
         }
         catch (Exception e)
         {
-            return new BaseListQueryResponseViewModel { Success = false, Message = e.Message };
+            throw;
         }
     }
 
@@ -146,7 +146,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
         }
         catch (Exception e)
         {
-            return new BaseListQueryResponseViewModel { Success = false, Message = e.Message };
+            throw;
         }
     }
 
@@ -162,6 +162,37 @@ internal class ProductDomain : BaseDomain, IProductDomain
             }
 
             return new ResponseViewModel { Success = true, Payload = product };
+        }
+        catch (Exception e)
+        {
+            throw;
+        }
+    }
+
+    public ResponseViewModel GetProductsMenu()
+    {
+        try
+        {
+            var productsMenu = from pt in _productRepository.DbSet()
+                               .Include(t => t.ProductType)
+                               .AsNoTracking()
+                               .AsEnumerable()
+                               select new ProductsMenuViewModel
+                               {
+                                   CaName = pt.CaName,
+                                   EsName = pt.EsName,
+                                   Name = pt.Name,
+                                   Description = pt.Description,
+                                   Id = pt.Id,
+                                   Price = pt.Price,
+                                   ProductTypeId = pt.ProductTypeId,
+                                   PropductType = pt.ProductType.Name,
+                                   EsPropductType = pt.ProductType.EsName,
+                                   CaPropductType = pt.CaName,
+                                   Status = pt.Status
+                               };
+
+            return new ResponseViewModel { Payload = productsMenu.ToList(), Success = true };
         }
         catch (Exception e)
         {
