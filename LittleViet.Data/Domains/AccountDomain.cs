@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using LittleViet.Data.Models;
 using LittleViet.Data.Models.Global;
-using LittleViet.Data.Models.Repositories;
 using LittleViet.Data.ServiceHelper;
 using LittleViet.Data.ViewModels;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using LittleViet.Data.Repositories;
 using BCryptNet = BCrypt.Net.BCrypt;
 
 namespace LittleViet.Data.Domains;

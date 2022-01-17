@@ -7,7 +7,7 @@ namespace LittleViet.Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class ProductController : Controller
+public class ProductController : BaseController
 {
     private readonly IProductDomain _productDomain;
     public ProductController(IProductDomain productDomain)

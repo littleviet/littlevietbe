@@ -5,9 +5,9 @@ namespace LittleViet.Infrastructure.Stripe.Service;
 
 public class BaseStripeService : IBaseStripeService
 {
-    private readonly StripeSettings _stripeSettings;
+    protected readonly StripeSettings _stripeSettings;
 
-    public BaseStripeService(IOptions<StripeSettings> stripeSettings)
+    protected BaseStripeService(IOptions<StripeSettings> stripeSettings)
     {
         _stripeSettings = stripeSettings.Value ?? throw new ArgumentNullException(nameof(stripeSettings));
     }

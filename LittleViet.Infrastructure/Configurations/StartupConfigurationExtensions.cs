@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using LittleViet.Infrastructure.Stripe;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LittleViet.Infrastructure.Configurations;
 
@@ -21,6 +23,15 @@ public static class StartupConfigurationExtensions
                 .AddJsonFile($"{configurationsDirectory}/stripe.{env}.json", optional: true, reloadOnChange: true)
                 .AddEnvironmentVariables();
         });
+        
         return host;
+    }
+    
+    public static IServiceCollection AddConfigurationBinding(this IServiceCollection serviceCollection, IConfiguration configurationManager)
+    {
+        serviceCollection
+            .Configure<StripeSettings>(configurationManager.GetSection(StripeSettings.ConfigSection));        
+        
+        return serviceCollection;
     }
 }

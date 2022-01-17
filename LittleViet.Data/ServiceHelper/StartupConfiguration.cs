@@ -2,10 +2,18 @@
 using LittleViet.Data.Domains;
 using LittleViet.Data.Models;
 using LittleViet.Data.Models.Global;
-using LittleViet.Data.Models.Repositories;
+using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
+using LittleViet.Infrastructure.Stripe.Interface;
+using LittleViet.Infrastructure.Stripe.Service;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Stripe;
+using Stripe.Checkout;
+using Account = LittleViet.Data.Models.Account;
+using Coupon = LittleViet.Data.Models.Coupon;
+using Order = LittleViet.Data.Models.Order;
+using Product = LittleViet.Data.Models.Product;
 
 namespace LittleViet.Data.Global;
 
@@ -56,6 +64,13 @@ public static partial class StartupConfiguration
             .AddScoped<ILandingPageDomain, LandingPageDomain>()
             .AddScoped<IReservationDomain, ReservationDomain>()
             .AddScoped<IServingDomain, ServingDomain>();
+        
+        services.AddScoped<ProductService>()
+            .AddScoped<PriceService>()
+            .AddScoped<SessionService>()
+            .AddScoped<IStripePaymentService, StripePaymentService>()
+            .AddScoped<IStripeProductService, StripeProductService>()
+            .AddScoped<IStripePriceService, StripePriceService>();
 
         return services;
     }

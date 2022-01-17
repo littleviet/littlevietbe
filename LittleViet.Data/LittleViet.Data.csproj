@@ -30,4 +30,8 @@
     <Folder Include="Migrations\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\LittleViet.Infrastructure\LittleViet.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>

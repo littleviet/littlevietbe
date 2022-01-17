@@ -4,6 +4,7 @@
       "Domain": "https://littleviet.es/",
       "SuccessUrl": "",
       "CancelUrl": ""
-    }
+    },
+    "WebhookSecret": ""
   }
 }

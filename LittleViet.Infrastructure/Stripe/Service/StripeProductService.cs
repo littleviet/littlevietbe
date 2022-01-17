@@ -1,38 +1,55 @@
 ﻿using LittleViet.Infrastructure.Stripe.Interface;
+using LittleViet.Infrastructure.Stripe.Models;
+using Microsoft.Extensions.Options;
 using Stripe;
 
 namespace LittleViet.Infrastructure.Stripe.Service;
 
-public class StripeProductService : IStripeProductService
+public class StripeProductService : BaseStripeService, IStripeProductService
 {
-    public StripeProductService(StripeSettings stripeSettings)
+    private readonly ProductService _productService;
+
+    public StripeProductService(IOptions<StripeSettings> stripeSettings, ProductService productService) : base(
+        stripeSettings)
     {
-        _stripeSettings = stripeSettings;
-        StripeConfiguration.ApiKey = "";
+        _productService = productService ?? throw new ArgumentNullException(nameof(productService));
     }
 
-    private readonly ProductService _productService;
-    private readonly StripeSettings _stripeSettings;
-    private RequestOptions getDefaultRequestOptions() =>
-        new RequestOptions()
+    public Task<Product> CreateProduct(CreateProductDto dto)
+    {
+        var options = new ProductCreateOptions
         {
+            Name = dto.Name,
+            Images = dto.Images,
+            Description = dto.Description,
+            Metadata = dto.Metadata,
+            Url = dto.Url
         };
 
-    public async Task CreateProduct()
-    {
-        var options = new ProductCreateOptions();
-        var service = new ProductService();
-
-        var product = await service.CreateAsync(options);
-        
-        
+        return _productService.CreateAsync(options);
     }
-    
-    public async Task UpdateProduct()
-    {
-        var options = new ProductUpdateOptions();
-        var service = new ProductService();
 
-        // var product = await service.UpdateAsync(options);
+    public Task<Product> UpdateProduct(UpdateProductDto dto)
+    {
+        var options = new ProductUpdateOptions
+        {
+            Name = dto.Name,
+            Images = dto.Images,
+            Description = dto.Description,
+            Metadata = dto.Metadata,
+            Url = dto.Url
+        };
+
+        return _productService.UpdateAsync(dto.Id, options);
+    }
+
+    public Task<Product> DeactivateProduct(string id)
+    {
+        var options = new ProductUpdateOptions
+        {
+            Active = false
+        };
+
+        return _productService.UpdateAsync(id, options);
     }
 }

@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using LittleViet.Data.Models;
 using LittleViet.Data.Models.Global;
-using LittleViet.Data.Models.Repositories;
+using LittleViet.Data.Repositories;
 using LittleViet.Data.ServiceHelper;
 using LittleViet.Data.ViewModels;
 using Microsoft.EntityFrameworkCore;
@@ -39,6 +39,7 @@ internal class OrderDomain : BaseDomain, IOrderDomain
 
             order.Id = orderGuid;
             order.IsDeleted = false;
+            order.OrderStatus = OrderStatus.Ordered;
             order.UpdatedDate = datetime;
             order.CreatedDate = datetime;
             order.UpdatedBy = createOrderViewModel.CreatedBy;
@@ -56,6 +57,8 @@ internal class OrderDomain : BaseDomain, IOrderDomain
 
             _orderRepository.Add(order);
             await _uow.SaveAsync();
+            
+            //create checkout session
 
             return new ResponseViewModel { Success = true, Message = "Create successful" };
         }
@@ -143,6 +146,25 @@ internal class OrderDomain : BaseDomain, IOrderDomain
     }
 
     public async Task<ResponseViewModel> GetOrderById(Guid id)
+    {
+        try
+        {
+            var order = await _orderRepository.DbSet().Include(t => t.OrderDetails.Where(p => p.IsDeleted == false)).FirstOrDefaultAsync(q => q.Id == id);
+
+            if (order == null)
+            {
+                return new ResponseViewModel { Success = false, Message = "This order does not exist" };
+            }
+
+            return new ResponseViewModel { Success = true, Payload = order };
+        }
+        catch (Exception e)
+        {
+            return new ResponseViewModel { Success = false, Message = e.Message };
+        }
+    }
+    
+    public async Task<ResponseViewModel> Checkout(Guid id)
     {
         try
         {

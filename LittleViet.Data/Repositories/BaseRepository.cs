@@ -1,8 +1,8 @@
-﻿using LittleViet.Data.ServiceHelper;
+﻿using System.Linq.Expressions;
+using LittleViet.Data.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 
-namespace LittleViet.Data.Models.Repositories;
+namespace LittleViet.Data.Repositories;
 public interface IRepository
 {
 }

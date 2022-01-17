@@ -1,5 +1,5 @@
 ﻿using LittleViet.Data.Models.Global;
-using LittleViet.Data.Models.Repositories;
+using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
 using Microsoft.EntityFrameworkCore;
 

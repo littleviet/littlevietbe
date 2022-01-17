@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using LittleViet.Data.Models;
+using Microsoft.EntityFrameworkCore;
 
-namespace LittleViet.Data.Models.Repositories;
+namespace LittleViet.Data.Repositories;
 
 public interface ICouponRepository : IBaseRepository<Coupon>
 {

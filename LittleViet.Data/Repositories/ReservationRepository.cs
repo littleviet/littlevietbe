@@ -1,4 +1,6 @@
-﻿namespace LittleViet.Data.Models.Repositories;
+﻿using LittleViet.Data.Models;
+
+namespace LittleViet.Data.Repositories;
 
 public interface IReservationRepository
 {
