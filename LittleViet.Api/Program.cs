@@ -11,6 +11,7 @@ using LittleViet.Infrastructure.Middleware;
 using LittleViet.Infrastructure.Stripe;
 using LittleViet.Infrastructure.Swagger;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +20,8 @@ builder.Host.AddConfigurations();
 builder.Services.AddDbContext<LittleVietContext>(options =>
     options
         .UseLazyLoadingProxies()
-        .UseNpgsql(builder.Configuration.GetConnectionString("LittleVietContext")));
+        .UseNpgsql(builder.Configuration.GetConnectionString("LittleVietContext"))
+        .ConfigureWarnings(warn => warn.Ignore(CoreEventId.DetachedLazyLoadingWarning)));
 
 // Add services to the container.
 
