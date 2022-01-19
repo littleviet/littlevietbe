@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using LittleViet.Data.Models;
 using LittleViet.Data.Models.Global;
-using LittleViet.Data.Models.Repositories;
+using LittleViet.Data.Repositories;
 using LittleViet.Data.ServiceHelper;
 using LittleViet.Data.ViewModels;
 using Microsoft.EntityFrameworkCore;

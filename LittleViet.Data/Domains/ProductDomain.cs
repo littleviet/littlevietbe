@@ -199,6 +199,37 @@ internal class ProductDomain : BaseDomain, IProductDomain
         }
         catch (Exception e)
         {
+            throw;
+        }
+    }
+
+    public ResponseViewModel GetProductsMenu()
+    {
+        try
+        {
+            var productsMenu = from pt in _productRepository.DbSet()
+                    .Include(t => t.ProductType)
+                    .AsNoTracking()
+                    .AsEnumerable()
+                select new ProductsMenuViewModel
+                {
+                    CaName = pt.CaName,
+                    EsName = pt.EsName,
+                    Name = pt.Name,
+                    Description = pt.Description,
+                    Id = pt.Id,
+                    Price = pt.Price,
+                    ProductTypeId = pt.ProductTypeId,
+                    PropductType = pt.ProductType.Name,
+                    EsPropductType = pt.ProductType.EsName,
+                    CaPropductType = pt.CaName,
+                    Status = pt.Status
+                };
+
+            return new ResponseViewModel { Payload = productsMenu.ToList(), Success = true };
+        }
+        catch (Exception e)
+        {
             return new ResponseViewModel { Success = false, Message = e.Message };
         }
     }

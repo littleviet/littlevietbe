@@ -106,19 +106,5 @@ public class ProductController : BaseController
             return StatusCode(StatusCodes.Status500InternalServerError, new ResponseViewModel { Message = e.Message, Success = false });
         }
     }
-
-    [HttpGet("menu")]
-    public IActionResult GetProductsMenu()
-    {
-        try
-        {
-            var result = _productDomain.GetProductsMenu();
-            return Ok(result);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseViewModel { Message = e.Message, Success = false });
-        }
-    }
 }
 
