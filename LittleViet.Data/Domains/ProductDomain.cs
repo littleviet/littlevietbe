@@ -1,54 +1,70 @@
 ﻿using AutoMapper;
-using LittleViet.Data.Models;
 using LittleViet.Data.Models.Global;
-using LittleViet.Data.Models.Repositories;
+using LittleViet.Data.Repositories;
 using LittleViet.Data.ServiceHelper;
 using LittleViet.Data.ViewModels;
+using LittleViet.Infrastructure.Stripe.Interface;
+using LittleViet.Infrastructure.Stripe.Models;
 using Microsoft.EntityFrameworkCore;
+using Stripe;
+using Product = LittleViet.Data.Models.Product;
 
 namespace LittleViet.Data.Domains;
 
 public interface IProductDomain
 {
-    Task<ResponseViewModel> Create(CreateProductViewModel createProductViewModel);
+    Task<ResponseViewModel> Create(Guid userId, CreateProductViewModel createProductViewModel);
     Task<ResponseViewModel> Update(UpdateProductViewModel updateProductViewModel);
     Task<ResponseViewModel> Deactivate(Guid id);
     Task<BaseListQueryResponseViewModel> GetListProducts(BaseListQueryParameters parameters);
     Task<BaseListQueryResponseViewModel> Search(BaseSearchParameters parameters);
     Task<ResponseViewModel> GetProductById(Guid id);
-    ResponseViewModel GetProductsMenu();
 }
 internal class ProductDomain : BaseDomain, IProductDomain
 {
     private readonly IProductRepository _productRepository;
+    private readonly IStripeProductService _stripeProductService;
     private readonly IMapper _mapper;
-    public ProductDomain(IUnitOfWork uow, IProductRepository productRepository, IMapper mapper) : base(uow)
+    public ProductDomain(IUnitOfWork uow, IProductRepository productRepository, IMapper mapper, IStripeProductService stripeProductService) : base(uow)
     {
         _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _stripeProductService = stripeProductService ?? throw new ArgumentNullException(nameof(stripeProductService));
     }
 
-    public async Task<ResponseViewModel> Create(CreateProductViewModel createProductViewModel)
+    public async Task<ResponseViewModel> Create(Guid userId, CreateProductViewModel createProductViewModel)
     {
         try
         {
             var product = _mapper.Map<Product>(createProductViewModel);
+
+
             var datetime = DateTime.UtcNow;
 
             product.Id = Guid.NewGuid();
             product.IsDeleted = false;
+            product.CreatedBy = userId;
             product.UpdatedDate = datetime;
             product.CreatedDate = datetime;
-            product.UpdatedBy = createProductViewModel.CreatedBy;
+            product.UpdatedBy = userId;
 
             _productRepository.Add(product);
             await _uow.SaveAsync();
 
-            return new ResponseViewModel { Success = true, Message = "Create successful" };
+            var createStripeProductDto = _mapper.Map<CreateProductDto>(createProductViewModel);
+            var stripeProduct = await _stripeProductService.CreateProduct(createStripeProductDto);
+            product.StripeProductId = stripeProduct.Id;
+            await _uow.SaveAsync();
+            
+            return new ResponseViewModel {Success = true, Message = "Create successful"};
+        }
+        catch (StripeException se)
+        {
+            throw;
         }
         catch (Exception e)
         {
-            throw;
+            return new ResponseViewModel { Success = false, Message = e.Message };
         }
     }
 
@@ -60,6 +76,14 @@ internal class ProductDomain : BaseDomain, IProductDomain
 
             if (existedProduct != null)
             {
+                var stripeProductChanged = IsStripeProductChanged(existedProduct, updateProductViewModel);
+
+                if (stripeProductChanged == true)
+                {
+                    var stripeProductDto = _mapper.Map<UpdateProductDto>(updateProductViewModel);
+                    _ = await _stripeProductService.UpdateProduct(stripeProductDto);
+                }
+                
                 existedProduct.Price = updateProductViewModel.Price;
                 existedProduct.ProductTypeId = updateProductViewModel.ProductTypeId;
                 existedProduct.Name = updateProductViewModel.Name;
@@ -73,15 +97,25 @@ internal class ProductDomain : BaseDomain, IProductDomain
                 _productRepository.Modify(existedProduct);
                 await _uow.SaveAsync();
 
-                return new ResponseViewModel { Success = true, Message = "Update successful" };
+                return new ResponseViewModel {Success = true, Message = "Update successful"};
             }
 
-            return new ResponseViewModel { Success = false, Message = "This product does not exist" };
+            return new ResponseViewModel {Success = false, Message = "This product does not exist"};
         }
-        catch (Exception e)
+        catch (StripeException es)
         {
             throw;
         }
+        catch (Exception e)
+        {
+            return new ResponseViewModel { Success = false, Message = e.Message };
+        }
+    }
+
+    private bool IsStripeProductChanged(Product product, UpdateProductViewModel stripeProduct)
+    {
+        // var imagesDifferent = product.ProductImages.Select(i => i.Url).ToList().Except(stripeProduct.); TODO: resolve this after finishing image upload
+        return product.Name != stripeProduct.Name || product.Description != stripeProduct.Description;
     }
 
     public async Task<ResponseViewModel> Deactivate(Guid id)
@@ -89,12 +123,12 @@ internal class ProductDomain : BaseDomain, IProductDomain
         try
         {
             var product = await _productRepository.GetById(id);
-
-            if (product != null)
+            
+            if(product != null)
             {
                 _productRepository.Deactivate(product);
-
                 await _uow.SaveAsync();
+                await _stripeProductService.DeactivateProduct(product.StripeProductId);
                 return new ResponseViewModel { Message = "Delete successful", Success = true };
             }
 
@@ -102,7 +136,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
         }
         catch (Exception e)
         {
-            throw;
+            return new ResponseViewModel { Success = false, Message = e.Message };
         }
     }
 
@@ -123,7 +157,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
         }
         catch (Exception e)
         {
-            throw;
+            return new BaseListQueryResponseViewModel { Success = false, Message = e.Message };
         }
     }
 
@@ -146,7 +180,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
         }
         catch (Exception e)
         {
-            throw;
+            return new BaseListQueryResponseViewModel { Success = false, Message = e.Message };
         }
     }
 
@@ -174,23 +208,23 @@ internal class ProductDomain : BaseDomain, IProductDomain
         try
         {
             var productsMenu = from pt in _productRepository.DbSet()
-                               .Include(t => t.ProductType)
-                               .AsNoTracking()
-                               .AsEnumerable()
-                               select new ProductsMenuViewModel
-                               {
-                                   CaName = pt.CaName,
-                                   EsName = pt.EsName,
-                                   Name = pt.Name,
-                                   Description = pt.Description,
-                                   Id = pt.Id,
-                                   Price = pt.Price,
-                                   ProductTypeId = pt.ProductTypeId,
-                                   PropductType = pt.ProductType.Name,
-                                   EsPropductType = pt.ProductType.EsName,
-                                   CaPropductType = pt.CaName,
-                                   Status = pt.Status
-                               };
+                    .Include(t => t.ProductType)
+                    .AsNoTracking()
+                    .AsEnumerable()
+                select new ProductsMenuViewModel
+                {
+                    CaName = pt.CaName,
+                    EsName = pt.EsName,
+                    Name = pt.Name,
+                    Description = pt.Description,
+                    Id = pt.Id,
+                    Price = pt.Price,
+                    ProductTypeId = pt.ProductTypeId,
+                    PropductType = pt.ProductType.Name,
+                    EsPropductType = pt.ProductType.EsName,
+                    CaPropductType = pt.CaName,
+                    Status = pt.Status
+                };
 
             return new ResponseViewModel { Payload = productsMenu.ToList(), Success = true };
         }

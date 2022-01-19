@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-namespace LittleViet.Data.Models.Repositories;
+﻿using LittleViet.Data.Models;
+using Microsoft.EntityFrameworkCore;
+
+namespace LittleViet.Data.Repositories;
 
 public interface IAccountRepository : IBaseRepository<Account>
 {

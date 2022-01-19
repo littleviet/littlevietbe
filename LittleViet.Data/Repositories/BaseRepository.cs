@@ -1,8 +1,9 @@
-﻿using LittleViet.Data.ServiceHelper;
+﻿using System.Linq.Expressions;
+using LittleViet.Data.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
-namespace LittleViet.Data.Models.Repositories;
+namespace LittleViet.Data.Repositories;
 public interface IRepository
 {
 }
@@ -14,7 +15,7 @@ public interface IBaseRepository<TEntity> : IRepository where TEntity : class, I
     IQueryable<TEntity> Get(Expression<Func<TEntity, bool>> predicate);
     TEntity FirstOrDefault();
     TEntity FirstOrDefault(Expression<Func<TEntity, bool>> predicate);
-    void Add(TEntity entity);
+    EntityEntry<TEntity> Add(TEntity entity);
     void AddRange(List<TEntity> entityList);
     void Modify(TEntity entity);
     void Deactivate(TEntity entity);
@@ -62,9 +63,9 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>, IRepository whe
         return Queryable.FirstOrDefault(DbSet(), predicate);
     }
 
-    public virtual void Add(TEntity entity)
+    public virtual EntityEntry<TEntity> Add(TEntity entity)
     {
-        this._dbSet.Add(entity);
+        return this._dbSet.Add(entity);
     }
 
     public virtual void AddRange(List<TEntity> entityList)

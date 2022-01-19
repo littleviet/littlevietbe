@@ -15,14 +15,14 @@ public enum ProductStatus
     [Display(Name = "In stock")]
     InStock = 1,
     [Display(Name = "Out of stock")]
-    OutOfStock = 2
+    OutOfStock = 2,
 }
 
 public enum ReservationStatus
 {
     Reserved = 1,
     Cancelled = 2,
-    Completed = 3
+    Completed = 3,
 
 }
 public enum OrderType
@@ -30,19 +30,27 @@ public enum OrderType
     [Display(Name = "Eat-in")]
     EatIn = 1,
     [Display(Name = "Take away")]
-    TakeAway = 2
+    TakeAway = 2,
 }
 
 public enum CouponStatus
 {
     Created = 1,
     Expired = 2,
-    Used = 3
+    Used = 3,
 }
 
 public enum PaymentType
 {
     Cash = 1,
     Coupon = 2,
-    Wallet = 3
+    Wallet = 3,
+}
+
+public enum OrderStatus
+{
+    Ordered = 1,
+    Paid = 2,
+    Cancelled = 3,
+    Expired = 4,
 }

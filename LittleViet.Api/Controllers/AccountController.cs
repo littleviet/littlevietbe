@@ -1,4 +1,5 @@
-﻿using LittleViet.Data.Domains;
+﻿using System.Security.Claims;
+using LittleViet.Data.Domains;
 using LittleViet.Data.ServiceHelper;
 using LittleViet.Data.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -35,7 +36,8 @@ public class AccountController : BaseController
     {
         try
         {
-            var result = await _accountDomain.Create(createAccountViewModel);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _accountDomain.Create(Guid.Parse(userId), createAccountViewModel);
             return Ok(result);
         }
         catch (Exception e)

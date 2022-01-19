@@ -2,10 +2,19 @@
 using LittleViet.Data.Domains;
 using LittleViet.Data.Models;
 using LittleViet.Data.Models.Global;
-using LittleViet.Data.Models.Repositories;
+using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
+using LittleViet.Infrastructure.Stripe.Interface;
+using LittleViet.Infrastructure.Stripe.Models;
+using LittleViet.Infrastructure.Stripe.Service;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Stripe;
+using Stripe.Checkout;
+using Account = LittleViet.Data.Models.Account;
+using Coupon = LittleViet.Data.Models.Coupon;
+using Order = LittleViet.Data.Models.Order;
+using Product = LittleViet.Data.Models.Product;
 
 namespace LittleViet.Data.Global;
 
@@ -31,7 +40,7 @@ public static partial class StartupConfiguration
 
     }
 
-    private static void ConfigureIoC(IServiceCollection services)
+    private static IServiceCollection ConfigureIoC(this IServiceCollection services)
     {
         services.AddScoped<UnitOfWork>()
             .AddScoped<IUnitOfWork, UnitOfWork>()
@@ -56,9 +65,18 @@ public static partial class StartupConfiguration
             .AddScoped<ILandingPageDomain, LandingPageDomain>()
             .AddScoped<IReservationDomain, ReservationDomain>()
             .AddScoped<IServingDomain, ServingDomain>();
+        
+        services.AddScoped<ProductService>(s => new ProductService())
+            .AddScoped<PriceService>(s => new PriceService())
+            .AddScoped<SessionService>(s => new SessionService())
+            .AddScoped<IStripePaymentService, StripePaymentService>()
+            .AddScoped<IStripeProductService, StripeProductService>()
+            .AddScoped<IStripePriceService, StripePriceService>();
+
+        return services;
     }
 
-    public static void Configure(IServiceCollection services)
+    public static IServiceCollection ConfigureLegacy(this IServiceCollection services)
     {
         MapperConfigs.Add(cfg =>
         {
@@ -78,15 +96,16 @@ public static partial class StartupConfiguration
             cfg.CreateMap<OrderDetail, CreateOrderDetailViewModel>().ReverseMap();
             cfg.CreateMap<Serving, CreateServingViewModel>().ReverseMap();
             cfg.CreateMap<Serving, UpdateServingViewModel>().ReverseMap();
-            cfg.CreateMap<Reservation, CreateReservationViewModel>().ReverseMap();
-            cfg.CreateMap<Reservation, UpdateReservationViewModel>().ReverseMap();
+            
+            cfg.CreateMap<UpdateProductViewModel, UpdateProductDto>().ReverseMap();
+            cfg.CreateMap<CreateProductViewModel, CreateProductDto>().ReverseMap();
+            cfg.CreateMap<CreateServingViewModel, CreatePriceDto>().ReverseMap();
         });
 
         ConfigureAutomapper();
         services.AddSingleton(Mapper);
-        services.AddDbContext<LittleVietContext>();
-        ConfigureIoC(services);
-
+        services.ConfigureIoC();
+        return services;
     }
 }
 

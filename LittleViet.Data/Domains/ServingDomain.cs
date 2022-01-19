@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using LittleViet.Data.Models;
 using LittleViet.Data.Models.Global;
-using LittleViet.Data.Models.Repositories;
+using LittleViet.Data.Repositories;
 using LittleViet.Data.ServiceHelper;
 using LittleViet.Data.ViewModels;
+using LittleViet.Infrastructure.Stripe.Interface;
+using LittleViet.Infrastructure.Stripe.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace LittleViet.Data.Domains;
@@ -17,15 +19,19 @@ public interface IServingDomain
     Task<BaseListQueryResponseViewModel> Search(BaseSearchParameters parameters);
     Task<ResponseViewModel> GetServingById(Guid id);
 }
+
 internal class ServingDomain : BaseDomain, IServingDomain
 {
     private readonly IServingRepository _servingRepository;
+    private readonly IStripePriceService _stripePriceService;
     private readonly IMapper _mapper;
 
-    public ServingDomain(IUnitOfWork uow, IServingRepository servingRepository, IMapper mapper) : base(uow)
+    public ServingDomain(IUnitOfWork uow, IServingRepository servingRepository, IMapper mapper,
+        IStripePriceService stripePriceService) : base(uow)
     {
         _servingRepository = servingRepository ?? throw new ArgumentNullException(nameof(servingRepository));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _stripePriceService = stripePriceService ?? throw new ArgumentNullException(nameof(stripePriceService));
     }
 
     public async Task<ResponseViewModel> Create(CreateServingViewModel createServingViewModel)
@@ -33,6 +39,7 @@ internal class ServingDomain : BaseDomain, IServingDomain
         try
         {
             var serving = _mapper.Map<Serving>(createServingViewModel);
+
             var date = DateTime.UtcNow;
 
             serving.Id = Guid.NewGuid();
@@ -41,14 +48,27 @@ internal class ServingDomain : BaseDomain, IServingDomain
             serving.UpdatedBy = createServingViewModel.CreatedBy;
             serving.IsDeleted = false;
 
-            _servingRepository.Add(serving);
+            var entry = _servingRepository.Add(serving);
             await _uow.SaveAsync();
 
-            return new ResponseViewModel { Success = true, Message = "Create successful" };
+            await entry.Reference(e => e.Product).LoadAsync();
+            
+            var createStripePriceDto = new CreatePriceDto()
+            {
+                Price = (long)serving.Price*100,
+                Currency = "eur",
+                StripeProductId = entry.Entity.Product.StripeProductId,
+            };
+            var stripePrice = await _stripePriceService.CreatePrice(createStripePriceDto);
+            serving.StripePriceId = stripePrice.Id;
+
+            await _uow.SaveAsync();
+
+            return new ResponseViewModel {Success = true, Message = "Create successful"};
         }
         catch (Exception e)
         {
-            return new ResponseViewModel { Success = false, Message = e.Message };
+            return new ResponseViewModel {Success = false, Message = e.Message};
         }
     }
 
@@ -62,15 +82,16 @@ internal class ServingDomain : BaseDomain, IServingDomain
             {
                 _servingRepository.Deactivate(serving);
                 await _uow.SaveAsync();
+                await _stripePriceService.DeactivatePrice(serving.StripePriceId);
 
-                return new ResponseViewModel { Success = true, Message = "Delete successful" };
+                return new ResponseViewModel {Success = true, Message = "Delete successful"};
             }
 
-            return new ResponseViewModel { Success = false, Message = "This serving does not exist" };
+            return new ResponseViewModel {Success = false, Message = "This serving does not exist"};
         }
         catch (Exception e)
         {
-            return new ResponseViewModel { Success = false, Message = e.Message };
+            return new ResponseViewModel {Success = false, Message = e.Message};
         }
     }
 
@@ -79,6 +100,21 @@ internal class ServingDomain : BaseDomain, IServingDomain
         try
         {
             var existedServing = await _servingRepository.GetById(updateServingViewModel.Id);
+
+            var pricesDifferent = IsPriceDifferent(existedServing, updateServingViewModel);
+
+            if (pricesDifferent == true)
+            {
+                var newPrice = await _stripePriceService.UpdatePrice(
+                    new UpdatePriceDto
+                    {
+                        Amount = (long)existedServing.Price*100,
+                        Currency = "eur",
+                        Id = existedServing.StripePriceId,
+                        ProductId = existedServing.Product.StripeProductId,
+                    });
+                existedServing.StripePriceId = newPrice.Id;
+            }
 
             if (existedServing != null)
             {
@@ -93,15 +129,21 @@ internal class ServingDomain : BaseDomain, IServingDomain
                 _servingRepository.Modify(existedServing);
                 await _uow.SaveAsync();
 
-                return new ResponseViewModel { Success = true, Message = "Update successful" };
+                return new ResponseViewModel {Success = true, Message = "Update successful"};
             }
 
-            return new ResponseViewModel { Success = false, Message = "This serving does not exist" };
+            return new ResponseViewModel {Success = false, Message = "This serving does not exist"};
         }
         catch (Exception e)
         {
-            return new ResponseViewModel { Success = false, Message = e.Message };
+            return new ResponseViewModel {Success = false, Message = e.Message};
         }
+    }
+
+    private bool IsPriceDifferent(Serving existedServing, UpdateServingViewModel updateServingViewModel)
+    {
+        return false;
+        throw new NotImplementedException(); //TODO: finish later
     }
 
     public async Task<BaseListQueryResponseViewModel> GetListServing(BaseListQueryParameters parameters)
@@ -112,7 +154,8 @@ internal class ServingDomain : BaseDomain, IServingDomain
 
             return new BaseListQueryResponseViewModel
             {
-                Payload = await servings.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber).ToListAsync(),
+                Payload = await servings.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
+                    .ToListAsync(),
                 Success = true,
                 Total = await servings.CountAsync(),
                 PageNumber = parameters.PageNumber,
@@ -121,7 +164,7 @@ internal class ServingDomain : BaseDomain, IServingDomain
         }
         catch (Exception e)
         {
-            return new BaseListQueryResponseViewModel { Success = false, Message = e.Message };
+            return new BaseListQueryResponseViewModel {Success = false, Message = e.Message};
         }
     }
 
@@ -135,7 +178,8 @@ internal class ServingDomain : BaseDomain, IServingDomain
 
             return new BaseListQueryResponseViewModel
             {
-                Payload = await servings.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber).ToListAsync(),
+                Payload = await servings.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
+                    .ToListAsync(),
                 Success = true,
                 Total = await servings.CountAsync(),
                 PageNumber = parameters.PageNumber,
@@ -144,7 +188,7 @@ internal class ServingDomain : BaseDomain, IServingDomain
         }
         catch (Exception e)
         {
-            return new BaseListQueryResponseViewModel { Success = false, Message = e.Message };
+            return new BaseListQueryResponseViewModel {Success = false, Message = e.Message};
         }
     }
 
@@ -156,15 +200,14 @@ internal class ServingDomain : BaseDomain, IServingDomain
 
             if (serving == null)
             {
-                return new ResponseViewModel { Success = false, Message = "This serving does not exist" };
+                return new ResponseViewModel {Success = false, Message = "This serving does not exist"};
             }
 
-            return new ResponseViewModel { Success = true, Payload = serving };
+            return new ResponseViewModel {Success = true, Payload = serving};
         }
         catch (Exception e)
         {
-            return new ResponseViewModel { Success = false, Message = e.Message };
+            return new ResponseViewModel {Success = false, Message = e.Message};
         }
     }
 }
-
