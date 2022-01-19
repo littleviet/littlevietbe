@@ -44,7 +44,7 @@ internal class LandingPageDomain : BaseDomain, ILandingPageDomain
         }
         catch (Exception e)
         {
-            return new ResponseViewModel { Success = false, Message = e.Message };
+            throw;
         }
     }
 }

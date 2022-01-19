@@ -10,7 +10,7 @@ public enum RoleEnum
     UNAUTHORIZED = 4
 }
 
-public enum ProductSatus
+public enum ProductStatus
 {
     [Display(Name = "In stock")]
     InStock = 1,

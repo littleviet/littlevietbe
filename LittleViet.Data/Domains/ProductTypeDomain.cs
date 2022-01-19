@@ -49,7 +49,7 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
         }
         catch (Exception e)
         {
-            return new ResponseViewModel { Success = false, Message = e.Message };
+            throw;
         }
     }
 
@@ -78,7 +78,7 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
         }
         catch (Exception e)
         {
-            return new ResponseViewModel { Success = false, Message = e.Message };
+            throw;
         }
     }
 
@@ -100,7 +100,7 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
         }
         catch (Exception e)
         {
-            return new ResponseViewModel { Success = false, Message = e.Message };
+            throw;
         }
     }
 
@@ -121,7 +121,7 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
         }
         catch (Exception e)
         {
-            return new BaseListQueryResponseViewModel { Success = false, Message = e.Message };
+            throw;
         }
     }
 
@@ -144,7 +144,7 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
         }
         catch (Exception e)
         {
-            return new BaseListQueryResponseViewModel { Success = false, Message = e.Message };
+            throw;
         }
     }
 
@@ -163,7 +163,7 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
         }
         catch (Exception e)
         {
-            return new ResponseViewModel { Success = false, Message = e.Message };
+            throw;
         }
     }
 }
