@@ -19,9 +19,10 @@ public class StripePriceService : BaseStripeService, IStripePriceService
     {
         var options = new PriceCreateOptions()
         {
-            UnitAmount = dto.Amount,
+            UnitAmount = dto.Price,
             Currency = dto.Currency,
-            Product = dto.ProductId,
+            Product = dto.StripeProductId,
+            
         };
 
         return _priceService.CreateAsync(options);

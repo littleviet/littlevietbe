@@ -3,6 +3,7 @@ using System;
 using LittleViet.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LittleViet.Data.Migrations
 {
     [DbContext(typeof(LittleVietContext))]
-    partial class LittleVietContextModelSnapshot : ModelSnapshot
+    [Migration("20220119153126_Add_Stripe_Properties")]
+    partial class Add_Stripe_Properties
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -72,7 +74,7 @@ namespace LittleViet.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Account", (string)null);
+                    b.ToTable("Account");
                 });
 
             modelBuilder.Entity("LittleViet.Data.Models.Coupon", b =>
@@ -113,7 +115,7 @@ namespace LittleViet.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Coupon", (string)null);
+                    b.ToTable("Coupon");
                 });
 
             modelBuilder.Entity("LittleViet.Data.Models.Order", b =>
@@ -154,7 +156,7 @@ namespace LittleViet.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Order", (string)null);
+                    b.ToTable("Order");
                 });
 
             modelBuilder.Entity("LittleViet.Data.Models.OrderDetail", b =>
@@ -196,7 +198,7 @@ namespace LittleViet.Data.Migrations
 
                     b.HasIndex("ServingId");
 
-                    b.ToTable("OrderDetail", (string)null);
+                    b.ToTable("OrderDetail");
                 });
 
             modelBuilder.Entity("LittleViet.Data.Models.Product", b =>
@@ -248,7 +250,7 @@ namespace LittleViet.Data.Migrations
 
                     b.HasIndex("ProductTypeId");
 
-                    b.ToTable("Product", (string)null);
+                    b.ToTable("Product");
                 });
 
             modelBuilder.Entity("LittleViet.Data.Models.ProductImage", b =>
@@ -288,7 +290,7 @@ namespace LittleViet.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductImage", (string)null);
+                    b.ToTable("ProductImage");
                 });
 
             modelBuilder.Entity("LittleViet.Data.Models.ProductType", b =>
@@ -326,7 +328,7 @@ namespace LittleViet.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProductType", (string)null);
+                    b.ToTable("ProductType");
                 });
 
             modelBuilder.Entity("LittleViet.Data.Models.Reservation", b =>
@@ -381,7 +383,7 @@ namespace LittleViet.Data.Migrations
 
                     b.HasIndex("AccountId");
 
-                    b.ToTable("Reservation", (string)null);
+                    b.ToTable("Reservation");
                 });
 
             modelBuilder.Entity("LittleViet.Data.Models.Serving", b =>
@@ -427,7 +429,7 @@ namespace LittleViet.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("Serving", (string)null);
+                    b.ToTable("Serving");
                 });
 
             modelBuilder.Entity("LittleViet.Data.Models.OrderDetail", b =>

@@ -8,6 +8,7 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using LittleViet.Infrastructure.Configurations;
 using LittleViet.Infrastructure.Middleware;
+using LittleViet.Infrastructure.Stripe;
 using LittleViet.Infrastructure.Swagger;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 
@@ -16,7 +17,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Host.AddConfigurations();
 
 builder.Services.AddDbContext<LittleVietContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("LittleVietContext")));
+    options
+        .UseLazyLoadingProxies()
+        .UseNpgsql(builder.Configuration.GetConnectionString("LittleVietContext")));
 
 // Add services to the container.
 
@@ -31,8 +34,11 @@ builder.Services.AddEndpointsApiExplorer()
 var appSettingsSection = builder.Configuration.GetSection("AppSettings");
 builder.Services.Configure<AppSettings>(appSettingsSection);
 
+builder.Services.AddConfigurationBinding(builder.Configuration)
+    .ConfigureStripe(builder.Configuration);
+
 var appSettings = appSettingsSection.Get<AppSettings>();
-var key = Encoding.ASCII.GetBytes(appSettings.Secret);
+var key = Encoding.ASCII.GetBytes(appSettings.JwtSecret);
 builder.Services.AddAuthentication(x =>
     {
         x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

@@ -5,6 +5,7 @@ using LittleViet.Data.Models.Global;
 using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.Stripe.Interface;
+using LittleViet.Infrastructure.Stripe.Models;
 using LittleViet.Infrastructure.Stripe.Service;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -65,9 +66,9 @@ public static partial class StartupConfiguration
             .AddScoped<IReservationDomain, ReservationDomain>()
             .AddScoped<IServingDomain, ServingDomain>();
         
-        services.AddScoped<ProductService>()
-            .AddScoped<PriceService>()
-            .AddScoped<SessionService>()
+        services.AddScoped<ProductService>(s => new ProductService())
+            .AddScoped<PriceService>(s => new PriceService())
+            .AddScoped<SessionService>(s => new SessionService())
             .AddScoped<IStripePaymentService, StripePaymentService>()
             .AddScoped<IStripeProductService, StripeProductService>()
             .AddScoped<IStripePriceService, StripePriceService>();
@@ -95,11 +96,14 @@ public static partial class StartupConfiguration
             cfg.CreateMap<OrderDetail, CreateOrderDetailViewModel>().ReverseMap();
             cfg.CreateMap<Serving, CreateServingViewModel>().ReverseMap();
             cfg.CreateMap<Serving, UpdateServingViewModel>().ReverseMap();
+            
+            cfg.CreateMap<UpdateProductViewModel, UpdateProductDto>().ReverseMap();
+            cfg.CreateMap<CreateProductViewModel, CreateProductDto>().ReverseMap();
+            cfg.CreateMap<CreateServingViewModel, CreatePriceDto>().ReverseMap();
         });
 
         ConfigureAutomapper();
         services.AddSingleton(Mapper);
-        services.AddDbContext<LittleVietContext>();
         services.ConfigureIoC();
         return services;
     }

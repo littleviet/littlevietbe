@@ -1,10 +1,13 @@
 ﻿using AutoMapper;
-using LittleViet.Data.Models;
 using LittleViet.Data.Models.Global;
 using LittleViet.Data.Repositories;
 using LittleViet.Data.ServiceHelper;
 using LittleViet.Data.ViewModels;
+using LittleViet.Infrastructure.Stripe.Interface;
+using LittleViet.Infrastructure.Stripe.Models;
 using Microsoft.EntityFrameworkCore;
+using Stripe;
+using Order = LittleViet.Data.Models.Order;
 
 namespace LittleViet.Data.Domains;
 
@@ -16,17 +19,22 @@ public interface IOrderDomain
     Task<BaseListQueryResponseViewModel> GetListOrders(BaseListQueryParameters parameters);
     Task<ResponseViewModel> GetOrderById(Guid id);
 }
+
 internal class OrderDomain : BaseDomain, IOrderDomain
 {
     private readonly IOrderRepository _orderRepository;
     private readonly IOrderDetailRepository _orderDetailRepository;
+    private readonly IStripePaymentService _stripePaymentService;
     private readonly IMapper _mapper;
 
-    public OrderDomain(IUnitOfWork uow, IOrderRepository orderRepository, IOrderDetailRepository orderDetailRepository, IMapper mapper) : base(uow)
+    public OrderDomain(IUnitOfWork uow, IOrderRepository orderRepository, IOrderDetailRepository orderDetailRepository,
+        IMapper mapper, IStripePaymentService stripePaymentService) : base(uow)
     {
         _orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
-        _orderDetailRepository = orderDetailRepository ?? throw new ArgumentNullException(nameof(orderDetailRepository));
+        _orderDetailRepository =
+            orderDetailRepository ?? throw new ArgumentNullException(nameof(orderDetailRepository));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _stripePaymentService = stripePaymentService ?? throw new ArgumentNullException(nameof(stripePaymentService));
     }
 
     public async Task<ResponseViewModel> Create(CreateOrderViewModel createOrderViewModel)
@@ -57,14 +65,36 @@ internal class OrderDomain : BaseDomain, IOrderDomain
 
             _orderRepository.Add(order);
             await _uow.SaveAsync();
-            
-            //create checkout session
 
-            return new ResponseViewModel { Success = true, Message = "Create successful" };
+            var stripeSessionDto = new CreateSessionDto()
+            {
+                Metadata = new() {{"orderId", orderGuid.ToString()}},
+                SessionItems = order.OrderDetails.Select(od => new SessionItem()
+                {
+                    StripePriceId = od.Serving.StripePriceId,
+                    Quantity = od.Quantity,
+                }).ToList()
+            };
+            var stripeSession = await _stripePaymentService.CreateCheckoutSession(stripeSessionDto);
+
+            return new ResponseViewModel
+            {
+                Success = true,
+                Message = "Create successful",
+                Payload = new
+                {
+                    OrderId = orderGuid.ToString(),
+                    Url = stripeSession.Url,
+                },
+            };
+        }
+        catch (StripeException se)
+        {
+            throw;
         }
         catch (Exception e)
         {
-            return new ResponseViewModel { Success = false, Message = e.Message };
+            return new ResponseViewModel {Success = false, Message = e.Message};
         }
     }
 
@@ -86,14 +116,14 @@ internal class OrderDomain : BaseDomain, IOrderDomain
                 _orderRepository.Modify(existedOrder);
                 await _uow.SaveAsync();
 
-                return new ResponseViewModel { Success = true, Message = "Update successful" };
+                return new ResponseViewModel {Success = true, Message = "Update successful"};
             }
-            return new ResponseViewModel { Success = false, Message = "This order does not exist" };
 
+            return new ResponseViewModel {Success = false, Message = "This order does not exist"};
         }
         catch (Exception e)
         {
-            return new ResponseViewModel { Success = false, Message = e.Message };
+            return new ResponseViewModel {Success = false, Message = e.Message};
         }
     }
 
@@ -101,7 +131,8 @@ internal class OrderDomain : BaseDomain, IOrderDomain
     {
         try
         {
-            var order = await _orderRepository.DbSet().Include(t => t.OrderDetails.Where(p => p.IsDeleted == false)).FirstOrDefaultAsync(q => q.Id == id);
+            var order = await _orderRepository.DbSet().Include(t => t.OrderDetails.Where(p => p.IsDeleted == false))
+                .FirstOrDefaultAsync(q => q.Id == id);
 
             if (order != null)
             {
@@ -113,14 +144,14 @@ internal class OrderDomain : BaseDomain, IOrderDomain
                 }
 
                 await _uow.SaveAsync();
-                return new ResponseViewModel { Success = true, Message = "Delete successful" };
+                return new ResponseViewModel {Success = true, Message = "Delete successful"};
             }
 
-            return new ResponseViewModel { Success = false, Message = "This order does not exist" };
+            return new ResponseViewModel {Success = false, Message = "This order does not exist"};
         }
         catch (Exception e)
         {
-            return new ResponseViewModel { Success = false, Message = e.Message };
+            return new ResponseViewModel {Success = false, Message = e.Message};
         }
     }
 
@@ -132,7 +163,8 @@ internal class OrderDomain : BaseDomain, IOrderDomain
 
             return new BaseListQueryResponseViewModel
             {
-                Payload = await order.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber).ToListAsync(),
+                Payload = await order.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
+                    .ToListAsync(),
                 Success = true,
                 Total = await order.CountAsync(),
                 PageNumber = parameters.PageNumber,
@@ -141,7 +173,7 @@ internal class OrderDomain : BaseDomain, IOrderDomain
         }
         catch (Exception e)
         {
-            return new BaseListQueryResponseViewModel { Success = false, Message = e.Message };
+            return new BaseListQueryResponseViewModel {Success = false, Message = e.Message};
         }
     }
 
@@ -149,37 +181,39 @@ internal class OrderDomain : BaseDomain, IOrderDomain
     {
         try
         {
-            var order = await _orderRepository.DbSet().Include(t => t.OrderDetails.Where(p => p.IsDeleted == false)).FirstOrDefaultAsync(q => q.Id == id);
+            var order = await _orderRepository.DbSet().Include(t => t.OrderDetails.Where(p => p.IsDeleted == false))
+                .FirstOrDefaultAsync(q => q.Id == id);
 
             if (order == null)
             {
-                return new ResponseViewModel { Success = false, Message = "This order does not exist" };
+                return new ResponseViewModel {Success = false, Message = "This order does not exist"};
             }
 
-            return new ResponseViewModel { Success = true, Payload = order };
+            return new ResponseViewModel {Success = true, Payload = order};
         }
         catch (Exception e)
         {
-            return new ResponseViewModel { Success = false, Message = e.Message };
+            return new ResponseViewModel {Success = false, Message = e.Message};
         }
     }
-    
+
     public async Task<ResponseViewModel> Checkout(Guid id)
     {
         try
         {
-            var order = await _orderRepository.DbSet().Include(t => t.OrderDetails.Where(p => p.IsDeleted == false)).FirstOrDefaultAsync(q => q.Id == id);
+            var order = await _orderRepository.DbSet().Include(t => t.OrderDetails.Where(p => p.IsDeleted == false))
+                .FirstOrDefaultAsync(q => q.Id == id);
 
             if (order == null)
             {
-                return new ResponseViewModel { Success = false, Message = "This order does not exist" };
+                return new ResponseViewModel {Success = false, Message = "This order does not exist"};
             }
 
-            return new ResponseViewModel { Success = true, Payload = order };
+            return new ResponseViewModel {Success = true, Payload = order};
         }
         catch (Exception e)
         {
-            return new ResponseViewModel { Success = false, Message = e.Message };
+            return new ResponseViewModel {Success = false, Message = e.Message};
         }
     }
 }

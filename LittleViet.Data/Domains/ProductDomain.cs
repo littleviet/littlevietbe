@@ -13,7 +13,7 @@ namespace LittleViet.Data.Domains;
 
 public interface IProductDomain
 {
-    Task<ResponseViewModel> Create(CreateProductViewModel createProductViewModel);
+    Task<ResponseViewModel> Create(Guid userId, CreateProductViewModel createProductViewModel);
     Task<ResponseViewModel> Update(UpdateProductViewModel updateProductViewModel);
     Task<ResponseViewModel> Deactivate(Guid id);
     Task<BaseListQueryResponseViewModel> GetListProducts(BaseListQueryParameters parameters);
@@ -32,7 +32,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
         _stripeProductService = stripeProductService ?? throw new ArgumentNullException(nameof(stripeProductService));
     }
 
-    public async Task<ResponseViewModel> Create(CreateProductViewModel createProductViewModel)
+    public async Task<ResponseViewModel> Create(Guid userId, CreateProductViewModel createProductViewModel)
     {
         try
         {
@@ -43,9 +43,10 @@ internal class ProductDomain : BaseDomain, IProductDomain
 
             product.Id = Guid.NewGuid();
             product.IsDeleted = false;
+            product.CreatedBy = userId;
             product.UpdatedDate = datetime;
             product.CreatedDate = datetime;
-            product.UpdatedBy = createProductViewModel.CreatedBy;
+            product.UpdatedBy = userId;
 
             _productRepository.Add(product);
             await _uow.SaveAsync();

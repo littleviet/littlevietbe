@@ -15,7 +15,7 @@ public static class StartupMiddlewareExtensions
             .AllowAnyHeader());
 
         webApplication.UseAuthentication();
-
+        
         webApplication.UseAuthorization();
 
         webApplication.UseHttpsRedirection();

@@ -39,7 +39,6 @@ public class CreateAccountViewModel
     public string PostalCode { get; set; }
     public string PhoneNumber1 { get; set; }
     public string PhoneNumber2 { get; set; }
-    public Guid CreatedBy { get; set; }
 }
 public class UpdateAccountViewModel
 {

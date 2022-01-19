@@ -13,6 +13,7 @@ public class Product : AuditableEntity
     public double Price { get; set; }
     public Guid ProductTypeId { get; set; }
     public virtual ICollection<ProductImage> ProductImages { get; set; }
+    public virtual ICollection<Serving> Servings { get; set; }
     public virtual ProductType ProductType { get; set; }
 }
 

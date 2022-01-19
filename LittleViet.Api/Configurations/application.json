@@ -1,6 +1,6 @@
 ﻿{
   "AppSettings": {
-    "Secret": "",
+    "JwtSecret": "",
     "AllowedOrigins": []
   }
 }

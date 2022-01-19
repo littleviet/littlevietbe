@@ -2,7 +2,7 @@
 
 public class CreatePriceDto
 {
-    public long? Amount { get; set; }
+    public long? Price { get; set; }
     public string Currency { get; set; }
-    public string ProductId { get; set; }
+    public string StripeProductId { get; set; }
 }

@@ -18,7 +18,7 @@ public interface IAccountDomain
 {
     ResponseViewModel Login(string email, string password);
     Task<ResponseViewModel> Deactivate(Guid id);
-    Task<ResponseViewModel> Create(CreateAccountViewModel createAccountViewModel);
+    Task<ResponseViewModel> Create(Guid userId, CreateAccountViewModel createAccountViewModel);
     Task<ResponseViewModel> Update(UpdateAccountViewModel updateAccountViewModel);
     Task<ResponseViewModel> UpdatePassword(UpdatePasswordViewModel updatePasswordViewModel);
     Task<BaseListQueryResponseViewModel> GetListAccounts(BaseListQueryParameters parameters);
@@ -52,12 +52,12 @@ public class AccountDomain : BaseDomain, IAccountDomain
             var accountViewModel = _mapper.Map<AccountViewModel>(account);
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_configuration["AppSettings:Secret"]);
+            var key = Encoding.ASCII.GetBytes(_configuration["AppSettings:JwtSecret"]);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
-                            new (ClaimTypes.Name, accountViewModel.Id.ToString()),
+                            new (ClaimTypes.NameIdentifier, accountViewModel.Id.ToString()),
                             new (ClaimTypes.Role, accountViewModel.AccountType.ToString())
                 }),
                 Expires = DateTime.UtcNow.AddDays(7),
@@ -75,7 +75,7 @@ public class AccountDomain : BaseDomain, IAccountDomain
         }
     }
 
-    public async Task<ResponseViewModel> Create(CreateAccountViewModel createAccountViewModel)
+    public async Task<ResponseViewModel> Create(Guid userId, CreateAccountViewModel createAccountViewModel)
     {
         try
         {
@@ -94,7 +94,7 @@ public class AccountDomain : BaseDomain, IAccountDomain
             account.IsDeleted = false;
             account.UpdatedDate = datetime;
             account.CreatedDate = datetime;
-            account.UpdatedBy = createAccountViewModel.CreatedBy;
+            account.UpdatedBy = userId;
 
             _accountRepository.Add(account);
             await _uow.SaveAsync();

@@ -1,4 +1,5 @@
-﻿using LittleViet.Data.Domains;
+﻿using System.Security.Claims;
+using LittleViet.Data.Domains;
 using LittleViet.Data.ServiceHelper;
 using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.Stripe;
@@ -26,7 +27,8 @@ public class PaymentController : Controller
     {
         try
         {
-            var result = await _productDomain.Create(createProductViewModel);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var result = await _productDomain.Create(Guid.Parse(userId), createProductViewModel);
             return Ok(result);
         }
         catch (Exception e)

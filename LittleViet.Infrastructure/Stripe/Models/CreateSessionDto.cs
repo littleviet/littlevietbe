@@ -3,10 +3,12 @@
 public class CreateSessionDto
 {
     public List<SessionItem> SessionItems { get; set; }
+    
+    public Dictionary<string, string> Metadata { get; set; }
 }
 
 public class SessionItem
 {
-    public string Price { get; set; }
+    public string StripePriceId { get; set; }
     public long? Quantity { get; set; }
 }

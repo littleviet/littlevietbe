@@ -5,6 +5,8 @@
       "SuccessUrl": "",
       "CancelUrl": ""
     },
-    "WebhookSecret": ""
+    "WebhookSecret": "",
+    "SecretKey": "",
+    "PublishableKey": ""
   }
 }

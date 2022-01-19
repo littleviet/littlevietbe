@@ -48,10 +48,17 @@ internal class ServingDomain : BaseDomain, IServingDomain
             serving.UpdatedBy = createServingViewModel.CreatedBy;
             serving.IsDeleted = false;
 
-            _servingRepository.Add(serving);
+            var entry = _servingRepository.Add(serving);
             await _uow.SaveAsync();
 
-            var createStripePriceDto = _mapper.Map<CreatePriceDto>(createServingViewModel);
+            await entry.Reference(e => e.Product).LoadAsync();
+            
+            var createStripePriceDto = new CreatePriceDto()
+            {
+                Price = (long)serving.Price*100,
+                Currency = "eur",
+                StripeProductId = entry.Entity.Product.StripeProductId,
+            };
             var stripePrice = await _stripePriceService.CreatePrice(createStripePriceDto);
             serving.StripePriceId = stripePrice.Id;
 
@@ -101,8 +108,10 @@ internal class ServingDomain : BaseDomain, IServingDomain
                 var newPrice = await _stripePriceService.UpdatePrice(
                     new UpdatePriceDto
                     {
-                        Amount = existedServing.Price as long?,
-                        
+                        Amount = (long)existedServing.Price*100,
+                        Currency = "eur",
+                        Id = existedServing.StripePriceId,
+                        ProductId = existedServing.Product.StripeProductId,
                     });
                 existedServing.StripePriceId = newPrice.Id;
             }

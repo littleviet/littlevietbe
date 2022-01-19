@@ -6,7 +6,7 @@ namespace LittleViet.Data.ServiceHelper;
 
 public class AppSettings
 {
-    public string Secret { get; set; }
+    public string JwtSecret { get; set; }
 }
 
 public class Role

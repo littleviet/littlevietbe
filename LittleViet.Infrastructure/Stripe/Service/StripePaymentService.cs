@@ -23,10 +23,11 @@ public class StripePaymentService : BaseStripeService, IStripePaymentService
             LineItems = dto.SessionItems
                 .Select(i => new SessionLineItemOptions
                 {
-                    Price = i.Price,
+                    Price = i.StripePriceId,
                     Quantity = i.Quantity,
                 }).ToList(),
-            Mode = "payment",
+            Mode = _stripeSettings.Payment.PaymentType,
+            Metadata = dto.Metadata,
             SuccessUrl = $"{_stripeSettings.Payment.BaseDomain}/{_stripeSettings.Payment.SuccessUrl}",
             CancelUrl = $"{_stripeSettings.Payment.BaseDomain}/{_stripeSettings.Payment.CancelUrl}",
         };
