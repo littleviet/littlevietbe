@@ -13,11 +13,13 @@ namespace LittleViet.Data.Domains;
 
 public interface IOrderDomain
 {
-    Task<ResponseViewModel> Create(CreateOrderViewModel createOrderViewModel);
+    Task<ResponseViewModel> Create(Guid userId, CreateOrderViewModel createOrderViewModel);
     Task<ResponseViewModel> Update(UpdateOrderViewModel updateOrderViewModel);
     Task<ResponseViewModel> Deactivate(Guid id);
     Task<BaseListQueryResponseViewModel> GetListOrders(BaseListQueryParameters parameters);
     Task<ResponseViewModel> GetOrderById(Guid id);
+    Task<ResponseViewModel> HandleSuccessfulOrder(Guid orderId, string stripeSessionId);
+    Task<ResponseViewModel> HandleExpiredOrder(Guid orderId, string stripeSessionId);
 }
 
 internal class OrderDomain : BaseDomain, IOrderDomain
@@ -37,45 +39,55 @@ internal class OrderDomain : BaseDomain, IOrderDomain
         _stripePaymentService = stripePaymentService ?? throw new ArgumentNullException(nameof(stripePaymentService));
     }
 
-    public async Task<ResponseViewModel> Create(CreateOrderViewModel createOrderViewModel)
+    public async Task<ResponseViewModel> Create(Guid userId, CreateOrderViewModel createOrderViewModel)
     {
         try
         {
             var order = _mapper.Map<Order>(createOrderViewModel);
-            var datetime = DateTime.UtcNow;
+            var now = DateTime.UtcNow;
             var orderGuid = Guid.NewGuid();
 
             order.Id = orderGuid;
             order.IsDeleted = false;
             order.OrderStatus = OrderStatus.Ordered;
-            order.UpdatedDate = datetime;
-            order.CreatedDate = datetime;
-            order.UpdatedBy = createOrderViewModel.CreatedBy;
+            order.UpdatedDate = now;
+            order.CreatedDate = now;
+            order.UpdatedBy = userId;
 
             foreach (var orderDetail in order.OrderDetails)
             {
                 orderDetail.Id = Guid.NewGuid();
                 orderDetail.OrderId = orderGuid;
                 orderDetail.IsDeleted = false;
-                orderDetail.UpdatedDate = datetime;
-                orderDetail.CreatedDate = datetime;
-                orderDetail.UpdatedBy = createOrderViewModel.CreatedBy;
-                orderDetail.CreatedBy = createOrderViewModel.CreatedBy;
+                orderDetail.UpdatedDate = now;
+                orderDetail.CreatedDate = now;
+                orderDetail.UpdatedBy = userId;
+                orderDetail.CreatedBy = userId;
             }
 
             _orderRepository.Add(order);
             await _uow.SaveAsync();
 
+            var savedOrder = await _orderRepository.DbSet()
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Serving)
+                .Where(o => o.Id == order.Id)
+                .FirstOrDefaultAsync();
+            
             var stripeSessionDto = new CreateSessionDto()
             {
                 Metadata = new() {{"orderId", orderGuid.ToString()}},
-                SessionItems = order.OrderDetails.Select(od => new SessionItem()
+                SessionItems = savedOrder.OrderDetails.Select(od => new SessionItem()
                 {
                     StripePriceId = od.Serving.StripePriceId,
                     Quantity = od.Quantity,
                 }).ToList()
             };
-            var stripeSession = await _stripePaymentService.CreateCheckoutSession(stripeSessionDto);
+            var checkoutSessionResult = await _stripePaymentService.CreateCheckoutSession(stripeSessionDto);
+
+            order.LastStripeSessionId = checkoutSessionResult.Id;
+
+            await _uow.SaveAsync();
 
             return new ResponseViewModel
             {
@@ -84,7 +96,8 @@ internal class OrderDomain : BaseDomain, IOrderDomain
                 Payload = new
                 {
                     OrderId = orderGuid.ToString(),
-                    Url = stripeSession.Url,
+                    Url = checkoutSessionResult.Url,
+                    SessionId = checkoutSessionResult.Id,
                 },
             };
         }
@@ -98,7 +111,7 @@ internal class OrderDomain : BaseDomain, IOrderDomain
         }
     }
 
-    public async Task<ResponseViewModel> Update(UpdateOrderViewModel updateOrderViewModel)
+    public async Task<ResponseViewModel> Update(UpdateOrderViewModel updateOrderViewModel) //TODO: remove this as orders are immutable?
     {
         try
         {
@@ -197,19 +210,47 @@ internal class OrderDomain : BaseDomain, IOrderDomain
         }
     }
 
-    public async Task<ResponseViewModel> Checkout(Guid id)
+    public async Task<ResponseViewModel> HandleSuccessfulOrder(Guid orderId, string stripeSessionId)
     {
         try
         {
-            var order = await _orderRepository.DbSet().Include(t => t.OrderDetails.Where(p => p.IsDeleted == false))
-                .FirstOrDefaultAsync(q => q.Id == id);
+            var order = await _orderRepository.DbSet().FirstOrDefaultAsync(q => q.Id == orderId);
 
             if (order == null)
             {
-                return new ResponseViewModel {Success = false, Message = "This order does not exist"};
+                throw new Exception($"Cannot find order of Id {order.Id}");
             }
 
-            return new ResponseViewModel {Success = true, Payload = order};
+            order.OrderStatus = OrderStatus.Paid;
+            order.LastStripeSessionId = stripeSessionId;
+
+            await _uow.SaveAsync();
+            
+            return new ResponseViewModel {Success = true};
+        }
+        catch (Exception e)
+        {
+            throw;
+        }
+    }
+    
+    public async Task<ResponseViewModel> HandleExpiredOrder(Guid orderId, string stripeSessionId)
+    {
+        try
+        {
+            var order = await _orderRepository.DbSet().FirstOrDefaultAsync(q => q.Id == orderId);
+
+            if (order == null)
+            {
+                throw new Exception($"Cannot find order of Id {order.Id}");
+            }
+
+            order.OrderStatus = OrderStatus.Expired;
+            order.LastStripeSessionId = stripeSessionId;
+
+            await _uow.SaveAsync();
+            
+            return new ResponseViewModel {Success = true};
         }
         catch (Exception e)
         {

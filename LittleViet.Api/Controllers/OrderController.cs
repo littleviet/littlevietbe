@@ -1,4 +1,5 @@
-﻿using LittleViet.Data.Domains;
+﻿using System.Security.Claims;
+using LittleViet.Data.Domains;
 using LittleViet.Data.ServiceHelper;
 using LittleViet.Data.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -22,7 +23,8 @@ public class OrderController : Controller
     {
         try
         {
-            var result = await _orderDomain.Create(createOrderViewModel);
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var result = await _orderDomain.Create(userId, createOrderViewModel);
             return Ok(result);
         }
         catch (Exception e)
@@ -33,7 +35,7 @@ public class OrderController : Controller
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(UpdateOrderViewModel updateOrderViewModel)
+    public async Task<IActionResult> Update(UpdateOrderViewModel updateOrderViewModel)// TODO: should this be needed?
     {
         try
         {

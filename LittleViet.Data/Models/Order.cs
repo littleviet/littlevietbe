@@ -9,6 +9,6 @@ public class Order : AuditableEntity
     public PaymentType PaymentType { get; set; }
     public OrderStatus OrderStatus { get; set; } 
     public DateTime PickupTime { get; set; }
-
+    public string LastStripeSessionId { get; set; }
     public virtual ICollection<OrderDetail> OrderDetails { get; set; }
 }
