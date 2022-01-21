@@ -31,7 +31,6 @@ public class StripePaymentService : BaseStripeService, IStripePaymentService
             SuccessUrl = $"{_stripeSettings.Payment.BaseDomain}/{_stripeSettings.Payment.SuccessUrl}",
             CancelUrl = $"{_stripeSettings.Payment.BaseDomain}/{_stripeSettings.Payment.CancelUrl}",
         };
-        var service = new SessionService();
-        return service.CreateAsync(options);
+        return _sessionService.CreateAsync(options);
     }
 }

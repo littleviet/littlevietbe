@@ -1,32 +1,43 @@
 ﻿using AutoMapper;
 using LittleViet.Data.Models.Global;
+using LittleViet.Data.Repositories;
+using LittleViet.Data.ViewModels;
+using LittleViet.Infrastructure.Stripe;
+using LittleViet.Infrastructure.Stripe.Interface;
+using Stripe.Checkout;
 
 namespace LittleViet.Data.Domains;
 
 public interface IPaymentDomain
 {
-    
+    Task<ResponseViewModel> HandleSuccessfulPayment(Session session);
+    Task<ResponseViewModel> HandleExpiredPayment(Session session);
 }
 
 public class PaymentDomain : BaseDomain, IPaymentDomain
 {
     private readonly IMapper _mapper;
+    private readonly IStripePaymentService _stripePaymentService;
+    private readonly IOrderDomain _orderDomain;
 
-    public PaymentDomain(IUnitOfWork uow, IMapper mapper) : base(uow)
+    public PaymentDomain(IUnitOfWork uow, IMapper mapper, IStripePaymentService stripePaymentService, IOrderDomain orderRepository) : base(uow)
     {
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _stripePaymentService = stripePaymentService ?? throw new ArgumentNullException(nameof(stripePaymentService));
+        _orderDomain = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
     }
 
-    public Task CreateSession()
+    public async Task<ResponseViewModel> HandleSuccessfulPayment(Session session)
     {
-        throw new NotImplementedException();
+        var orderGuid = Guid.Parse(session.Metadata.GetValueOrDefault(Payment.OrderMetaDataKey));
+        return await _orderDomain.HandleSuccessfulOrder(orderGuid, session.Id);
     }
 
 
-    public Task HandleOrderSuccess(string orderId)
+    public async Task<ResponseViewModel> HandleExpiredPayment(Session session)
     {
-        throw new NotImplementedException();
-        
+        var orderGuid = Guid.Parse(session.Metadata.GetValueOrDefault(Payment.OrderMetaDataKey));
+        return await _orderDomain.HandleSuccessfulOrder(orderGuid, session.Id);
     }
 }
 

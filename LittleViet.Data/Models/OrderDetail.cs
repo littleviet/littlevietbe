@@ -7,6 +7,5 @@ public class OrderDetail : AuditableEntity
     public Guid OrderId { get; set; }
     public virtual Order Order { get; set; }
     public long Quantity { get; set; }
-    public double Price { get; set; }
 }
 

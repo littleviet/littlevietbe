@@ -3,8 +3,7 @@ namespace LittleViet.Data.ViewModels;
 
 public class CreateOrderViewModel
 {
-    public Guid CreatedBy { get; set; }
-    public OrderType OrderType { get; set; }
+    public OrderType OrderType { get; set; } = OrderType.TakeAway;
     public double TotalPrice { get; set; }
     public PaymentType PaymentType { get; set; }
     public DateTime PickupTime { get; set; }
