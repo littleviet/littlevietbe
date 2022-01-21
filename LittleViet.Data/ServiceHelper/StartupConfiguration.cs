@@ -64,7 +64,8 @@ public static partial class StartupConfiguration
             .AddScoped<IProductTypeDomain, ProductTypeDomain>()
             .AddScoped<ILandingPageDomain, LandingPageDomain>()
             .AddScoped<IReservationDomain, ReservationDomain>()
-            .AddScoped<IServingDomain, ServingDomain>();
+            .AddScoped<IServingDomain, ServingDomain>()
+            .AddScoped<IPaymentDomain, PaymentDomain>();
         
         services.AddScoped<ProductService>(s => new ProductService())
             .AddScoped<PriceService>(s => new PriceService())
