@@ -35,10 +35,10 @@ public class PaymentController : Controller
             
             switch (stripeEvent.Type)
             {
-                case "checkout.session.completed":
+                case Events.CheckoutSessionCompleted:
                     var sessionSuccess = stripeEvent.Data.Object as Stripe.Checkout.Session;
                     return Ok(await _paymentDomain.HandleSuccessfulPayment(sessionSuccess));
-                case "checkout.session.expired":
+                case Events.CheckoutSessionExpired:
                     var sessionExpired = stripeEvent.Data.Object as Stripe.Checkout.Session;
                     return Ok(await _paymentDomain.HandleSuccessfulPayment(sessionExpired));
                 default:
