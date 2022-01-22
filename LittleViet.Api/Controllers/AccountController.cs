@@ -29,6 +29,20 @@ public class AccountController : BaseController
             return StatusCode(500, new ResponseViewModel { Message = e.Message, Success = false });
         }
     }
+    
+    [HttpPost("register")]
+    public async Task<IActionResult> Register(CreateAccountViewModel createAccountViewModel)
+    {
+        try
+        {
+            var result = await _accountDomain.Register(createAccountViewModel);
+            return Ok(result);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseViewModel { Message = e.Message, Success = false });
+        }
+    }
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpPost]

@@ -13,7 +13,7 @@ internal class ProductsLandingPageViewModel
     public string Name { get; set; }
     public string EsName { get; set; }
     public string CaName { get; set; }
-    public double Price { get; set; }
+    public double? Price { get; set; }
 }
 
 public class CreateProductTypeViewModel
@@ -43,5 +43,14 @@ public class SearchProductTypeViewModel : BaseListQueryParameters
     public string EsName { get; set; }
     public string CaName { get; set; }
     public string Description { get; set; }
+}
+
+public class ProductTypeItemViewModel
+{
+    public string Name { get; set; }
+    public string EsName { get; set; }
+    public string CaName { get; set; }
+    public string Description { get; set; }
+    public Guid Id { get; set; }
 }
 

@@ -14,7 +14,7 @@ public interface ICouponDomain
     Task<ResponseViewModel> Update(UpdateCouponViewModel updateCouponViewModel);
     Task<ResponseViewModel> UpdateStatus(UpdateCouponStatusViewModel updateCouponStatusViewModel);
     Task<ResponseViewModel> Deactivate(Guid id);
-    Task<BaseListQueryResponseViewModel> GetListCoupons(BaseListQueryParameters parameters);
+    Task<BaseListResponseViewModel> GetListCoupons(BaseListQueryParameters parameters);
     Task<ResponseViewModel> GetCouponById(Guid id);
 }
 internal class CouponDomain : BaseDomain, ICouponDomain
@@ -124,13 +124,13 @@ internal class CouponDomain : BaseDomain, ICouponDomain
         }
     }
 
-    public async Task<BaseListQueryResponseViewModel> GetListCoupons(BaseListQueryParameters parameters)
+    public async Task<BaseListResponseViewModel> GetListCoupons(BaseListQueryParameters parameters)
     {
         try
         {
             var productTypes = _couponRepository.DbSet().AsNoTracking();
 
-            return new BaseListQueryResponseViewModel
+            return new BaseListResponseViewModel
             {
                 Payload = await productTypes.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber).ToListAsync(),
                 Success = true,

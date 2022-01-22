@@ -13,8 +13,8 @@ public interface IReservationDomain
     Task<ResponseViewModel> Create(CreateReservationViewModel reservationVm);
     Task<ResponseViewModel> Update(UpdateReservationViewModel reservationVm);
     Task<ResponseViewModel> Deactivate(Guid Id);
-    Task<BaseListQueryResponseViewModel> Search(BaseSearchParameters parameters);
-    Task<BaseListQueryResponseViewModel> GetListReservations(BaseListQueryParameters parameters);
+    Task<BaseListResponseViewModel> Search(BaseSearchParameters parameters);
+    Task<BaseListResponseViewModel> GetListReservations(BaseListQueryParameters parameters);
     Task<ResponseViewModel> GetReservationById(Guid id);
 }
 internal class ReservationDomain : BaseDomain, IReservationDomain
@@ -107,7 +107,7 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
         }
     }
 
-    public async Task<BaseListQueryResponseViewModel> Search(BaseSearchParameters parameters)
+    public async Task<BaseListResponseViewModel> Search(BaseSearchParameters parameters)
     {
         try
         {
@@ -115,7 +115,7 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
                 .Where(p => p.Firstname.Contains(parameters.Keyword) || p.PhoneNumber.Contains(parameters.Keyword)
                 || p.Email.Contains(parameters.Keyword) || p.Lastname.Contains(parameters.Keyword) || p.PhoneNumber.Contains(parameters.Keyword));
 
-            return new BaseListQueryResponseViewModel
+            return new BaseListResponseViewModel
             {
                 Payload = await reservations.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber).ToListAsync(),
                 Success = true,
@@ -126,17 +126,17 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
         }
         catch (Exception e)
         {
-            return new BaseListQueryResponseViewModel { Success = false, Message = e.Message };
+            return new BaseListResponseViewModel { Success = false, Message = e.Message };
         }
     }
 
-    public async Task<BaseListQueryResponseViewModel> GetListReservations(BaseListQueryParameters parameters)
+    public async Task<BaseListResponseViewModel> GetListReservations(BaseListQueryParameters parameters)
     {
         try
         {
             var reservation = _reservationRepository.DbSet().AsNoTracking();
 
-            return new BaseListQueryResponseViewModel
+            return new BaseListResponseViewModel
             {
                 Payload = await reservation.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber).ToListAsync(),
                 Success = true,
@@ -147,7 +147,7 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
         }
         catch (Exception e)
         {
-            return new BaseListQueryResponseViewModel { Success = false, Message = e.Message };
+            return new BaseListResponseViewModel { Success = false, Message = e.Message };
         }
     }
 
