@@ -11,11 +11,11 @@ public class CreateProductViewModel
     public double Price { get; set; }
     public ProductStatus Status { get; set; }
     public Guid ProductTypeId { get; set; }
+    public List<CreateProductImageViewModel> ProductImages { get; set; }
 }
 
 public class UpdateProductViewModel
 {
-    public Guid UpdatedBy { get; set; }
     public Guid Id { get; set; }
     public string Name { get; set; }
     public string EsName { get; set; }
@@ -24,6 +24,8 @@ public class UpdateProductViewModel
     public double Price { get; set; }
     public ProductStatus Status { get; set; }
     public Guid ProductTypeId { get; set; }
+    public bool ImageChange { get; set; }
+    public List<CreateProductImageViewModel> ProductImages { get; set; }
 }
 
 public class ProductViewModel

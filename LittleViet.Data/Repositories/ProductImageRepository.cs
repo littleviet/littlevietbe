@@ -2,7 +2,7 @@
 
 namespace LittleViet.Data.Repositories;
 
-public interface IProductImageRepository
+public interface IProductImageRepository : IBaseRepository<ProductImage>
 {
 
 }

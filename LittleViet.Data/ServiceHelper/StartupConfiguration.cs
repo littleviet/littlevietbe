@@ -4,6 +4,8 @@ using LittleViet.Data.Models;
 using LittleViet.Data.Models.Global;
 using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
+using LittleViet.Infrastructure.Azure.AzureBlobStorage.Interface;
+using LittleViet.Infrastructure.Azure.AzureBlobStorage.Service;
 using LittleViet.Infrastructure.Stripe.Interface;
 using LittleViet.Infrastructure.Stripe.Models;
 using LittleViet.Infrastructure.Stripe.Service;
@@ -72,7 +74,8 @@ public static partial class StartupConfiguration
             .AddScoped<SessionService>(s => new SessionService())
             .AddScoped<IStripePaymentService, StripePaymentService>()
             .AddScoped<IStripeProductService, StripeProductService>()
-            .AddScoped<IStripePriceService, StripePriceService>();
+            .AddScoped<IStripePriceService, StripePriceService>()
+            .AddScoped<IBlobService, BlobService>();
 
         return services;
     }
