@@ -16,7 +16,7 @@ public interface IOrderDomain
     Task<ResponseViewModel> Create(Guid userId, CreateOrderViewModel createOrderViewModel);
     Task<ResponseViewModel> Update(UpdateOrderViewModel updateOrderViewModel);
     Task<ResponseViewModel> Deactivate(Guid id);
-    Task<BaseListQueryResponseViewModel> GetListOrders(BaseListQueryParameters parameters);
+    Task<BaseListResponseViewModel> GetListOrders(BaseListQueryParameters parameters);
     Task<ResponseViewModel> GetOrderById(Guid id);
     Task<ResponseViewModel> HandleSuccessfulOrder(Guid orderId, string stripeSessionId);
     Task<ResponseViewModel> HandleExpiredOrder(Guid orderId, string stripeSessionId);
@@ -168,13 +168,13 @@ internal class OrderDomain : BaseDomain, IOrderDomain
         }
     }
 
-    public async Task<BaseListQueryResponseViewModel> GetListOrders(BaseListQueryParameters parameters)
+    public async Task<BaseListResponseViewModel> GetListOrders(BaseListQueryParameters parameters)
     {
         try
         {
             var order = _orderRepository.DbSet().AsNoTracking();
 
-            return new BaseListQueryResponseViewModel
+            return new BaseListResponseViewModel
             {
                 Payload = await order.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
                     .ToListAsync(),

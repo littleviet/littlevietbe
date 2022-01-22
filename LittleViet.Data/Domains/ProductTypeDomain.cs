@@ -14,8 +14,8 @@ public interface IProductTypeDomain
     Task<ResponseViewModel> Create(CreateProductTypeViewModel createProductTypeViewModel);
     Task<ResponseViewModel> Update(UpdateProductTypeViewModel updateProductTypeViewModel);
     Task<ResponseViewModel> Deactivate(Guid id);
-    Task<BaseListQueryResponseViewModel> GetListProductTypes(BaseListQueryParameters parameters);
-    Task<BaseListQueryResponseViewModel> Search(BaseSearchParameters parameters);
+    Task<BaseListResponseViewModel<ProductTypeItemViewModel>> GetListProductTypes(BaseListQueryParameters parameters);
+    Task<BaseListResponseViewModel> Search(BaseSearchParameters parameters);
     Task<ResponseViewModel> GetProductTypeById(Guid id);
 }
 internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
@@ -104,15 +104,25 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
         }
     }
 
-    public async Task<BaseListQueryResponseViewModel> GetListProductTypes(BaseListQueryParameters parameters)
+    public async Task<BaseListResponseViewModel<ProductTypeItemViewModel>> GetListProductTypes(BaseListQueryParameters parameters)
     {
         try
         {
             var productTypes = _productTypeRepository.DbSet().AsNoTracking();
 
-            return new BaseListQueryResponseViewModel
+            return new BaseListResponseViewModel<ProductTypeItemViewModel>
             {
-                Payload = await productTypes.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber).ToListAsync(),
+                Payload = await productTypes
+                    .Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
+                    .Select(pt => new ProductTypeItemViewModel()
+                    {
+                        Id = pt.Id,
+                        Name = pt.Name,
+                        CaName = pt.CaName,
+                        EsName = pt.EsName,
+                        Description = pt.Description
+                    })
+                    .ToListAsync(),
                 Success = true,
                 Total = await productTypes.CountAsync(),
                 PageNumber = parameters.PageNumber,
@@ -125,7 +135,7 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
         }
     }
 
-    public async Task<BaseListQueryResponseViewModel> Search(BaseSearchParameters parameters)
+    public async Task<BaseListResponseViewModel> Search(BaseSearchParameters parameters)
     {
         try
         {
@@ -133,9 +143,19 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
             var productTypes = _productTypeRepository.DbSet().AsNoTracking()
                 .Where(p => p.Name.ToLower().Contains(keyword) || p.CaName.ToLower().Contains(keyword) || p.EsName.ToLower().Contains(keyword));
 
-            return new BaseListQueryResponseViewModel
+            return new BaseListResponseViewModel
             {
-                Payload = await productTypes.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber).ToListAsync(),
+                Payload = await productTypes
+                    .Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
+                    .Select(pt => new ProductTypeItemViewModel()
+                    {
+                        Id = pt.Id,
+                        Name = pt.Name,
+                        CaName = pt.CaName,
+                        EsName = pt.EsName,
+                        Description = pt.Description
+                    })
+                    .ToListAsync(),
                 Success = true,
                 Total = await productTypes.CountAsync(),
                 PageNumber = parameters.PageNumber,

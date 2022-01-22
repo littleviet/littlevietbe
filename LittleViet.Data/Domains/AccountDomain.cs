@@ -19,10 +19,11 @@ public interface IAccountDomain
     ResponseViewModel Login(string email, string password);
     Task<ResponseViewModel> Deactivate(Guid id);
     Task<ResponseViewModel> Create(Guid userId, CreateAccountViewModel createAccountViewModel);
+    Task<ResponseViewModel> Register(CreateAccountViewModel createAccountViewModel);
     Task<ResponseViewModel> Update(UpdateAccountViewModel updateAccountViewModel);
     Task<ResponseViewModel> UpdatePassword(UpdatePasswordViewModel updatePasswordViewModel);
-    Task<BaseListQueryResponseViewModel> GetListAccounts(BaseListQueryParameters parameters);
-    Task<BaseListQueryResponseViewModel> Search(BaseSearchParameters parameters);
+    Task<BaseListResponseViewModel> GetListAccounts(BaseListQueryParameters parameters);
+    Task<BaseListResponseViewModel> Search(BaseSearchParameters parameters);
     Task<ResponseViewModel> GetAccountById(Guid id);
 }
 public class AccountDomain : BaseDomain, IAccountDomain
@@ -95,6 +96,37 @@ public class AccountDomain : BaseDomain, IAccountDomain
             account.UpdatedDate = datetime;
             account.CreatedDate = datetime;
             account.UpdatedBy = userId;
+
+            _accountRepository.Add(account);
+            await _uow.SaveAsync();
+
+            return new ResponseViewModel { Success = true, Message = "Create successful" };
+        }
+        catch (Exception e)
+        {
+            throw;
+        }
+    }
+    
+    public async Task<ResponseViewModel> Register(CreateAccountViewModel createAccountViewModel)
+    {
+        try
+        {
+            var existedAccount = _accountRepository.GetByEmail(createAccountViewModel.Email);
+
+            if (existedAccount != null)
+            {
+                return new ResponseViewModel { Success = false, Message = "This email already existed" };
+            }
+            var account = _mapper.Map<Account>(createAccountViewModel);
+
+            var datetime = DateTime.UtcNow;
+
+            account.Id = Guid.NewGuid();
+            account.Password = BCryptNet.HashPassword(createAccountViewModel.Password);
+            account.IsDeleted = false;
+            account.UpdatedDate = datetime;
+            account.CreatedDate = datetime;
 
             _accountRepository.Add(account);
             await _uow.SaveAsync();
@@ -197,7 +229,7 @@ public class AccountDomain : BaseDomain, IAccountDomain
         }
     }
 
-    public async Task<BaseListQueryResponseViewModel> GetListAccounts(BaseListQueryParameters parameters)
+    public async Task<BaseListResponseViewModel> GetListAccounts(BaseListQueryParameters parameters)
     {
         try
         {
@@ -205,7 +237,7 @@ public class AccountDomain : BaseDomain, IAccountDomain
             var pagingAccounts = await accounts.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber).ToListAsync();
             var result = _mapper.Map<List<AccountViewModel>>(pagingAccounts);
 
-            return new BaseListQueryResponseViewModel
+            return new BaseListResponseViewModel
             {
                 Payload = result,
                 Success = true,
@@ -220,7 +252,7 @@ public class AccountDomain : BaseDomain, IAccountDomain
         }
     }
 
-    public async Task<BaseListQueryResponseViewModel> Search(BaseSearchParameters parameters)
+    public async Task<BaseListResponseViewModel> Search(BaseSearchParameters parameters)
     {
         try
         {
@@ -231,7 +263,7 @@ public class AccountDomain : BaseDomain, IAccountDomain
             var pagingAccounts = await accounts.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber).ToListAsync();
             var result = _mapper.Map<List<AccountViewModel>>(pagingAccounts);
 
-            return new BaseListQueryResponseViewModel
+            return new BaseListResponseViewModel
             {
                 Payload = result,
                 Success = true,

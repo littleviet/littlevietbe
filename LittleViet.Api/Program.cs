@@ -8,6 +8,7 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using LittleViet.Infrastructure.Configurations;
 using LittleViet.Infrastructure.Middleware;
+using LittleViet.Infrastructure.Security.XSRF;
 using LittleViet.Infrastructure.Stripe;
 using LittleViet.Infrastructure.Swagger;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
@@ -17,18 +18,16 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.AddConfigurations();
 
-builder.Services.AddDbContext<LittleVietContext>(options =>
-    options
-        .UseLazyLoadingProxies()
-        .UseNpgsql(builder.Configuration.GetConnectionString("LittleVietContext"))
-        .ConfigureWarnings(warn => warn.Ignore(CoreEventId.DetachedLazyLoadingWarning)));
+builder.Services
+    .AddDbContext<LittleVietContext>(options =>
+        options.UseLazyLoadingProxies()
+            .UseNpgsql(builder.Configuration.GetConnectionString("LittleVietContext"))
+            .ConfigureWarnings(warn => warn.Ignore(CoreEventId.DetachedLazyLoadingWarning)))
+    .AddMvc(options =>
+        {
+            options.Conventions.Add(new RouteTokenTransformerConvention(new SlugifyParameterTransformer()));
+        });
 
-// Add services to the container.
-
-builder.Services.AddControllers(options =>
-{
-    options.Conventions.Add(new RouteTokenTransformerConvention(new SlugifyParameterTransformer()));
-});
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer()
     .AddApplicationSwagger();

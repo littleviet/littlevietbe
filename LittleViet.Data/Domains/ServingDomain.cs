@@ -15,8 +15,8 @@ public interface IServingDomain
     Task<ResponseViewModel> Create(CreateServingViewModel createServingViewModel);
     Task<ResponseViewModel> Update(UpdateServingViewModel updateServingViewModel);
     Task<ResponseViewModel> Deactivate(Guid id);
-    Task<BaseListQueryResponseViewModel> GetListServing(BaseListQueryParameters parameters);
-    Task<BaseListQueryResponseViewModel> Search(BaseSearchParameters parameters);
+    Task<BaseListResponseViewModel> GetListServing(BaseListQueryParameters parameters);
+    Task<BaseListResponseViewModel> Search(BaseSearchParameters parameters);
     Task<ResponseViewModel> GetServingById(Guid id);
 }
 
@@ -146,13 +146,13 @@ internal class ServingDomain : BaseDomain, IServingDomain
         throw new NotImplementedException(); //TODO: finish later
     }
 
-    public async Task<BaseListQueryResponseViewModel> GetListServing(BaseListQueryParameters parameters)
+    public async Task<BaseListResponseViewModel> GetListServing(BaseListQueryParameters parameters)
     {
         try
         {
             var servings = _servingRepository.DbSet().AsNoTracking();
 
-            return new BaseListQueryResponseViewModel
+            return new BaseListResponseViewModel
             {
                 Payload = await servings.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
                     .ToListAsync(),
@@ -164,11 +164,11 @@ internal class ServingDomain : BaseDomain, IServingDomain
         }
         catch (Exception e)
         {
-            return new BaseListQueryResponseViewModel {Success = false, Message = e.Message};
+            return new BaseListResponseViewModel {Success = false, Message = e.Message};
         }
     }
 
-    public async Task<BaseListQueryResponseViewModel> Search(BaseSearchParameters parameters)
+    public async Task<BaseListResponseViewModel> Search(BaseSearchParameters parameters)
     {
         try
         {
@@ -176,7 +176,7 @@ internal class ServingDomain : BaseDomain, IServingDomain
             var servings = _servingRepository.DbSet().AsNoTracking()
                 .Where(p => p.Name.ToLower().Contains(keyword));
 
-            return new BaseListQueryResponseViewModel
+            return new BaseListResponseViewModel
             {
                 Payload = await servings.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
                     .ToListAsync(),
@@ -188,7 +188,7 @@ internal class ServingDomain : BaseDomain, IServingDomain
         }
         catch (Exception e)
         {
-            return new BaseListQueryResponseViewModel {Success = false, Message = e.Message};
+            return new BaseListResponseViewModel {Success = false, Message = e.Message};
         }
     }
 

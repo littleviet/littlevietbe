@@ -18,8 +18,8 @@ public interface IProductDomain
     Task<ResponseViewModel> Create(Guid userId, CreateProductViewModel createProductViewModel);
     Task<ResponseViewModel> Update(Guid userId, UpdateProductViewModel updateProductViewModel);
     Task<ResponseViewModel> Deactivate(Guid id);
-    Task<BaseListQueryResponseViewModel> GetListProducts(BaseListQueryParameters parameters);
-    Task<BaseListQueryResponseViewModel> Search(BaseSearchParameters parameters);
+    Task<BaseListResponseViewModel> GetListProducts(BaseListQueryParameters parameters);
+    Task<BaseListResponseViewModel> Search(BaseSearchParameters parameters);
     Task<ResponseViewModel> GetProductById(Guid id);
 }
 
@@ -215,13 +215,15 @@ internal class ProductDomain : BaseDomain, IProductDomain
         }
     }
 
-    public async Task<BaseListQueryResponseViewModel> GetListProducts(BaseListQueryParameters parameters)
+    public async Task<BaseListResponseViewModel> GetListProducts(BaseListQueryParameters parameters)
     {
         try
         {
-            var products = _productRepository.DbSet().AsNoTracking();
+            var products = _productRepository.DbSet()
+                .Include(p => p.Servings)
+                .AsNoTracking();
 
-            return new BaseListQueryResponseViewModel
+            return new BaseListResponseViewModel
             {
                 Payload = await products.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber).ToListAsync(),
                 Success = true,
@@ -232,11 +234,11 @@ internal class ProductDomain : BaseDomain, IProductDomain
         }
         catch (Exception e)
         {
-            return new BaseListQueryResponseViewModel { Success = false, Message = e.Message };
+            return new BaseListResponseViewModel { Success = false, Message = e.Message };
         }
     }
 
-    public async Task<BaseListQueryResponseViewModel> Search(BaseSearchParameters parameters)
+    public async Task<BaseListResponseViewModel> Search(BaseSearchParameters parameters)
     {
         try
         {
@@ -244,7 +246,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
             var products = _productRepository.DbSet().AsNoTracking()
                 .Where(p => p.Name.ToLower().Contains(keyword) || p.CaName.ToLower().Contains(keyword) || p.EsName.ToLower().Contains(keyword));
 
-            return new BaseListQueryResponseViewModel
+            return new BaseListResponseViewModel
             {
                 Payload = await products.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber).ToListAsync(),
                 Success = true,
@@ -255,7 +257,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
         }
         catch (Exception e)
         {
-            return new BaseListQueryResponseViewModel { Success = false, Message = e.Message };
+            return new BaseListResponseViewModel { Success = false, Message = e.Message };
         }
     }
 

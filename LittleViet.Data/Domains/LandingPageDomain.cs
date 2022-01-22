@@ -24,6 +24,7 @@ internal class LandingPageDomain : BaseDomain, ILandingPageDomain
         {
             var productTypes = from pt in _productTypeRepository.DbSet()
                                .Include(t => t.Products.Where(p => p.IsDeleted == false))
+                                 .ThenInclude(p => p.Servings)
                                .AsNoTracking()
                                .AsEnumerable()
                                select new ProductLandingPageViewModel
@@ -36,7 +37,7 @@ internal class LandingPageDomain : BaseDomain, ILandingPageDomain
                                        CaName = p.CaName,
                                        EsName = p.EsName,
                                        Name = p.Name,
-                                       Price = p.Price
+                                       Price = p.Servings.Any() ? p.Servings.Min(s => s.Price) : null,
                                    }).ToList()
                                };
 

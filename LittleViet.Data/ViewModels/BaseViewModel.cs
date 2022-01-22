@@ -17,11 +17,26 @@ public class BaseListQueryParameters
     }
 }
 
-public class BaseListQueryResponseViewModel : ResponseViewModel
+public class BaseListResponseViewModel : ResponseViewModel
 {
     public int PageNumber { get; set; }
     public int PageSize { get; set; }
     public int Total { get; set; }
+}
+
+public class BaseListResponseViewModel<T> : ResponseViewModel<T>
+{
+    public new List<T> Payload { get; set; }
+    public int PageNumber { get; set; }
+    public int PageSize { get; set; }
+    public int Total { get; set; }
+}
+
+public class ResponseViewModel<T> : ResponseViewModel
+{
+    public new bool Success { get; set; }
+    public new string Message { get; set; }
+    public new T Payload { get; set; }
 }
 
 public class ResponseViewModel
