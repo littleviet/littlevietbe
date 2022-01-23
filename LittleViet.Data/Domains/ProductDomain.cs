@@ -130,7 +130,6 @@ internal class ProductDomain : BaseDomain, IProductDomain
 
                 var now = DateTime.UtcNow;
 
-                existedProduct.Price = updateProductViewModel.Price;
                 existedProduct.ProductTypeId = updateProductViewModel.ProductTypeId;
                 existedProduct.Name = updateProductViewModel.Name;
                 existedProduct.Description = updateProductViewModel.Description;
@@ -238,7 +237,6 @@ internal class ProductDomain : BaseDomain, IProductDomain
                     {
                         Description = p.Description,
                         Name = p.Name,
-                        Price = p.Price,
                         Status = p.Status,
                         CaName = p.CaName,
                         EsName = p.EsName,

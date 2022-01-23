@@ -10,7 +10,6 @@ public class Product : AuditableEntity
     public string Description { get; set; }
     public string StripeProductId { get; set; }
     public ProductStatus Status { get; set; }
-    public double Price { get; set; }
     public Guid ProductTypeId { get; set; }
     public virtual ICollection<ProductImage> ProductImages { get; set; }
     public virtual ICollection<Serving> Servings { get; set; }

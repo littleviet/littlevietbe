@@ -192,7 +192,6 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
                                       CaName = p.CaName,
                                       EsName = p.EsName,
                                       Name = p.Name,
-                                      Price = p.Price,
                                       Description = p.Description,
                                       Status = p.Status,
                                       StatusName = p.Status.ToString()
