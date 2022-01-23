@@ -3,6 +3,7 @@ using System;
 using LittleViet.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LittleViet.Data.Migrations
 {
     [DbContext(typeof(LittleVietContext))]
-    partial class LittleVietContextModelSnapshot : ModelSnapshot
+    [Migration("20220123103504_LittleViet_Add_Account_To_Order")]
+    partial class LittleViet_Add_Account_To_Order
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -122,7 +124,7 @@ namespace LittleViet.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("AccountId")
+                    b.Property<Guid>("AccountId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("CreatedBy")
@@ -439,7 +441,9 @@ namespace LittleViet.Data.Migrations
                 {
                     b.HasOne("LittleViet.Data.Models.Account", "Account")
                         .WithMany()
-                        .HasForeignKey("AccountId");
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Account");
                 });

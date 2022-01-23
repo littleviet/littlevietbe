@@ -77,7 +77,7 @@ public class ServingController : Controller
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpGet("search")]
-    public async Task<IActionResult> SearchProductTypes([FromQuery] BaseSearchParameters parameters)
+    public async Task<IActionResult> SearchServings([FromQuery] BaseSearchParameters parameters)
     {
         try
         {

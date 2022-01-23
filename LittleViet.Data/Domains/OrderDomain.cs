@@ -20,6 +20,7 @@ public interface IOrderDomain
     Task<ResponseViewModel> GetOrderById(Guid id);
     Task<ResponseViewModel> HandleSuccessfulOrder(Guid orderId, string stripeSessionId);
     Task<ResponseViewModel> HandleExpiredOrder(Guid orderId, string stripeSessionId);
+    Task<BaseListResponseViewModel> Search(BaseSearchParameters parameters);
 }
 
 internal class OrderDomain : BaseDomain, IOrderDomain
@@ -53,6 +54,7 @@ internal class OrderDomain : BaseDomain, IOrderDomain
             order.UpdatedDate = now;
             order.CreatedDate = now;
             order.UpdatedBy = userId;
+            order.AccountId = userId;
 
             foreach (var orderDetail in order.OrderDetails)
             {
@@ -73,10 +75,10 @@ internal class OrderDomain : BaseDomain, IOrderDomain
                     .ThenInclude(od => od.Serving)
                 .Where(o => o.Id == order.Id)
                 .FirstOrDefaultAsync();
-            
+
             var stripeSessionDto = new CreateSessionDto()
             {
-                Metadata = new() {{"orderId", orderGuid.ToString()}},
+                Metadata = new() { { "orderId", orderGuid.ToString() } },
                 SessionItems = savedOrder.OrderDetails.Select(od => new SessionItem()
                 {
                     StripePriceId = od.Serving.StripePriceId,
@@ -129,10 +131,10 @@ internal class OrderDomain : BaseDomain, IOrderDomain
                 _orderRepository.Modify(existedOrder);
                 await _uow.SaveAsync();
 
-                return new ResponseViewModel {Success = true, Message = "Update successful"};
+                return new ResponseViewModel { Success = true, Message = "Update successful" };
             }
 
-            return new ResponseViewModel {Success = false, Message = "This order does not exist"};
+            return new ResponseViewModel { Success = false, Message = "This order does not exist" };
         }
         catch (Exception e)
         {
@@ -157,10 +159,10 @@ internal class OrderDomain : BaseDomain, IOrderDomain
                 }
 
                 await _uow.SaveAsync();
-                return new ResponseViewModel {Success = true, Message = "Delete successful"};
+                return new ResponseViewModel { Success = true, Message = "Delete successful" };
             }
 
-            return new ResponseViewModel {Success = false, Message = "This order does not exist"};
+            return new ResponseViewModel { Success = false, Message = "This order does not exist" };
         }
         catch (Exception e)
         {
@@ -172,14 +174,86 @@ internal class OrderDomain : BaseDomain, IOrderDomain
     {
         try
         {
-            var order = _orderRepository.DbSet().AsNoTracking();
+            var orders = _orderRepository.DbSet().Include(q => q.Account).AsNoTracking();
 
             return new BaseListResponseViewModel
             {
-                Payload = await order.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
+                Payload = await orders.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
+                    .Select(q => new OrderViewModel()
+                    {
+                        Id = q.Id,
+                        OrderType = q.OrderType,
+                        OrderTypeName = q.OrderType.ToString(),
+                        PaymentType = q.PaymentType,
+                        PaymentTypeName = q.PaymentType.ToString(),
+                        PickupTime = q.PickupTime,
+                        TotalPrice = q.TotalPrice,
+                        Account = new AccountViewModel()
+                        {
+                            AccountType = q.Account.AccountType,
+                            AccountTypeName = q.Account.AccountType.ToString(),
+                            Address = q.Account.Address,
+                            Email = q.Account.Email,
+                            Firstname = q.Account.Firstname,
+                            Id = q.Account.Id,
+                            Lastname = q.Account.Lastname,
+                            PhoneNumber1 = q.Account.PhoneNumber1,
+                            PhoneNumber2 = q.Account.PhoneNumber2,
+                            PostalCode = q.Account.PostalCode,
+                        }
+                    })
                     .ToListAsync(),
                 Success = true,
-                Total = await order.CountAsync(),
+                Total = await orders.CountAsync(),
+                PageNumber = parameters.PageNumber,
+                PageSize = parameters.PageSize,
+            };
+        }
+        catch (Exception e)
+        {
+            throw;
+        }
+    }
+
+    public async Task<BaseListResponseViewModel> Search(BaseSearchParameters parameters)
+    {
+        try
+        {
+            var keyword = parameters.Keyword.ToLower();
+            var orders = _orderRepository.DbSet().Include(q => q.Account).AsNoTracking()
+                .Where(p => p.Account.Firstname.ToLower().Contains(keyword) || p.Account.Lastname.ToLower().Contains(keyword) || p.Account.Email.ToLower().Contains(keyword)
+                || p.Account.PhoneNumber1.ToLower().Contains(keyword) || p.Account.PhoneNumber2.ToLower().Contains(keyword));
+
+            return new BaseListResponseViewModel
+            {
+                Payload = await orders
+                    .Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
+                     .Select(q => new OrderViewModel()
+                     {
+                         Id = q.Id,
+                         OrderType = q.OrderType,
+                         OrderTypeName = q.OrderType.ToString(),
+                         PaymentType = q.PaymentType,
+                         PaymentTypeName = q.PaymentType.ToString(),
+                         PickupTime = q.PickupTime,
+                         TotalPrice = q.TotalPrice,
+                         Account = new AccountViewModel()
+                         {
+                             AccountType = q.Account.AccountType,
+                             AccountTypeName = q.Account.AccountType.ToString(),
+                             Address = q.Account.Address,
+                             Email = q.Account.Email,
+                             Firstname = q.Account.Firstname,
+                             Id = q.Account.Id,
+                             Lastname = q.Account.Lastname,
+                             PhoneNumber1 = q.Account.PhoneNumber1,
+                             PhoneNumber2 = q.Account.PhoneNumber2,
+                             PostalCode = q.Account.PostalCode,
+                         }
+                     })
+                    .ToListAsync(),
+                Success = true,
+                Total = await orders.CountAsync(),
                 PageNumber = parameters.PageNumber,
                 PageSize = parameters.PageSize,
             };
@@ -195,14 +269,23 @@ internal class OrderDomain : BaseDomain, IOrderDomain
         try
         {
             var order = await _orderRepository.DbSet().Include(t => t.OrderDetails.Where(p => p.IsDeleted == false))
+                .Include(p => p.Account)
                 .FirstOrDefaultAsync(q => q.Id == id);
+
+            var orderDetails = _mapper.Map<OrderDetailsViewModel>(order);
+
+            orderDetails.PaymentTypeName = order.PaymentType.ToString();
+            orderDetails.OrderTypeName = order.OrderType.ToString();
+            orderDetails.OrderDetails = _mapper.Map<List<OrderDetailViewModel>>(order.OrderDetails);
+            orderDetails.Account = _mapper.Map<AccountViewModel>(order.Account);
+            orderDetails.Account.AccountTypeName = order.Account.AccountType.ToString();
 
             if (order == null)
             {
-                return new ResponseViewModel {Success = false, Message = "This order does not exist"};
+                return new ResponseViewModel { Success = false, Message = "This order does not exist" };
             }
 
-            return new ResponseViewModel {Success = true, Payload = order};
+            return new ResponseViewModel { Success = true, Payload = orderDetails };
         }
         catch (Exception e)
         {
@@ -225,15 +308,15 @@ internal class OrderDomain : BaseDomain, IOrderDomain
             order.LastStripeSessionId = stripeSessionId;
 
             await _uow.SaveAsync();
-            
-            return new ResponseViewModel {Success = true};
+
+            return new ResponseViewModel { Success = true };
         }
         catch (Exception e)
         {
             throw;
         }
     }
-    
+
     public async Task<ResponseViewModel> HandleExpiredOrder(Guid orderId, string stripeSessionId)
     {
         try
@@ -249,8 +332,8 @@ internal class OrderDomain : BaseDomain, IOrderDomain
             order.LastStripeSessionId = stripeSessionId;
 
             await _uow.SaveAsync();
-            
-            return new ResponseViewModel {Success = true};
+
+            return new ResponseViewModel { Success = true };
         }
         catch (Exception e)
         {

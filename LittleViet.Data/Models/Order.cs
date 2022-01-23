@@ -4,6 +4,8 @@ namespace LittleViet.Data.Models;
 
 public class Order : AuditableEntity
 {
+    public Guid AccountId { get; set; }
+    public virtual Account Account { get; set; }
     public OrderType OrderType { get; set; }
     public double TotalPrice { get; set; }
     public PaymentType PaymentType { get; set; }

@@ -4,6 +4,8 @@ using LittleViet.Data.Models;
 using LittleViet.Data.Models.Global;
 using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
+using LittleViet.Infrastructure.Azure.AzureBlobStorage.Interface;
+using LittleViet.Infrastructure.Azure.AzureBlobStorage.Service;
 using LittleViet.Infrastructure.Stripe.Interface;
 using LittleViet.Infrastructure.Stripe.Models;
 using LittleViet.Infrastructure.Stripe.Service;
@@ -15,6 +17,10 @@ using Account = LittleViet.Data.Models.Account;
 using Coupon = LittleViet.Data.Models.Coupon;
 using Order = LittleViet.Data.Models.Order;
 using Product = LittleViet.Data.Models.Product;
+using ProductType = LittleViet.Data.Models.ProductType;
+using Reservation = LittleViet.Data.Models.Reservation;
+using Serving = LittleViet.Data.Models.Serving;
+using OrderDetail = LittleViet.Data.Models.OrderDetail;
 
 namespace LittleViet.Data.Global;
 
@@ -72,7 +78,8 @@ public static partial class StartupConfiguration
             .AddScoped<SessionService>(s => new SessionService())
             .AddScoped<IStripePaymentService, StripePaymentService>()
             .AddScoped<IStripeProductService, StripeProductService>()
-            .AddScoped<IStripePriceService, StripePriceService>();
+            .AddScoped<IStripePriceService, StripePriceService>()
+            .AddScoped<IBlobService, BlobService>();
 
         return services;
     }
@@ -84,19 +91,27 @@ public static partial class StartupConfiguration
             cfg.CreateMap<Account, AccountViewModel>().ReverseMap();
             cfg.CreateMap<Account, CreateAccountViewModel>().ReverseMap();
             cfg.CreateMap<Account, UpdateAccountViewModel>().ReverseMap();
+            cfg.CreateMap<Account, AccountDetailsViewModel>().ReverseMap();
             cfg.CreateMap<ProductType, CreateProductTypeViewModel>().ReverseMap();
             cfg.CreateMap<ProductType, UpdateProductTypeViewModel>().ReverseMap();
             cfg.CreateMap<ProductType, ProductLandingPageViewModel>().ReverseMap();
+            cfg.CreateMap<ProductType, ProductTypeDetailsViewModel>().ReverseMap();
             cfg.CreateMap<Product, ProductsLandingPageViewModel>().ReverseMap();
             cfg.CreateMap<Product, CreateProductViewModel>().ReverseMap();
             cfg.CreateMap<Product, UpdateProductViewModel>().ReverseMap();
             cfg.CreateMap<Product, ProductsLandingPageViewModel>().ReverseMap();
+            cfg.CreateMap<ProductImage, CreateProductImageViewModel>().ReverseMap();
             cfg.CreateMap<Coupon, CreateCouponViewModel>().ReverseMap();
             cfg.CreateMap<Order, CreateOrderViewModel>().ReverseMap();
             cfg.CreateMap<Order, UpdateOrderViewModel>().ReverseMap();
+            cfg.CreateMap<Order, OrderDetailsViewModel>().ReverseMap();
             cfg.CreateMap<OrderDetail, CreateOrderDetailViewModel>().ReverseMap();
+            cfg.CreateMap<OrderDetail, OrderDetailViewModel>().ReverseMap();
             cfg.CreateMap<Serving, CreateServingViewModel>().ReverseMap();
             cfg.CreateMap<Serving, UpdateServingViewModel>().ReverseMap();
+            cfg.CreateMap<Serving, ServingViewDetailsModel>().ReverseMap();
+            cfg.CreateMap<Coupon, CouponDetailsViewModel>().ReverseMap();
+            cfg.CreateMap<Reservation, ReservationDetailsViewModel>().ReverseMap();
             
             cfg.CreateMap<UpdateProductViewModel, UpdateProductDto>().ReverseMap();
             cfg.CreateMap<CreateProductViewModel, CreateProductDto>().ReverseMap();

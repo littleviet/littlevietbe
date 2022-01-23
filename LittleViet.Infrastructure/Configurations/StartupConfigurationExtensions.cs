@@ -21,6 +21,8 @@ public static class StartupConfigurationExtensions
                 .AddJsonFile($"{configurationsDirectory}/logging.{env}.json", optional: true, reloadOnChange: true)
                 .AddJsonFile($"{configurationsDirectory}/stripe.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"{configurationsDirectory}/stripe.{env}.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"{configurationsDirectory}/azure.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"{configurationsDirectory}/azure.{env}.json", optional: true, reloadOnChange: true)
                 .AddEnvironmentVariables();
         });
         
