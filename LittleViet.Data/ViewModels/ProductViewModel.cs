@@ -8,7 +8,6 @@ public class CreateProductViewModel
     public string EsName { get; set; }
     public string CaName { get; set; }
     public string Description { get; set; }
-    public double Price { get; set; }
     public ProductStatus Status { get; set; }
     public Guid ProductTypeId { get; set; }
     public int MainImage { get; set; }
@@ -22,7 +21,6 @@ public class UpdateProductViewModel
     public string EsName { get; set; }
     public string CaName { get; set; }
     public string Description { get; set; }
-    public double Price { get; set; }
     public ProductStatus Status { get; set; }
     public Guid ProductTypeId { get; set; }
     public bool ImageChange { get; set; }
@@ -35,7 +33,6 @@ public class ProductViewModel
     public string EsName { get; set; }
     public string CaName { get; set; }
     public string Description { get; set; }
-    public double Price { get; set; }
     public ProductStatus Status { get; set; }
     public string StatusName { get; set; }
     public string ProductTypeName { get; set; }
@@ -47,7 +44,6 @@ public class GetListProductViewModel
     public string EsName { get; set; }
     public string CaName { get; set; }
     public string Description { get; set; }
-    public double Price { get; set; }
     public List<ServingViewModel> Servings { get; set; }
     public ProductStatus Status { get; set; }
     public string ImageUrl { get; set; }    
@@ -73,7 +69,6 @@ public class ProductDetailsViewModel
     public string CaName { get; set; }
     public string Description { get; set; }
     public ProductStatus Status { get; set; }
-    public double Price { get; set; }
     public Guid ProductTypeId { get; set; }
     public string ProductTypeName { get; set; }
 }
@@ -85,7 +80,6 @@ public class ProductsMenuViewModel
     public string CaName { get; set; }
     public string Description { get; set; }
     public ProductStatus Status { get; set; }
-    public double Price { get; set; }
     public Guid Id { get; set; }
     public Guid ProductTypeId { get; set; }
     public string PropductType { get; set; }
