@@ -1,9 +1,9 @@
-﻿using System.Security.Claims;
-using LittleViet.Data.Domains;
+﻿using LittleViet.Data.Domains;
 using LittleViet.Data.ServiceHelper;
 using LittleViet.Data.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace LittleViet.Api.Controllers;
 
@@ -70,6 +70,21 @@ public class OrderController : Controller
         try
         {
             var result = await _orderDomain.GetListOrders(parameters);
+            return Ok(result);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseViewModel { Message = e.Message, Success = false });
+        }
+    }
+
+    [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
+    [HttpGet("search")]
+    public async Task<IActionResult> SearchOrders([FromQuery] BaseSearchParameters parameters)
+    {
+        try
+        {
+            var result = await _orderDomain.Search(parameters);
             return Ok(result);
         }
         catch (Exception e)

@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
-using LittleViet.Data.Models;
 using LittleViet.Data.Models.Global;
 using LittleViet.Data.Repositories;
 using LittleViet.Data.ServiceHelper;
 using LittleViet.Data.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using Coupon = LittleViet.Data.Models.Coupon;
 
 namespace LittleViet.Data.Domains;
 
@@ -15,6 +15,7 @@ public interface ICouponDomain
     Task<ResponseViewModel> UpdateStatus(UpdateCouponStatusViewModel updateCouponStatusViewModel);
     Task<ResponseViewModel> Deactivate(Guid id);
     Task<BaseListResponseViewModel> GetListCoupons(BaseListQueryParameters parameters);
+    Task<BaseListResponseViewModel> Search(BaseSearchParameters parameters);
     Task<ResponseViewModel> GetCouponById(Guid id);
 }
 internal class CouponDomain : BaseDomain, ICouponDomain
@@ -128,13 +129,59 @@ internal class CouponDomain : BaseDomain, ICouponDomain
     {
         try
         {
-            var productTypes = _couponRepository.DbSet().AsNoTracking();
+            var coupons = _couponRepository.DbSet().AsNoTracking();
 
             return new BaseListResponseViewModel
             {
-                Payload = await productTypes.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber).ToListAsync(),
+                Payload = await coupons.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
+                .Select(q => new CouponViewModel()
+                {
+                    Id = q.Id,
+                    Amount = q.Amount,
+                    CouponCode = q.CouponCode,
+                    Email = q.Email,
+                    PhoneNumber = q.PhoneNumber,
+                    Status = q.Status,
+                    StatusName = q.Status.ToString()
+                })
+                .ToListAsync(),
                 Success = true,
-                Total = await productTypes.CountAsync(),
+                Total = await coupons.CountAsync(),
+                PageNumber = parameters.PageNumber,
+                PageSize = parameters.PageSize,
+            };
+        }
+        catch (Exception e)
+        {
+            throw;
+        }
+    }
+
+    public async Task<BaseListResponseViewModel> Search(BaseSearchParameters parameters)
+    {
+        try
+        {
+            var keyword = parameters.Keyword.ToLower();
+            var coupons = _couponRepository.DbSet().AsNoTracking()
+                .Where(p => p.CouponCode.ToLower().Contains(keyword) || p.Email.ToLower().Contains(keyword) || p.PhoneNumber.ToLower().Contains(keyword));
+
+            return new BaseListResponseViewModel
+            {
+                Payload = await coupons
+                    .Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
+                    .Select(q => new CouponViewModel()
+                    {
+                        Id = q.Id,
+                        Amount = q.Amount,
+                        CouponCode = q.CouponCode,
+                        Email = q.Email,
+                        PhoneNumber = q.PhoneNumber,
+                        Status = q.Status,
+                        StatusName = q.Status.ToString()
+                    })
+                    .ToListAsync(),
+                Success = true,
+                Total = await coupons.CountAsync(),
                 PageNumber = parameters.PageNumber,
                 PageSize = parameters.PageSize,
             };
@@ -150,13 +197,16 @@ internal class CouponDomain : BaseDomain, ICouponDomain
         try
         {
             var coupon = await _couponRepository.GetById(id);
+            var couponDetails = _mapper.Map<CouponDetailsViewModel>(coupon);
+
+            couponDetails.StatusName = coupon.Status.ToString();
 
             if (coupon == null)
             {
                 return new ResponseViewModel { Success = false, Message = "This coupon does not exist" };
             }
 
-            return new ResponseViewModel { Success = true, Payload = coupon };
+            return new ResponseViewModel { Success = true, Payload = couponDetails };
         }
         catch (Exception e)
         {

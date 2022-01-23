@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using LittleViet.Data.Models;
 using LittleViet.Data.Models.Global;
+using LittleViet.Data.Repositories;
 using LittleViet.Data.ServiceHelper;
 using LittleViet.Data.ViewModels;
 using Microsoft.EntityFrameworkCore;
@@ -9,7 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using LittleViet.Data.Repositories;
+using Account = LittleViet.Data.Models.Account;
 using BCryptNet = BCrypt.Net.BCrypt;
 
 namespace LittleViet.Data.Domains;
@@ -96,6 +96,7 @@ public class AccountDomain : BaseDomain, IAccountDomain
             account.UpdatedDate = datetime;
             account.CreatedDate = datetime;
             account.UpdatedBy = userId;
+            account.CreatedBy = userId;
 
             _accountRepository.Add(account);
             await _uow.SaveAsync();
@@ -107,7 +108,7 @@ public class AccountDomain : BaseDomain, IAccountDomain
             throw;
         }
     }
-    
+
     public async Task<ResponseViewModel> Register(CreateAccountViewModel createAccountViewModel)
     {
         try
@@ -212,8 +213,8 @@ public class AccountDomain : BaseDomain, IAccountDomain
         try
         {
             var account = await _accountRepository.GetById(id);
-            
-            if(account != null)
+
+            if (account != null)
             {
                 _accountRepository.Deactivate(account);
 
@@ -234,12 +235,24 @@ public class AccountDomain : BaseDomain, IAccountDomain
         try
         {
             var accounts = _accountRepository.DbSet().AsNoTracking();
-            var pagingAccounts = await accounts.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber).ToListAsync();
-            var result = _mapper.Map<List<AccountViewModel>>(pagingAccounts);
 
             return new BaseListResponseViewModel
             {
-                Payload = result,
+                Payload = await accounts.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
+                .Select(q => new AccountViewModel()
+                {
+                    AccountType = q.AccountType,
+                    AccountTypeName = q.AccountType.ToString(),
+                    Address = q.Address,
+                    Email = q.Email,
+                    Firstname = q.Firstname,
+                    Id = q.Id,
+                    Lastname = q.Lastname,
+                    PhoneNumber1 = q.PhoneNumber1,
+                    PhoneNumber2 = q.PhoneNumber2,
+                    PostalCode = q.PostalCode,
+                })
+                .ToListAsync(),
                 Success = true,
                 Total = await accounts.CountAsync(),
                 PageNumber = parameters.PageNumber,
@@ -260,12 +273,23 @@ public class AccountDomain : BaseDomain, IAccountDomain
             var accounts = _accountRepository.DbSet().AsNoTracking()
                 .Where(p => p.Email.ToLower().Contains(keyword) || p.Firstname.ToLower().Contains(keyword) || p.Lastname.ToLower().Contains(keyword));
 
-            var pagingAccounts = await accounts.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber).ToListAsync();
-            var result = _mapper.Map<List<AccountViewModel>>(pagingAccounts);
-
             return new BaseListResponseViewModel
             {
-                Payload = result,
+                Payload = await accounts.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
+                .Select(q => new AccountViewModel()
+                {
+                    AccountType = q.AccountType,
+                    AccountTypeName = q.AccountType.ToString(),
+                    Address = q.Address,
+                    Email = q.Email,
+                    Firstname = q.Firstname,
+                    Id = q.Id,
+                    Lastname = q.Lastname,
+                    PhoneNumber1 = q.PhoneNumber1,
+                    PhoneNumber2 = q.PhoneNumber2,
+                    PostalCode = q.PostalCode,
+                })
+                .ToListAsync(),
                 Success = true,
                 Total = await accounts.CountAsync(),
                 PageNumber = parameters.PageNumber,
@@ -283,13 +307,16 @@ public class AccountDomain : BaseDomain, IAccountDomain
         try
         {
             var account = await _accountRepository.GetById(id);
+            var accountDetails = _mapper.Map<AccountDetailsViewModel>(account);
+
+            accountDetails.AccountTypeName = account.AccountType.ToString();
 
             if (account == null)
             {
                 return new ResponseViewModel { Success = false, Message = "This account does not exist" };
             }
 
-            return new ResponseViewModel { Success = true, Payload = account };
+            return new ResponseViewModel { Success = true, Payload = accountDetails };
         }
         catch (Exception e)
         {

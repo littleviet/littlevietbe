@@ -94,6 +94,21 @@ public class CouponController : BaseController
     }
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
+    [HttpGet("search")]
+    public async Task<IActionResult> SearchCoupons([FromQuery] BaseSearchParameters parameters)
+    {
+        try
+        {
+            var result = await _couponDomain.Search(parameters);
+            return Ok(result);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseViewModel { Message = e.Message, Success = false });
+        }
+    }
+
+    [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpGet("{id:guid}/details")]
     public async Task<IActionResult> GetCouponDetails(Guid id)
     {

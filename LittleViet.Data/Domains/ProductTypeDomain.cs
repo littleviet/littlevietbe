@@ -1,11 +1,10 @@
 ﻿using AutoMapper;
-using LittleViet.Data.Models;
 using LittleViet.Data.Models.Global;
 using LittleViet.Data.Repositories;
 using LittleViet.Data.ServiceHelper;
 using LittleViet.Data.ViewModels;
 using Microsoft.EntityFrameworkCore;
-
+using ProductType = LittleViet.Data.Models.ProductType;
 
 namespace LittleViet.Data.Domains;
 
@@ -16,7 +15,7 @@ public interface IProductTypeDomain
     Task<ResponseViewModel> Deactivate(Guid id);
     Task<BaseListResponseViewModel<ProductTypeItemViewModel>> GetListProductTypes(BaseListQueryParameters parameters);
     Task<BaseListResponseViewModel> Search(BaseSearchParameters parameters);
-    Task<ResponseViewModel> GetProductTypeById(Guid id);
+    ResponseViewModel GetProductTypeById(Guid id);
 }
 internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
 {
@@ -168,11 +167,37 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
         }
     }
 
-    public async Task<ResponseViewModel> GetProductTypeById(Guid id)
+    public ResponseViewModel GetProductTypeById(Guid id)
     {
         try
         {
-            var productType = await _productTypeRepository.GetById(id);
+            var productType = from pt in _productTypeRepository.DbSet()
+                               .Include(t => t.Products.Where(p => p.IsDeleted == false))
+                               .AsNoTracking()
+                               .Where(q => q.Id == id)
+                               .Take(1)
+                              select new ProductTypeDetailsViewModel
+                              {
+                                  CaName = pt.CaName,
+                                  EsName = pt.EsName,
+                                  Name = pt.Name,
+                                  Id = pt.Id,
+                                  CreatedBy = pt.CreatedBy,
+                                  CreatedDate = pt.CreatedDate,
+                                  Description = pt.Description,
+                                  UpdatedBy = pt.UpdatedBy,
+                                  UpdatedDate = pt.UpdatedDate,
+                                  Products = pt.Products.Select(p => new ProductViewModel
+                                  {
+                                      CaName = p.CaName,
+                                      EsName = p.EsName,
+                                      Name = p.Name,
+                                      Price = p.Price,
+                                      Description = p.Description,
+                                      Status = p.Status,
+                                      StatusName = p.Status.ToString()
+                                  }).ToList()
+                              };
 
             if (productType == null)
             {
