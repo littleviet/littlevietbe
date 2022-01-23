@@ -11,12 +11,13 @@ using Microsoft.EntityFrameworkCore;
 using Stripe;
 using Product = LittleViet.Data.Models.Product;
 using ProductImage = LittleViet.Data.Models.ProductImage;
+using Microsoft.AspNetCore.Http;
 
 namespace LittleViet.Data.Domains;
 public interface IProductDomain
 {
-    Task<ResponseViewModel> Create(Guid userId, CreateProductViewModel createProductViewModel);
-    Task<ResponseViewModel> Update(Guid userId, UpdateProductViewModel updateProductViewModel);
+    Task<ResponseViewModel> Create(Guid userId, CreateProductViewModel createProductViewModel, List<IFormFile> productImages);
+    Task<ResponseViewModel> Update(Guid userId, UpdateProductViewModel updateProductViewModel, List<IFormFile> productImages);
     Task<ResponseViewModel> Deactivate(Guid id);
     Task<BaseListResponseViewModel> GetListProducts(BaseListQueryParameters parameters);
     Task<BaseListResponseViewModel> Search(BaseSearchParameters parameters);
@@ -42,7 +43,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
     }
 
-    public async Task<ResponseViewModel> Create(Guid userId, CreateProductViewModel createProductViewModel)
+    public async Task<ResponseViewModel> Create(Guid userId, CreateProductViewModel createProductViewModel, List<IFormFile> productImages)
     {
         try
         {
@@ -58,32 +59,39 @@ internal class ProductDomain : BaseDomain, IProductDomain
             product.CreatedDate = now;
             product.UpdatedBy = userId;
 
-            var productImages = createProductViewModel.ProductImages;
             var conn = _configuration["ConnectionStrings:LittleVietContainer"];
             var blobContainer = await _blobService.GetBlobContainer(conn, "products");
 
-            for (var index = 0; index < productImages.Count; index++)
+            if(productImages.Count > 0)
             {
-                if (productImages[index].Image.Length > 0)
+                product.ProductImages = new List<ProductImage>();
+                for (var index = 0; index < productImages.Count; index++)
                 {
-                    string file_Extension = Path.GetExtension(productImages[index].Image.FileName);
-                    string filename = Guid.NewGuid() + "" + (!string.IsNullOrEmpty(file_Extension) ? file_Extension : ".jpg");
+                    if (productImages[index].Length > 0)
+                    {
+                        string file_Extension = Path.GetExtension(productImages[index].FileName);
+                        string filename = Guid.NewGuid() + "" + (!string.IsNullOrEmpty(file_Extension) ? file_Extension : ".jpg");
 
-                    await _blobService.UploadFileToBlobAsync(blobContainer, filename, productImages[index].Image.OpenReadStream());
+                        await _blobService.UploadFileToBlobAsync(blobContainer, filename, productImages[index].OpenReadStream());
 
-                    var productImage = product.ProductImages.ElementAt(index);
+                        var productImage = new ProductImage()
+                        {
+                            Url = new Uri(blobContainer.Uri.AbsoluteUri) + "/" + filename,
+                            ProductId = productId,
+                            Id = Guid.NewGuid(),
+                            UpdatedBy = userId,
+                            UpdatedDate = now,
+                            CreatedBy = userId,
+                            CreatedDate = now,
+                            IsDeleted = false,
+                            IsMain = createProductViewModel.MainImage == (index + 1) ? true : false
+                        };
 
-                    productImage.Url = new Uri(blobContainer.Uri.AbsoluteUri) + "/" + filename;
-                    productImage.ProductId = productId;
-                    productImage.Id = Guid.NewGuid();
-                    productImage.UpdatedBy = userId;
-                    productImage.UpdatedDate = now;
-                    productImage.CreatedBy = userId;
-                    productImage.CreatedDate = now;
-                    productImage.IsDeleted = false;
+                        product.ProductImages.Add(productImage);
+                    }
                 }
             }
-
+            
             _productRepository.Add(product);
             await _uow.SaveAsync();
 
@@ -104,7 +112,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
         }
     }
 
-    public async Task<ResponseViewModel> Update(Guid userId, UpdateProductViewModel updateProductViewModel)
+    public async Task<ResponseViewModel> Update(Guid userId, UpdateProductViewModel updateProductViewModel, List<IFormFile> productImages)
     {
         try
         {
@@ -139,27 +147,25 @@ internal class ProductDomain : BaseDomain, IProductDomain
                         _productImageRepository.Deactivate(item);
                     }
 
-                    var productImages = updateProductViewModel.ProductImages;
                     var conn = _configuration["ConnectionStrings:LittleVietContainer"];
                     var blobContainer = await _blobService.GetBlobContainer(conn, "products");
 
                     for (var index = 0; index < productImages.Count; index++)
                     {
-                        if (productImages[index].Image.Length > 0)
+                        if (productImages[index].Length > 0)
                         {
-                            string file_Extension = Path.GetExtension(productImages[index].Image.FileName);
+                            string file_Extension = Path.GetExtension(productImages[index].FileName);
                             string filename = Guid.NewGuid() + "" + (!string.IsNullOrEmpty(file_Extension) ? file_Extension : ".jpg");
 
-                            await _blobService.UploadFileToBlobAsync(blobContainer, filename, productImages[index].Image.OpenReadStream());
+                            await _blobService.UploadFileToBlobAsync(blobContainer, filename, productImages[index].OpenReadStream());
 
                             existedProduct.ProductImages.Add(new ProductImage()
                             {
                                 Id = Guid.NewGuid(),
                                 Url = new Uri(blobContainer.Uri.AbsoluteUri) + "/" + filename,
                                 ProductId = existedProduct.Id,
-                                Name = productImages[index].Name,
                                 IsDeleted = false,
-                                IsMain = productImages[index].IsMain,
+                                IsMain = updateProductViewModel.MainImage == (index + 1) ? true : false,
                                 CreatedDate = now,
                                 CreatedBy = userId,
                                 UpdatedDate = now,

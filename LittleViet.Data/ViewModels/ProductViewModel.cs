@@ -11,7 +11,7 @@ public class CreateProductViewModel
     public double Price { get; set; }
     public ProductStatus Status { get; set; }
     public Guid ProductTypeId { get; set; }
-    public List<CreateProductImageViewModel> ProductImages { get; set; }
+    public int MainImage { get; set; }
 }
 
 public class UpdateProductViewModel
@@ -25,7 +25,7 @@ public class UpdateProductViewModel
     public ProductStatus Status { get; set; }
     public Guid ProductTypeId { get; set; }
     public bool ImageChange { get; set; }
-    public List<CreateProductImageViewModel> ProductImages { get; set; }
+    public int MainImage { get; set; }
 }
 
 public class ProductViewModel

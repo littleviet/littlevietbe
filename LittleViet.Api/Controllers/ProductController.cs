@@ -18,12 +18,12 @@ public class ProductController : BaseController
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpPost("")]
-    public async Task<IActionResult> Create([FromForm] CreateProductViewModel createProductViewModel)
+    public async Task<IActionResult> Create([FromForm] CreateProductViewModel createProductViewModel, [FromForm] List<IFormFile> productImages)
     {
         try
         {
             var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var result = await _productDomain.Create(userId, createProductViewModel);
+            var result = await _productDomain.Create(userId, createProductViewModel, productImages);
             return Ok(result);
         }
         catch (Exception e)
@@ -34,12 +34,12 @@ public class ProductController : BaseController
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update([FromForm] UpdateProductViewModel updateProductViewModel)
+    public async Task<IActionResult> Update([FromForm] UpdateProductViewModel updateProductViewModel, [FromForm] List<IFormFile> productImages)
     {
         try
         {
             var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var result = await _productDomain.Update(userId, updateProductViewModel);
+            var result = await _productDomain.Update(userId, updateProductViewModel, productImages);
             return Ok(result);
         }
         catch (Exception e)
