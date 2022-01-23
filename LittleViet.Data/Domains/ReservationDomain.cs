@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
-using LittleViet.Data.Models;
 using LittleViet.Data.Models.Global;
 using LittleViet.Data.Repositories;
 using LittleViet.Data.ServiceHelper;
 using LittleViet.Data.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using Reservation = LittleViet.Data.Models.Reservation;
 
 namespace LittleViet.Data.Domains;
 
@@ -117,7 +117,20 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
 
             return new BaseListResponseViewModel
             {
-                Payload = await reservations.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber).ToListAsync(),
+                Payload = await reservations.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
+                .Select(q => new ReservationViewModel()
+                {
+                    BookingDate = q.BookingDate,
+                    Email = q.Email,
+                    FirstName = q.Firstname,
+                    FurtherRequest = q.FurtherRequest,
+                    Id = q.Id,
+                    LastName = q.Lastname,
+                    NoOfPeople = q.NoOfPeople,
+                    PhoneNumber = q.PhoneNumber,
+                    Status = q.Status,
+                    StatusName = q.Status.ToString()
+                }).ToListAsync(),
                 Success = true,
                 Total = await reservations.CountAsync(),
                 PageNumber = parameters.PageNumber,
@@ -138,7 +151,21 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
 
             return new BaseListResponseViewModel
             {
-                Payload = await reservation.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber).ToListAsync(),
+                Payload = await reservation.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
+                .Select(q => new ReservationViewModel()
+                {
+                    BookingDate = q.BookingDate,
+                    Email = q.Email,
+                    FirstName = q.Firstname,
+                    FurtherRequest = q.FurtherRequest,
+                    Id = q.Id,
+                    LastName = q.Lastname,
+                    NoOfPeople = q.NoOfPeople,
+                    PhoneNumber = q.PhoneNumber,
+                    Status = q.Status,
+                    StatusName = q.Status.ToString()
+                })
+                .ToListAsync(),
                 Success = true,
                 Total = await reservation.CountAsync(),
                 PageNumber = parameters.PageNumber,
@@ -156,13 +183,16 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
         try
         {
             var reservation = await _reservationRepository.GetById(id);
+            var reservationDetails = _mapper.Map<ReservationDetailsViewModel>(reservation);
+
+            reservationDetails.StatusName = reservation.Status.ToString();
 
             if (reservation == null)
             {
                 return new ResponseViewModel { Success = false, Message = "This reservation does not exist" };
             }
 
-            return new ResponseViewModel { Success = true, Payload = reservation };
+            return new ResponseViewModel { Success = true, Payload = reservationDetails };
         }
         catch (Exception e)
         {

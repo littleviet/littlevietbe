@@ -7,6 +7,22 @@ public class AccountViewModel
 {
     public string Email { get; set; }
     public RoleEnum AccountType { get; set; }
+    public string AccountTypeName { get; set; }
+    public string Firstname { get; set; }
+    public string Lastname { get; set; }
+    public string Address { get; set; }
+    public string PostalCode { get; set; }
+    public string PhoneNumber1 { get; set; }
+    public string PhoneNumber2 { get; set; }
+    public Guid Id { get; set; }
+    public string Token { get; set; }
+}
+
+public class AccountDetailsViewModel
+{
+    public string Email { get; set; }
+    public RoleEnum AccountType { get; set; }
+    public string AccountTypeName { get; set; }
     public string Firstname { get; set; }
     public string Lastname { get; set; }
     public string Address { get; set; }

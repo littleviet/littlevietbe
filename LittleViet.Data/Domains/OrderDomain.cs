@@ -73,10 +73,10 @@ internal class OrderDomain : BaseDomain, IOrderDomain
                     .ThenInclude(od => od.Serving)
                 .Where(o => o.Id == order.Id)
                 .FirstOrDefaultAsync();
-            
+
             var stripeSessionDto = new CreateSessionDto()
             {
-                Metadata = new() {{"orderId", orderGuid.ToString()}},
+                Metadata = new() { { "orderId", orderGuid.ToString() } },
                 SessionItems = savedOrder.OrderDetails.Select(od => new SessionItem()
                 {
                     StripePriceId = od.Serving.StripePriceId,
@@ -129,10 +129,10 @@ internal class OrderDomain : BaseDomain, IOrderDomain
                 _orderRepository.Modify(existedOrder);
                 await _uow.SaveAsync();
 
-                return new ResponseViewModel {Success = true, Message = "Update successful"};
+                return new ResponseViewModel { Success = true, Message = "Update successful" };
             }
 
-            return new ResponseViewModel {Success = false, Message = "This order does not exist"};
+            return new ResponseViewModel { Success = false, Message = "This order does not exist" };
         }
         catch (Exception e)
         {
@@ -157,10 +157,10 @@ internal class OrderDomain : BaseDomain, IOrderDomain
                 }
 
                 await _uow.SaveAsync();
-                return new ResponseViewModel {Success = true, Message = "Delete successful"};
+                return new ResponseViewModel { Success = true, Message = "Delete successful" };
             }
 
-            return new ResponseViewModel {Success = false, Message = "This order does not exist"};
+            return new ResponseViewModel { Success = false, Message = "This order does not exist" };
         }
         catch (Exception e)
         {
@@ -177,6 +177,16 @@ internal class OrderDomain : BaseDomain, IOrderDomain
             return new BaseListResponseViewModel
             {
                 Payload = await order.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
+                    .Select(q => new OrderViewModel()
+                    {
+                        Id = q.Id,
+                        OrderType = q.OrderType,
+                        OrderTypeName = q.OrderType.ToString(),
+                        PaymentType = q.PaymentType,
+                        PaymentTypeName = q.PaymentType.ToString(),
+                        PickupTime = q.PickupTime,
+                        TotalPrice = q.TotalPrice
+                    })
                     .ToListAsync(),
                 Success = true,
                 Total = await order.CountAsync(),
@@ -197,12 +207,17 @@ internal class OrderDomain : BaseDomain, IOrderDomain
             var order = await _orderRepository.DbSet().Include(t => t.OrderDetails.Where(p => p.IsDeleted == false))
                 .FirstOrDefaultAsync(q => q.Id == id);
 
+            var orderDetails = _mapper.Map<OrderDetailsViewModel>(order);
+
+            orderDetails.PaymentTypeName = order.PaymentType.ToString();
+            orderDetails.OrderTypeName = order.OrderType.ToString();
+
             if (order == null)
             {
-                return new ResponseViewModel {Success = false, Message = "This order does not exist"};
+                return new ResponseViewModel { Success = false, Message = "This order does not exist" };
             }
 
-            return new ResponseViewModel {Success = true, Payload = order};
+            return new ResponseViewModel { Success = true, Payload = orderDetails };
         }
         catch (Exception e)
         {
@@ -225,15 +240,15 @@ internal class OrderDomain : BaseDomain, IOrderDomain
             order.LastStripeSessionId = stripeSessionId;
 
             await _uow.SaveAsync();
-            
-            return new ResponseViewModel {Success = true};
+
+            return new ResponseViewModel { Success = true };
         }
         catch (Exception e)
         {
             throw;
         }
     }
-    
+
     public async Task<ResponseViewModel> HandleExpiredOrder(Guid orderId, string stripeSessionId)
     {
         try
@@ -249,8 +264,8 @@ internal class OrderDomain : BaseDomain, IOrderDomain
             order.LastStripeSessionId = stripeSessionId;
 
             await _uow.SaveAsync();
-            
-            return new ResponseViewModel {Success = true};
+
+            return new ResponseViewModel { Success = true };
         }
         catch (Exception e)
         {

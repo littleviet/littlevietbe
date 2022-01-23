@@ -34,6 +34,7 @@ public class ProductViewModel
     public string Description { get; set; }
     public double Price { get; set; }
     public ProductStatus Status { get; set; }
+    public string StatusName { get; set; }
     public string ProductTypeName { get; set; }
 }
 
