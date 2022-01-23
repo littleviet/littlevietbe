@@ -4,6 +4,8 @@ using LittleViet.Data.Models;
 using LittleViet.Data.Models.Global;
 using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
+using LittleViet.Infrastructure.Azure.AzureBlobStorage.Interface;
+using LittleViet.Infrastructure.Azure.AzureBlobStorage.Service;
 using LittleViet.Infrastructure.Stripe.Interface;
 using LittleViet.Infrastructure.Stripe.Models;
 using LittleViet.Infrastructure.Stripe.Service;
@@ -72,7 +74,8 @@ public static partial class StartupConfiguration
             .AddScoped<SessionService>(s => new SessionService())
             .AddScoped<IStripePaymentService, StripePaymentService>()
             .AddScoped<IStripeProductService, StripeProductService>()
-            .AddScoped<IStripePriceService, StripePriceService>();
+            .AddScoped<IStripePriceService, StripePriceService>()
+            .AddScoped<IBlobService, BlobService>();
 
         return services;
     }
@@ -91,6 +94,7 @@ public static partial class StartupConfiguration
             cfg.CreateMap<Product, CreateProductViewModel>().ReverseMap();
             cfg.CreateMap<Product, UpdateProductViewModel>().ReverseMap();
             cfg.CreateMap<Product, ProductsLandingPageViewModel>().ReverseMap();
+            cfg.CreateMap<ProductImage, CreateProductImageViewModel>().ReverseMap();
             cfg.CreateMap<Coupon, CreateCouponViewModel>().ReverseMap();
             cfg.CreateMap<Order, CreateOrderViewModel>().ReverseMap();
             cfg.CreateMap<Order, UpdateOrderViewModel>().ReverseMap();

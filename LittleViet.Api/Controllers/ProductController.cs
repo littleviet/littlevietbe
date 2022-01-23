@@ -1,8 +1,8 @@
-﻿using System.Security.Claims;
-using LittleViet.Data.Domains;
+﻿using LittleViet.Data.Domains;
 using LittleViet.Data.ServiceHelper;
 using LittleViet.Data.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace LittleViet.Api.Controllers;
 
@@ -18,12 +18,12 @@ public class ProductController : BaseController
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpPost("")]
-    public async Task<IActionResult> Create(CreateProductViewModel createProductViewModel)
+    public async Task<IActionResult> Create([FromForm] CreateProductViewModel createProductViewModel, [FromForm] List<IFormFile> productImages)
     {
         try
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var result = await _productDomain.Create(Guid.Parse(userId), createProductViewModel);
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var result = await _productDomain.Create(userId, createProductViewModel, productImages);
             return Ok(result);
         }
         catch (Exception e)
@@ -34,11 +34,12 @@ public class ProductController : BaseController
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(UpdateProductViewModel updateProductViewModel)
+    public async Task<IActionResult> Update([FromForm] UpdateProductViewModel updateProductViewModel, [FromForm] List<IFormFile> productImages)
     {
         try
         {
-            var result = await _productDomain.Update(updateProductViewModel);
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var result = await _productDomain.Update(userId, updateProductViewModel, productImages);
             return Ok(result);
         }
         catch (Exception e)
@@ -94,11 +95,11 @@ public class ProductController : BaseController
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpGet("{id:guid}/details")]
-    public async Task<IActionResult> GetProductDetails(Guid id)
+    public IActionResult GetProductDetails(Guid id)
     {
         try
         {
-            var result = await _productDomain.GetProductById(id);
+            var result = _productDomain.GetProductById(id);
             return Ok(result);
         }
         catch (Exception e)

@@ -1,53 +1,97 @@
 ﻿using AutoMapper;
+using Microsoft.Extensions.Configuration;
 using LittleViet.Data.Models.Global;
 using LittleViet.Data.Repositories;
 using LittleViet.Data.ServiceHelper;
 using LittleViet.Data.ViewModels;
+using LittleViet.Infrastructure.Azure.AzureBlobStorage.Interface;
 using LittleViet.Infrastructure.Stripe.Interface;
 using LittleViet.Infrastructure.Stripe.Models;
 using Microsoft.EntityFrameworkCore;
 using Stripe;
 using Product = LittleViet.Data.Models.Product;
+using ProductImage = LittleViet.Data.Models.ProductImage;
+using Microsoft.AspNetCore.Http;
 
 namespace LittleViet.Data.Domains;
-
 public interface IProductDomain
 {
-    Task<ResponseViewModel> Create(Guid userId, CreateProductViewModel createProductViewModel);
-    Task<ResponseViewModel> Update(UpdateProductViewModel updateProductViewModel);
+    Task<ResponseViewModel> Create(Guid userId, CreateProductViewModel createProductViewModel, List<IFormFile> productImages);
+    Task<ResponseViewModel> Update(Guid userId, UpdateProductViewModel updateProductViewModel, List<IFormFile> productImages);
     Task<ResponseViewModel> Deactivate(Guid id);
     Task<BaseListResponseViewModel> GetListProducts(BaseListQueryParameters parameters);
     Task<BaseListResponseViewModel> Search(BaseSearchParameters parameters);
     Task<ResponseViewModel> GetProductById(Guid id);
 }
+
 internal class ProductDomain : BaseDomain, IProductDomain
 {
     private readonly IProductRepository _productRepository;
+    private readonly IProductImageRepository _productImageRepository;
     private readonly IStripeProductService _stripeProductService;
     private readonly IMapper _mapper;
-    public ProductDomain(IUnitOfWork uow, IProductRepository productRepository, IMapper mapper, IStripeProductService stripeProductService) : base(uow)
+    private readonly IBlobService _blobService;
+    private readonly IConfiguration _configuration;
+
+    public ProductDomain(IUnitOfWork uow, IProductRepository productRepository, IProductImageRepository productImageRepository, IMapper mapper, IStripeProductService stripeProductService, IBlobService blobService, IConfiguration configuration) : base(uow)
     {
         _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
+        _productImageRepository = productImageRepository ?? throw new ArgumentNullException(nameof(productImageRepository));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _stripeProductService = stripeProductService ?? throw new ArgumentNullException(nameof(stripeProductService));
+        _blobService = blobService ?? throw new ArgumentNullException(nameof(blobService));
+        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
     }
 
-    public async Task<ResponseViewModel> Create(Guid userId, CreateProductViewModel createProductViewModel)
+    public async Task<ResponseViewModel> Create(Guid userId, CreateProductViewModel createProductViewModel, List<IFormFile> productImages)
     {
         try
         {
             var product = _mapper.Map<Product>(createProductViewModel);
 
+            var productId = Guid.NewGuid();
+            var now = DateTime.UtcNow;
 
-            var datetime = DateTime.UtcNow;
-
-            product.Id = Guid.NewGuid();
+            product.Id = productId;
             product.IsDeleted = false;
             product.CreatedBy = userId;
-            product.UpdatedDate = datetime;
-            product.CreatedDate = datetime;
+            product.UpdatedDate = now;
+            product.CreatedDate = now;
             product.UpdatedBy = userId;
 
+            var conn = _configuration["ConnectionStrings:LittleVietContainer"];
+            var blobContainer = await _blobService.GetBlobContainer(conn, "products");
+
+            if(productImages.Count > 0)
+            {
+                product.ProductImages = new List<ProductImage>();
+                for (var index = 0; index < productImages.Count; index++)
+                {
+                    if (productImages[index].Length > 0)
+                    {
+                        string file_Extension = Path.GetExtension(productImages[index].FileName);
+                        string filename = Guid.NewGuid() + "" + (!string.IsNullOrEmpty(file_Extension) ? file_Extension : ".jpg");
+
+                        await _blobService.UploadFileToBlobAsync(blobContainer, filename, productImages[index].OpenReadStream());
+
+                        var productImage = new ProductImage()
+                        {
+                            Url = new Uri(blobContainer.Uri.AbsoluteUri) + "/" + filename,
+                            ProductId = productId,
+                            Id = Guid.NewGuid(),
+                            UpdatedBy = userId,
+                            UpdatedDate = now,
+                            CreatedBy = userId,
+                            CreatedDate = now,
+                            IsDeleted = false,
+                            IsMain = createProductViewModel.MainImage == (index + 1) ? true : false
+                        };
+
+                        product.ProductImages.Add(productImage);
+                    }
+                }
+            }
+            
             _productRepository.Add(product);
             await _uow.SaveAsync();
 
@@ -55,8 +99,8 @@ internal class ProductDomain : BaseDomain, IProductDomain
             var stripeProduct = await _stripeProductService.CreateProduct(createStripeProductDto);
             product.StripeProductId = stripeProduct.Id;
             await _uow.SaveAsync();
-            
-            return new ResponseViewModel {Success = true, Message = "Create successful"};
+
+            return new ResponseViewModel { Success = true, Message = "Create successful" };
         }
         catch (StripeException se)
         {
@@ -68,11 +112,11 @@ internal class ProductDomain : BaseDomain, IProductDomain
         }
     }
 
-    public async Task<ResponseViewModel> Update(UpdateProductViewModel updateProductViewModel)
+    public async Task<ResponseViewModel> Update(Guid userId, UpdateProductViewModel updateProductViewModel, List<IFormFile> productImages)
     {
         try
         {
-            var existedProduct = await _productRepository.GetById(updateProductViewModel.Id);
+            var existedProduct = await _productRepository.DbSet().Include(q => q.ProductImages.Where(x => x.IsDeleted == false)).Where(q => q.Id == updateProductViewModel.Id).FirstOrDefaultAsync();
 
             if (existedProduct != null)
             {
@@ -83,7 +127,9 @@ internal class ProductDomain : BaseDomain, IProductDomain
                     var stripeProductDto = _mapper.Map<UpdateProductDto>(updateProductViewModel);
                     _ = await _stripeProductService.UpdateProduct(stripeProductDto);
                 }
-                
+
+                var now = DateTime.UtcNow;
+
                 existedProduct.Price = updateProductViewModel.Price;
                 existedProduct.ProductTypeId = updateProductViewModel.ProductTypeId;
                 existedProduct.Name = updateProductViewModel.Name;
@@ -91,16 +137,51 @@ internal class ProductDomain : BaseDomain, IProductDomain
                 existedProduct.EsName = updateProductViewModel.EsName;
                 existedProduct.CaName = updateProductViewModel.CaName;
                 existedProduct.Status = updateProductViewModel.Status;
-                existedProduct.UpdatedDate = DateTime.UtcNow;
-                existedProduct.UpdatedBy = updateProductViewModel.UpdatedBy;
+                existedProduct.UpdatedDate = now;
+                existedProduct.UpdatedBy = userId;
+
+                if (updateProductViewModel.ImageChange)
+                {
+                    foreach (var item in existedProduct.ProductImages)
+                    {
+                        _productImageRepository.Deactivate(item);
+                    }
+
+                    var conn = _configuration["ConnectionStrings:LittleVietContainer"];
+                    var blobContainer = await _blobService.GetBlobContainer(conn, "products");
+
+                    for (var index = 0; index < productImages.Count; index++)
+                    {
+                        if (productImages[index].Length > 0)
+                        {
+                            string file_Extension = Path.GetExtension(productImages[index].FileName);
+                            string filename = Guid.NewGuid() + "" + (!string.IsNullOrEmpty(file_Extension) ? file_Extension : ".jpg");
+
+                            await _blobService.UploadFileToBlobAsync(blobContainer, filename, productImages[index].OpenReadStream());
+
+                            existedProduct.ProductImages.Add(new ProductImage()
+                            {
+                                Id = Guid.NewGuid(),
+                                Url = new Uri(blobContainer.Uri.AbsoluteUri) + "/" + filename,
+                                ProductId = existedProduct.Id,
+                                IsDeleted = false,
+                                IsMain = updateProductViewModel.MainImage == (index + 1) ? true : false,
+                                CreatedDate = now,
+                                CreatedBy = userId,
+                                UpdatedDate = now,
+                                UpdatedBy = userId
+                            });
+                        }
+                    }
+                }
 
                 _productRepository.Modify(existedProduct);
                 await _uow.SaveAsync();
 
-                return new ResponseViewModel {Success = true, Message = "Update successful"};
+                return new ResponseViewModel { Success = true, Message = "Update successful" };
             }
 
-            return new ResponseViewModel {Success = false, Message = "This product does not exist"};
+            return new ResponseViewModel { Success = false, Message = "This product does not exist" };
         }
         catch (StripeException es)
         {
@@ -123,8 +204,8 @@ internal class ProductDomain : BaseDomain, IProductDomain
         try
         {
             var product = await _productRepository.GetById(id);
-            
-            if(product != null)
+
+            if (product != null)
             {
                 _productRepository.Deactivate(product);
                 await _uow.SaveAsync();
@@ -202,37 +283,6 @@ internal class ProductDomain : BaseDomain, IProductDomain
         catch (Exception e)
         {
             throw;
-        }
-    }
-
-    public ResponseViewModel GetProductsMenu()
-    {
-        try
-        {
-            var productsMenu = from pt in _productRepository.DbSet()
-                    .Include(t => t.ProductType)
-                    .AsNoTracking()
-                    .AsEnumerable()
-                select new ProductsMenuViewModel
-                {
-                    CaName = pt.CaName,
-                    EsName = pt.EsName,
-                    Name = pt.Name,
-                    Description = pt.Description,
-                    Id = pt.Id,
-                    Price = pt.Price,
-                    ProductTypeId = pt.ProductTypeId,
-                    PropductType = pt.ProductType.Name,
-                    EsPropductType = pt.ProductType.EsName,
-                    CaPropductType = pt.CaName,
-                    Status = pt.Status
-                };
-
-            return new ResponseViewModel { Payload = productsMenu.ToList(), Success = true };
-        }
-        catch (Exception e)
-        {
-            return new ResponseViewModel { Success = false, Message = e.Message };
         }
     }
 }
