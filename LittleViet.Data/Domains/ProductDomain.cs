@@ -145,12 +145,35 @@ internal class ProductDomain : BaseDomain, IProductDomain
         try
         {
             var products = _productRepository.DbSet()
+                .Include(p => p.ProductType)
                 .Include(p => p.Servings)
                 .AsNoTracking();
 
             return new BaseListResponseViewModel
             {
-                Payload = await products.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber).ToListAsync(),
+                Payload = await products.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
+                    .Select(p => new GetListProductViewModel()
+                    {
+                        Description = p.Description,
+                        Name = p.Name,
+                        Price = p.Price,
+                        Status = p.Status,
+                        CaName = p.CaName,
+                        EsName = p.EsName,
+                        ProductType = new GetListProductViewModel.GetListProductTypeViewModel()
+                        {
+                            Id = p.ProductType.Id,
+                            Name = p.ProductType.Name,
+                        },
+                        Servings = p.Servings.Select(s => new ServingViewModel()
+                        {
+                            Description = s.Description,
+                            Id = s.Id,
+                            Name = s.Name,
+                            Price = s.Price,
+                            NumberOfPeople = s.NumberOfPeople,
+                        }).ToList(),
+                    }).ToListAsync(),
                 Success = true,
                 Total = await products.CountAsync(),
                 PageNumber = parameters.PageNumber,

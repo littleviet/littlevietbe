@@ -26,15 +26,22 @@ public class UpdateProductViewModel
     public Guid ProductTypeId { get; set; }
 }
 
-public class ProductViewModel
+public class GetListProductViewModel
 {
     public string Name { get; set; }
     public string EsName { get; set; }
     public string CaName { get; set; }
     public string Description { get; set; }
     public double Price { get; set; }
+    public List<ServingViewModel> Servings { get; set; }
     public ProductStatus Status { get; set; }
-    public string ProductTypeName { get; set; }
+    public GetListProductTypeViewModel ProductType { get; set; }
+
+    public class GetListProductTypeViewModel
+    {
+        public string Name { get; set; }
+        public Guid Id { get; set; }
+    }
 }
 
 public class ProductDetailsViewModel
