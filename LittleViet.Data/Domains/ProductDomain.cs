@@ -228,6 +228,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
             var products = _productRepository.DbSet()
                 .Include(p => p.ProductType)
                 .Include(p => p.Servings)
+                .Include(p => p.ProductImages.Where(pm => pm.IsMain))
                 .AsNoTracking();
 
             return new BaseListResponseViewModel
@@ -254,6 +255,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
                             Price = s.Price,
                             NumberOfPeople = s.NumberOfPeople,
                         }).ToList(),
+                        ImageUrl = p.ProductImages.Select(pm => pm.Url).FirstOrDefault(),
                     }).ToListAsync(),
                 Success = true,
                 Total = await products.CountAsync(),

@@ -11,6 +11,7 @@ public class CreateProductViewModel
     public double Price { get; set; }
     public ProductStatus Status { get; set; }
     public Guid ProductTypeId { get; set; }
+    public int MainImage { get; set; }
 }
 
 public class UpdateProductViewModel
@@ -24,6 +25,20 @@ public class UpdateProductViewModel
     public double Price { get; set; }
     public ProductStatus Status { get; set; }
     public Guid ProductTypeId { get; set; }
+    public bool ImageChange { get; set; }
+    public int MainImage { get; set; }
+}
+
+public class ProductViewModel
+{
+    public string Name { get; set; }
+    public string EsName { get; set; }
+    public string CaName { get; set; }
+    public string Description { get; set; }
+    public double Price { get; set; }
+    public ProductStatus Status { get; set; }
+    public string StatusName { get; set; }
+    public string ProductTypeName { get; set; }
 }
 
 public class GetListProductViewModel
@@ -35,6 +50,7 @@ public class GetListProductViewModel
     public double Price { get; set; }
     public List<ServingViewModel> Servings { get; set; }
     public ProductStatus Status { get; set; }
+    public string ImageUrl { get; set; }    
     public GetListProductTypeViewModel ProductType { get; set; }
 
     public class GetListProductTypeViewModel
