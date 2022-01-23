@@ -1,5 +1,4 @@
-﻿using LittleViet.Data.Models;
-using LittleViet.Data.ServiceHelper;
+﻿using LittleViet.Data.ServiceHelper;
 
 namespace LittleViet.Data.ViewModels;
 

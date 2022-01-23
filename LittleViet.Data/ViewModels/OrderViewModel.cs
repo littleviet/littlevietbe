@@ -23,6 +23,7 @@ public class UpdateOrderViewModel
 public class OrderViewModel
 {
     public Guid Id { get; set; }
+    public AccountViewModel Account { get; set; }
     public OrderType OrderType { get; set; } = OrderType.TakeAway;
     public string OrderTypeName { get; set; }
     public double TotalPrice { get; set; }
@@ -45,4 +46,6 @@ public class OrderDetailsViewModel
     public Guid CreatedBy { get; set; }
     public DateTime? UpdatedDate { get; set; }
     public Guid UpdatedBy { get; set; }
+    public List<OrderDetailViewModel> OrderDetails { get; set; }
+    public AccountViewModel Account { get; set; }
 }

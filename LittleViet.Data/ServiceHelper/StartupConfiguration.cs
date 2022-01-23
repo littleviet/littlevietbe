@@ -102,6 +102,7 @@ public static partial class StartupConfiguration
             cfg.CreateMap<Order, UpdateOrderViewModel>().ReverseMap();
             cfg.CreateMap<Order, OrderDetailsViewModel>().ReverseMap();
             cfg.CreateMap<OrderDetail, CreateOrderDetailViewModel>().ReverseMap();
+            cfg.CreateMap<OrderDetail, OrderDetailViewModel>().ReverseMap();
             cfg.CreateMap<Serving, CreateServingViewModel>().ReverseMap();
             cfg.CreateMap<Serving, UpdateServingViewModel>().ReverseMap();
             cfg.CreateMap<Serving, ServingViewDetailsModel>().ReverseMap();
