@@ -30,16 +30,16 @@ internal class ProductDomain : BaseDomain, IProductDomain
     private readonly IProductImageRepository _productImageRepository;
     private readonly IStripeProductService _stripeProductService;
     private readonly IMapper _mapper;
-    private readonly IBlobService _blobService;
+    private readonly IBlobProductImageService _blobProductImageService;
     private readonly IConfiguration _configuration;
 
-    public ProductDomain(IUnitOfWork uow, IProductRepository productRepository, IProductImageRepository productImageRepository, IMapper mapper, IStripeProductService stripeProductService, IBlobService blobService, IConfiguration configuration) : base(uow)
+    public ProductDomain(IUnitOfWork uow, IProductRepository productRepository, IProductImageRepository productImageRepository, IMapper mapper, IStripeProductService stripeProductService, IBlobProductImageService blobProductImageService, IConfiguration configuration) : base(uow)
     {
         _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
         _productImageRepository = productImageRepository ?? throw new ArgumentNullException(nameof(productImageRepository));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _stripeProductService = stripeProductService ?? throw new ArgumentNullException(nameof(stripeProductService));
-        _blobService = blobService ?? throw new ArgumentNullException(nameof(blobService));
+        _blobProductImageService = blobProductImageService ?? throw new ArgumentNullException(nameof(blobProductImageService));
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
     }
 
@@ -59,24 +59,18 @@ internal class ProductDomain : BaseDomain, IProductDomain
             product.CreatedDate = now;
             product.UpdatedBy = userId;
 
-            var conn = _configuration["ConnectionStrings:LittleVietContainer"];
-            var blobContainer = await _blobService.GetBlobContainer(conn, "products");
-
-            if(productImages.Count > 0)
+            if (productImages.Count > 0)
             {
                 product.ProductImages = new List<ProductImage>();
+                var imageLinks = await _blobProductImageService.CreateProductImages(productImages);
+
                 for (var index = 0; index < productImages.Count; index++)
                 {
                     if (productImages[index].Length > 0)
                     {
-                        string file_Extension = Path.GetExtension(productImages[index].FileName);
-                        string filename = Guid.NewGuid() + "" + (!string.IsNullOrEmpty(file_Extension) ? file_Extension : ".jpg");
-
-                        await _blobService.UploadFileToBlobAsync(blobContainer, filename, productImages[index].OpenReadStream());
-
                         var productImage = new ProductImage()
                         {
-                            Url = new Uri(blobContainer.Uri.AbsoluteUri) + "/" + filename,
+                            Url = imageLinks[index],
                             ProductId = productId,
                             Id = Guid.NewGuid(),
                             UpdatedBy = userId,
@@ -91,7 +85,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
                     }
                 }
             }
-            
+
             _productRepository.Add(product);
             await _uow.SaveAsync();
 
@@ -146,22 +140,16 @@ internal class ProductDomain : BaseDomain, IProductDomain
                         _productImageRepository.Deactivate(item);
                     }
 
-                    var conn = _configuration["ConnectionStrings:LittleVietContainer"];
-                    var blobContainer = await _blobService.GetBlobContainer(conn, "products");
+                    var imageLinks = await _blobProductImageService.CreateProductImages(productImages);
 
                     for (var index = 0; index < productImages.Count; index++)
                     {
                         if (productImages[index].Length > 0)
                         {
-                            string file_Extension = Path.GetExtension(productImages[index].FileName);
-                            string filename = Guid.NewGuid() + "" + (!string.IsNullOrEmpty(file_Extension) ? file_Extension : ".jpg");
-
-                            await _blobService.UploadFileToBlobAsync(blobContainer, filename, productImages[index].OpenReadStream());
-
-                            existedProduct.ProductImages.Add(new ProductImage()
+                            _productImageRepository.Add(new ProductImage()
                             {
                                 Id = Guid.NewGuid(),
-                                Url = new Uri(blobContainer.Uri.AbsoluteUri) + "/" + filename,
+                                Url = imageLinks[index],
                                 ProductId = existedProduct.Id,
                                 IsDeleted = false,
                                 IsMain = updateProductViewModel.MainImage == (index + 1) ? true : false,
