@@ -64,26 +64,18 @@ internal class ProductDomain : BaseDomain, IProductDomain
                 product.ProductImages = new List<ProductImage>();
                 var imageLinks = await _blobProductImageService.CreateProductImages(productImages);
 
-                for (var index = 0; index < productImages.Count; index++)
+                product.ProductImages = imageLinks.Select((q, index) => new ProductImage()
                 {
-                    if (productImages[index].Length > 0)
-                    {
-                        var productImage = new ProductImage()
-                        {
-                            Url = imageLinks[index],
-                            ProductId = productId,
-                            Id = Guid.NewGuid(),
-                            UpdatedBy = userId,
-                            UpdatedDate = now,
-                            CreatedBy = userId,
-                            CreatedDate = now,
-                            IsDeleted = false,
-                            IsMain = createProductViewModel.MainImage == (index + 1) ? true : false
-                        };
-
-                        product.ProductImages.Add(productImage);
-                    }
-                }
+                    Url = imageLinks[index],
+                    ProductId = productId,
+                    Id = Guid.NewGuid(),
+                    UpdatedBy = userId,
+                    UpdatedDate = now,
+                    CreatedBy = userId,
+                    CreatedDate = now,
+                    IsDeleted = false,
+                    IsMain = createProductViewModel.MainImage == index ? true : false
+                }).ToList();
             }
 
             _productRepository.Add(product);
@@ -106,7 +98,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
         }
     }
 
-    public async Task<ResponseViewModel> Update(Guid userId, UpdateProductViewModel updateProductViewModel, List<IFormFile> productImages)
+    public async Task<ResponseViewModel> Update(Guid userId, UpdateProductViewModel updateProductViewModel, List<IFormFile> images)
     {
         try
         {
@@ -140,25 +132,24 @@ internal class ProductDomain : BaseDomain, IProductDomain
                         _productImageRepository.Deactivate(item);
                     }
 
-                    var imageLinks = await _blobProductImageService.CreateProductImages(productImages);
-
-                    for (var index = 0; index < productImages.Count; index++)
+                    if (images.Count > 0)
                     {
-                        if (productImages[index].Length > 0)
+                        var imageLinks = await _blobProductImageService.CreateProductImages(images);
+
+                        var productImages = imageLinks.Select((q, index) => new ProductImage()
                         {
-                            _productImageRepository.Add(new ProductImage()
-                            {
-                                Id = Guid.NewGuid(),
-                                Url = imageLinks[index],
-                                ProductId = existedProduct.Id,
-                                IsDeleted = false,
-                                IsMain = updateProductViewModel.MainImage == (index + 1) ? true : false,
-                                CreatedDate = now,
-                                CreatedBy = userId,
-                                UpdatedDate = now,
-                                UpdatedBy = userId
-                            });
-                        }
+                            Url = imageLinks[index],
+                            ProductId = existedProduct.Id,
+                            Id = Guid.NewGuid(),
+                            UpdatedBy = userId,
+                            UpdatedDate = now,
+                            CreatedBy = userId,
+                            CreatedDate = now,
+                            IsDeleted = false,
+                            IsMain = updateProductViewModel.MainImage == index ? true : false
+                        }).ToList();
+
+                        _productImageRepository.AddRange(productImages);
                     }
                 }
 
