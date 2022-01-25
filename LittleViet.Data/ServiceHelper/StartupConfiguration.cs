@@ -79,7 +79,7 @@ public static partial class StartupConfiguration
             .AddScoped<IStripePaymentService, StripePaymentService>()
             .AddScoped<IStripeProductService, StripeProductService>()
             .AddScoped<IStripePriceService, StripePriceService>()
-            .AddScoped<IBlobService, BlobService>();
+            .AddScoped<IBlobProductImageService, BlobProductImageService>();
 
         return services;
     }
