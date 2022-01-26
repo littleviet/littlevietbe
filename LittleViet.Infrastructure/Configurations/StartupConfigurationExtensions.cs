@@ -1,4 +1,5 @@
-﻿using LittleViet.Infrastructure.Stripe;
+﻿using LittleViet.Infrastructure.Email;
+using LittleViet.Infrastructure.Stripe;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +18,8 @@ public static class StartupConfigurationExtensions
                 .AddJsonFile($"{configurationsDirectory}/application.{env}.json", optional: true, reloadOnChange: true)
                 .AddJsonFile($"{configurationsDirectory}/database.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"{configurationsDirectory}/database.{env}.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"{configurationsDirectory}/email.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"{configurationsDirectory}/email.{env}.json", optional: true, reloadOnChange: true)
                 .AddJsonFile($"{configurationsDirectory}/logging.json", optional: false, reloadOnChange: true)
                 .AddJsonFile($"{configurationsDirectory}/logging.{env}.json", optional: true, reloadOnChange: true)
                 .AddJsonFile($"{configurationsDirectory}/stripe.json", optional: false, reloadOnChange: true)
@@ -32,7 +35,8 @@ public static class StartupConfigurationExtensions
     public static IServiceCollection AddConfigurationBinding(this IServiceCollection serviceCollection, IConfiguration configurationManager)
     {
         serviceCollection
-            .Configure<StripeSettings>(configurationManager.GetSection(StripeSettings.ConfigSection));        
+            .Configure<StripeSettings>(configurationManager.GetSection(StripeSettings.ConfigSection))
+            .Configure<EmailSettings>(configurationManager.GetSection(EmailSettings.ConfigSection));        
         
         return serviceCollection;
     }

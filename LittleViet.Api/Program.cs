@@ -32,6 +32,8 @@ builder.Services
 builder.Services.AddEndpointsApiExplorer()
     .AddApplicationSwagger();
 
+builder.Services.AddHttpContextAccessor();
+
 var appSettingsSection = builder.Configuration.GetSection("AppSettings");
 builder.Services.Configure<AppSettings>(appSettingsSection);
 

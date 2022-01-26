@@ -6,6 +6,8 @@ using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.Azure.AzureBlobStorage.Interface;
 using LittleViet.Infrastructure.Azure.AzureBlobStorage.Service;
+using LittleViet.Infrastructure.Email.Interface;
+using LittleViet.Infrastructure.Email.Service;
 using LittleViet.Infrastructure.Stripe.Interface;
 using LittleViet.Infrastructure.Stripe.Models;
 using LittleViet.Infrastructure.Stripe.Service;
@@ -72,14 +74,16 @@ public static partial class StartupConfiguration
             .AddScoped<IReservationDomain, ReservationDomain>()
             .AddScoped<IServingDomain, ServingDomain>()
             .AddScoped<IPaymentDomain, PaymentDomain>();
-        
+
         services.AddScoped<ProductService>(s => new ProductService())
             .AddScoped<PriceService>(s => new PriceService())
             .AddScoped<SessionService>(s => new SessionService())
             .AddScoped<IStripePaymentService, StripePaymentService>()
             .AddScoped<IStripeProductService, StripeProductService>()
             .AddScoped<IStripePriceService, StripePriceService>()
-            .AddScoped<IBlobProductImageService, BlobProductImageService>();
+            .AddScoped<IBlobProductImageService, BlobProductImageService>()
+            .AddScoped<IEmailService, EmailService>()
+            .AddScoped<ITemplateService, TemplateService>();
 
         return services;
     }
@@ -112,6 +116,7 @@ public static partial class StartupConfiguration
             cfg.CreateMap<Serving, ServingViewDetailsModel>().ReverseMap();
             cfg.CreateMap<Coupon, CouponDetailsViewModel>().ReverseMap();
             cfg.CreateMap<Reservation, ReservationDetailsViewModel>().ReverseMap();
+            cfg.CreateMap<Reservation, CreateReservationViewModel>().ReverseMap();
             
             cfg.CreateMap<UpdateProductViewModel, UpdateProductDto>().ReverseMap();
             cfg.CreateMap<CreateProductViewModel, CreateProductDto>().ReverseMap();

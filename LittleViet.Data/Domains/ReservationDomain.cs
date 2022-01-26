@@ -3,6 +3,8 @@ using LittleViet.Data.Models.Global;
 using LittleViet.Data.Repositories;
 using LittleViet.Data.ServiceHelper;
 using LittleViet.Data.ViewModels;
+using LittleViet.Infrastructure.Email.Interface;
+using LittleViet.Infrastructure.Email.Models;
 using Microsoft.EntityFrameworkCore;
 using Reservation = LittleViet.Data.Models.Reservation;
 
@@ -21,30 +23,49 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
 {
     private readonly IReservationRepository _reservationRepository;
     private readonly IMapper _mapper;
-    public ReservationDomain(IUnitOfWork uow, IReservationRepository reservationRepository, IMapper mapper) : base(uow)
+    private readonly IEmailService _emailService;
+    private readonly ITemplateService _templateService;
+    public ReservationDomain(IUnitOfWork uow, IReservationRepository reservationRepository, IMapper mapper, ITemplateService templateService, IEmailService emailService) : base(uow)
     {
-        _reservationRepository = reservationRepository;
-        _mapper = mapper;
+        _reservationRepository = reservationRepository ?? throw new ArgumentNullException(nameof(reservationRepository));
+        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _templateService = templateService ?? throw new ArgumentNullException(nameof(templateService));
+        _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
     }
 
     public async Task<ResponseViewModel> Create(CreateReservationViewModel createReservationViewModel)
     {
         try
         {
-            var resevation = _mapper.Map<Reservation>(createReservationViewModel);
+            var reservation = _mapper.Map<Reservation>(createReservationViewModel);
             var date = DateTime.UtcNow;
 
-            resevation.Id = Guid.NewGuid();
-            resevation.CreatedBy = createReservationViewModel.AccountId;
-            resevation.CreatedDate = date;
-            resevation.UpdatedDate = date;
-            resevation.UpdatedBy = createReservationViewModel.AccountId;
-            resevation.IsDeleted = false;
-            resevation.Status = ReservationStatus.Reserved;
+            reservation.Id = Guid.NewGuid();
+            reservation.CreatedBy = createReservationViewModel.AccountId;
+            reservation.CreatedDate = date;
+            reservation.UpdatedDate = date;
+            reservation.UpdatedBy = createReservationViewModel.AccountId;
+            reservation.IsDeleted = false;
+            reservation.Status = ReservationStatus.Reserved;
 
-            _reservationRepository.Add(resevation);
+            _reservationRepository.Add(reservation);
             await _uow.SaveAsync();
+            
+            var template = await _templateService.GetTemplateEmail(EmailTemplates.ReservationSuccess);
 
+            var body = template
+                .Replace("{name}", createReservationViewModel.FirstName)
+                .Replace("{time}", createReservationViewModel.BookingDate.ToString("hh:mm:ss MM/dd/yyyy"))
+                .Replace("{no-of-people}", createReservationViewModel.NoOfPeople.ToString())
+                .Replace("{phone-number}", createReservationViewModel.PhoneNumber);
+
+            await _emailService.SendEmailAsync(
+                body: body,
+                toName: createReservationViewModel.FirstName,
+                toAddress: createReservationViewModel.Email,
+                subject: EmailTemplates.ReservationSuccess.SubjectName
+                );
+            
             return new ResponseViewModel { Success = true, Message = "Create successful" };
         }
         catch (Exception e)

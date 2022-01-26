@@ -1,0 +1,13 @@
+{
+  "EmailSettings": {
+    "Host": "smtp.gmail.com",
+    "Port": 587,
+    "EnableSsl": true,
+    "DeliveryMethod": 0,
+    "Email": "eslittleviet@gmail.com",
+    "FromAddress": "eslittleviet@gmail.com",
+    "FromName": "Little Viet",
+    "Password": "",
+    "Timeout": 20000
+  }
+}

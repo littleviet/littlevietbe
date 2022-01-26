@@ -182,11 +182,7 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
                                   EsName = pt.EsName,
                                   Name = pt.Name,
                                   Id = pt.Id,
-                                  CreatedBy = pt.CreatedBy,
-                                  CreatedDate = pt.CreatedDate,
                                   Description = pt.Description,
-                                  UpdatedBy = pt.UpdatedBy,
-                                  UpdatedDate = pt.UpdatedDate,
                                   Products = pt.Products.Select(p => new ProductViewModel
                                   {
                                       CaName = p.CaName,

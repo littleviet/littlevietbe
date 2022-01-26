@@ -6,7 +6,7 @@ public class Reservation : AuditableEntity
 {
     public int NoOfPeople { get; set; }
     public DateTime BookingDate { get; set; }
-    public Guid AccountId { get; set; }
+    public Guid AccountId { get; set; }// TODO: Guid?
     public virtual Account Account { get; set; }
     public ReservationStatus Status { get; set; }
     public string PhoneNumber { get; set; }

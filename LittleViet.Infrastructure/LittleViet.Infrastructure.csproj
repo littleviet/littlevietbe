@@ -8,10 +8,21 @@
 
     <ItemGroup>
       <PackageReference Include="Azure.Storage.Blobs" Version="12.10.0" />
+      <PackageReference Include="MailKit" Version="3.1.0" />
       <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
       <PackageReference Include="Stripe.net" Version="39.86.0" />
       <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.2.3" />
       <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.2.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Email\Models\Templates\reservation-success.html" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="Email\Templates\reservation-success.html">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
 </Project>

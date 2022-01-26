@@ -8,9 +8,9 @@ namespace LittleViet.Data.Models
         public Guid Id { get; set; }
         public bool IsDeleted { get; set; }
         public DateTime? CreatedDate { get; set; }
-        public Guid CreatedBy { get; set; }
+        public Guid? CreatedBy { get; set; }// TODO: run migrations
         public DateTime? UpdatedDate { get; set; }
-        public Guid UpdatedBy { get; set; }
+        public Guid? UpdatedBy { get; set; }
     }
 
     public interface IEntity
@@ -18,8 +18,8 @@ namespace LittleViet.Data.Models
         public Guid Id { get; set; }
         public bool IsDeleted { get; set; }
         public DateTime? CreatedDate { get; set; }
-        public Guid CreatedBy { get; set; }
+        public Guid? CreatedBy { get; set; }
         public DateTime? UpdatedDate { get; set; }
-        public Guid UpdatedBy { get; set; }
+        public Guid? UpdatedBy { get; set; }
     }
 }

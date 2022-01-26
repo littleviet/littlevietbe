@@ -102,13 +102,14 @@ internal class ProductDomain : BaseDomain, IProductDomain
     {
         try
         {
-            var existedProduct = await _productRepository.DbSet().Include(q => q.ProductImages.Where(x => x.IsDeleted == false)).Where(q => q.Id == updateProductViewModel.Id).FirstOrDefaultAsync();
+            var existedProduct = await _productRepository.DbSet()
+                .Include(q => q.ProductImages.Where(x => x.IsDeleted == false))
+                .Where(q => q.Id == updateProductViewModel.Id)
+                .FirstOrDefaultAsync();
 
             if (existedProduct != null)
             {
-                var stripeProductChanged = IsStripeProductChanged(existedProduct, updateProductViewModel);
-
-                if (stripeProductChanged == true)
+                if (IsStripeProductChanged(existedProduct, updateProductViewModel))
                 {
                     var stripeProductDto = _mapper.Map<UpdateProductDto>(updateProductViewModel);
                     _ = await _stripeProductService.UpdateProduct(stripeProductDto);
