@@ -3,7 +3,6 @@
 public class StripeSettings
 {
     public const string ConfigSection = "Stripe";
-    
     public string SecretKey { get; set; }
     public string PublishableKey { get; set; }
     public string WebhookSecret { get; set; }

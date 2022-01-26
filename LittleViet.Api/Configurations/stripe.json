@@ -2,8 +2,8 @@
   "Stripe": {
     "Payment": {
       "BaseDomain": "https://littleviet.es",
-      "CancelUrl": "order-cancelled",
-      "SuccessUrl": "order-successful",
+      "CancelUrl": "checkout/order-canceled",
+      "SuccessUrl": "checkout/order-successful",
       "Currency": "eur"
     },
     "WebhookSecret": "",
