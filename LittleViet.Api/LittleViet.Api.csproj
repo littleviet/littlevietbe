@@ -28,8 +28,4 @@
     <ProjectReference Include="..\LittleViet.Infrastructure\LittleViet.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Resources\EmailTemplates" />
-  </ItemGroup>
-
 </Project>

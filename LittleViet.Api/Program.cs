@@ -1,14 +1,11 @@
-using LittleViet.Data.Global;
 using LittleViet.Data.Models;
 using LittleViet.Data.ServiceHelper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
 using System.Text;
 using LittleViet.Infrastructure.Configurations;
 using LittleViet.Infrastructure.Middleware;
-using LittleViet.Infrastructure.Security.XSRF;
 using LittleViet.Infrastructure.Stripe;
 using LittleViet.Infrastructure.Swagger;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;

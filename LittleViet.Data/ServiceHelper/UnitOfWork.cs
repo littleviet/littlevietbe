@@ -12,7 +12,9 @@ public partial interface IUnitOfWork
     T GetService<T>();
     void Save();
     Task<int> SaveAsync();
+    IDbContextTransaction BeginTransation();
 }
+
 
 public class UnitOfWork : IUnitOfWork
 {
@@ -33,11 +35,13 @@ public class UnitOfWork : IUnitOfWork
     }
     public void Save()
     {
+        SetBaseAuditInfo();
         _context.SaveChanges();
     }
     
     public async Task<int> SaveAsync()
     {
+        SetBaseAuditInfo();
         return await _context.SaveChangesAsync();
     }
 
@@ -53,25 +57,30 @@ public class UnitOfWork : IUnitOfWork
         
         var entries = _context.ChangeTracker
             .Entries()
-            .Where(e => e.Entity is AuditableEntity && (
-                e.State == EntityState.Added
-                || e.State == EntityState.Modified));
+            .Where(e => e.Entity is AuditableEntity
+                        && e.State is EntityState.Added or EntityState.Modified);
 
         foreach (var entityEntry in entries)
         {
             var entity = entityEntry.Entity as AuditableEntity;
-            entity!.UpdatedDate = DateTime.UtcNow;
+            var utcNow = DateTime.UtcNow; 
+            entity.UpdatedDate = utcNow;
             entity.UpdatedBy = userId;
 
-            if (entityEntry.State == EntityState.Added)
+            switch (entityEntry.State)
             {
-                entity.IsDeleted = false;
-                entity.CreatedDate = DateTime.UtcNow;
-                entity.CreatedBy = userId;
-            }
-            else if (entityEntry.State == EntityState.Modified)
-            {
-                (entityEntry as EntityEntry<AuditableEntity>)!.Property(e => e.CreatedDate).IsModified = false;
+                case EntityState.Added:
+                    entity.IsDeleted = false;
+                    entity.CreatedDate = utcNow;
+                    entity.CreatedBy = userId;
+                    break;
+                case EntityState.Modified when !entity.IsDeleted:
+                    // (entityEntry as EntityEntry<AuditableEntity>)!.Property(e => e.CreatedDate).IsModified = false;
+                    break;
+                case EntityState.Modified when entity.IsDeleted && entityEntry.Property(nameof(entity.IsDeleted)).IsModified:
+                    entity.DeletedBy = userId;
+                    entity.DeletedDate = utcNow;
+                    break;
             }
         }
     }

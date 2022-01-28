@@ -11,6 +11,8 @@ namespace LittleViet.Data.Models
         public Guid? CreatedBy { get; set; }// TODO: run migrations
         public DateTime? UpdatedDate { get; set; }
         public Guid? UpdatedBy { get; set; }
+        public DateTime? DeletedDate { get; set; }
+        public Guid? DeletedBy { get; set; }
     }
 
     public interface IEntity

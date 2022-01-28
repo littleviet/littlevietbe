@@ -24,7 +24,7 @@ using Reservation = LittleViet.Data.Models.Reservation;
 using Serving = LittleViet.Data.Models.Serving;
 using OrderDetail = LittleViet.Data.Models.OrderDetail;
 
-namespace LittleViet.Data.Global;
+namespace LittleViet.Data.ServiceHelper;
 
 public static partial class StartupConfiguration
 {
@@ -45,7 +45,14 @@ public static partial class StartupConfiguration
         });
 
         Mapper = mapConfig.CreateMapper();
-
+        try
+        {
+            mapConfig.AssertConfigurationIsValid();
+        }
+        catch
+        {
+            //TODO: do something about this
+        }
     }
 
     private static IServiceCollection ConfigureIoC(this IServiceCollection services)
@@ -100,7 +107,6 @@ public static partial class StartupConfiguration
             cfg.CreateMap<ProductType, UpdateProductTypeViewModel>().ReverseMap();
             cfg.CreateMap<ProductType, ProductLandingPageViewModel>().ReverseMap();
             cfg.CreateMap<ProductType, ProductTypeDetailsViewModel>().ReverseMap();
-            cfg.CreateMap<Product, ProductsLandingPageViewModel>().ReverseMap();
             cfg.CreateMap<Product, CreateProductViewModel>().ReverseMap();
             cfg.CreateMap<Product, UpdateProductViewModel>().ReverseMap();
             cfg.CreateMap<Product, ProductsLandingPageViewModel>().ReverseMap();
