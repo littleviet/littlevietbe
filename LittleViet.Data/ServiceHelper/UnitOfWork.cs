@@ -50,7 +50,7 @@ public class UnitOfWork : IUnitOfWork
         return _context.Database.BeginTransaction();
     }
 
-    private void SetBaseAuditInfo() //TODO: use this
+    private void SetBaseAuditInfo()
     {
         var successful = Guid.TryParse(_httpContextAccessor?.HttpContext?.User.FindFirstValue(ClaimTypes.NameIdentifier), out Guid tempId);
         var userId = successful ? (Guid?)tempId : null;

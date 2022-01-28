@@ -122,6 +122,7 @@ public static partial class StartupConfiguration
             cfg.CreateMap<Serving, ServingViewDetailsModel>().ReverseMap();
             cfg.CreateMap<Coupon, CouponDetailsViewModel>().ReverseMap();
             cfg.CreateMap<Reservation, ReservationDetailsViewModel>().ReverseMap();
+            cfg.CreateMap<Reservation, UpdateReservationViewModel>().ReverseMap();
             cfg.CreateMap<Reservation, CreateReservationViewModel>().ReverseMap();
             
             cfg.CreateMap<UpdateProductViewModel, UpdateProductDto>().ReverseMap();

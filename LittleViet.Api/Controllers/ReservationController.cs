@@ -1,4 +1,5 @@
-﻿using LittleViet.Data.Domains;
+﻿using System.Security.Claims;
+using LittleViet.Data.Domains;
 using LittleViet.Data.ServiceHelper;
 using LittleViet.Data.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -37,6 +38,8 @@ public class ReservationController : Controller
     {
         try
         {
+            Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out Guid userId);
+            reservationViewModel.AccountId = userId;
             var result = await _resevationDomain.Update(reservationViewModel);
             return Ok(result);
         }

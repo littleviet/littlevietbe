@@ -21,10 +21,10 @@ public class UpdateReservationViewModel
     public string LastName { get; set; }
     public string Email { get; set; }
     public string FurtherRequest { get; set; }
+    public Guid? AccountId { get; set; }
     public int NoOfPeople { get; set; }
     public DateTime BookingDate { get; set; }
     public ReservationStatus Status { get; set; }
-    public Guid UpdatedBy { get; set; }
     public string PhoneNumber { get; set; }
 }
 

@@ -14,7 +14,7 @@ public interface IReservationDomain
 {
     Task<ResponseViewModel> Create(CreateReservationViewModel reservationVm);
     Task<ResponseViewModel> Update(UpdateReservationViewModel reservationVm);
-    Task<ResponseViewModel> Deactivate(Guid Id);
+    Task<ResponseViewModel> Deactivate(Guid id);
     Task<BaseListResponseViewModel> Search(BaseSearchParameters parameters);
     Task<BaseListResponseViewModel> GetListReservations(BaseListQueryParameters parameters);
     Task<ResponseViewModel> GetReservationById(Guid id);
@@ -93,6 +93,7 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
             existedReservation.Firstname = updateReservationViewModel.FirstName;
             existedReservation.Lastname = updateReservationViewModel.LastName;
             existedReservation.Email = updateReservationViewModel.Email;
+            existedReservation.AccountId = updateReservationViewModel.AccountId;
             existedReservation.NoOfPeople = updateReservationViewModel.NoOfPeople;
             existedReservation.BookingDate = updateReservationViewModel.BookingDate;
             existedReservation.FurtherRequest = updateReservationViewModel.FurtherRequest;
@@ -109,11 +110,11 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
         }
     }
 
-    public async Task<ResponseViewModel> Deactivate(Guid Id)
+    public async Task<ResponseViewModel> Deactivate(Guid id)
     {
         try
         {
-            var reservation = await _reservationRepository.GetById(Id);
+            var reservation = await _reservationRepository.GetById(id);
 
             if (reservation == null)
                 return new ResponseViewModel {Success = false, Message = "This reservation does not exist"};
@@ -209,12 +210,9 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
 
             reservationDetails.StatusName = reservation.Status.ToString();
 
-            if (reservation == null)
-            {
-                return new ResponseViewModel { Success = false, Message = "This reservation does not exist" };
-            }
-
-            return new ResponseViewModel { Success = true, Payload = reservationDetails };
+            return reservation == null 
+                ? new ResponseViewModel { Success = false, Message = "This reservation does not exist" }
+                : new ResponseViewModel { Success = true, Payload = reservationDetails };
         }
         catch (Exception e)
         {

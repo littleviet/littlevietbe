@@ -15,7 +15,7 @@ public interface IProductTypeDomain
     Task<ResponseViewModel> Deactivate(Guid id);
     Task<BaseListResponseViewModel<ProductTypeItemViewModel>> GetListProductTypes(BaseListQueryParameters parameters);
     Task<BaseListResponseViewModel> Search(BaseSearchParameters parameters);
-    ResponseViewModel GetProductTypeById(Guid id);
+    Task<ResponseViewModel> GetProductTypeById(Guid id);
 }
 internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
 {
@@ -159,39 +159,39 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
         }
     }
 
-    public ResponseViewModel GetProductTypeById(Guid id)
+    public async Task<ResponseViewModel> GetProductTypeById(Guid id)
     {
         try
         {
-            var productType = from pt in _productTypeRepository.DbSet()
+            var productType = await _productTypeRepository.DbSet()
                                .Include(t => t.Products.Where(p => p.IsDeleted == false))
                                .AsNoTracking()
-                               .Where(q => q.Id == id)
-                               .Take(1)
-                              select new ProductTypeDetailsViewModel
-                              {
-                                  CaName = pt.CaName,
-                                  EsName = pt.EsName,
-                                  Name = pt.Name,
-                                  Id = pt.Id,
-                                  Description = pt.Description,
-                                  Products = pt.Products.Select(p => new ProductViewModel
-                                  {
-                                      CaName = p.CaName,
-                                      EsName = p.EsName,
-                                      Name = p.Name,
-                                      Description = p.Description,
-                                      Status = p.Status,
-                                      StatusName = p.Status.ToString()
-                                  }).ToList()
-                              };
-
+                               .FirstOrDefaultAsync();
+            
             if (productType == null)
             {
                 return new ResponseViewModel { Success = false, Message = "This product type does not exist" };
             }
-
-            return new ResponseViewModel { Success = true, Payload = productType };
+            
+            var result = new ProductTypeDetailsViewModel
+                  {
+                      CaName = productType.CaName,
+                      EsName = productType.EsName,
+                      Name = productType.Name,
+                      Id = productType.Id,
+                      Description = productType.Description,
+                      Products = productType.Products.Select(p => new ProductViewModel
+                      {
+                          CaName = p.CaName,
+                          EsName = p.EsName,
+                          Name = p.Name,
+                          Description = p.Description,
+                          Status = p.Status,
+                          StatusName = p.Status.ToString()
+                      }).ToList()
+                  };
+            
+            return new ResponseViewModel { Success = true, Payload = result };
         }
         catch (Exception e)
         {
