@@ -38,33 +38,40 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
         try
         {
             var reservation = _mapper.Map<Reservation>(createReservationViewModel);
-            var date = DateTime.UtcNow;
 
             reservation.Id = Guid.NewGuid();
-            reservation.CreatedBy = createReservationViewModel.AccountId;
-            reservation.CreatedDate = date;
-            reservation.UpdatedDate = date;
-            reservation.UpdatedBy = createReservationViewModel.AccountId;
-            reservation.IsDeleted = false;
             reservation.Status = ReservationStatus.Reserved;
 
-            _reservationRepository.Add(reservation);
-            await _uow.SaveAsync();
+            await using var transaction = _uow.BeginTransation();
+
+            try
+            {
+                _reservationRepository.Add(reservation);
+                await _uow.SaveAsync();
             
-            var template = await _templateService.GetTemplateEmail(EmailTemplates.ReservationSuccess);
+                var template = await _templateService.GetTemplateEmail(EmailTemplates.ReservationSuccess);
 
-            var body = template
-                .Replace("{name}", createReservationViewModel.FirstName)
-                .Replace("{time}", createReservationViewModel.BookingDate.ToString("hh:mm:ss MM/dd/yyyy"))
-                .Replace("{no-of-people}", createReservationViewModel.NoOfPeople.ToString())
-                .Replace("{phone-number}", createReservationViewModel.PhoneNumber);
+                var body = template
+                    .Replace("{name}", createReservationViewModel.FirstName)
+                    .Replace("{time}", createReservationViewModel.BookingDate.ToString("hh:mm:ss MM/dd/yyyy"))
+                    .Replace("{no-of-people}", createReservationViewModel.NoOfPeople.ToString())
+                    .Replace("{phone-number}", createReservationViewModel.PhoneNumber)
+                    .Replace("{reservation-id}", reservation.Id.ToString());
 
-            await _emailService.SendEmailAsync(
-                body: body,
-                toName: createReservationViewModel.FirstName,
-                toAddress: createReservationViewModel.Email,
-                subject: EmailTemplates.ReservationSuccess.SubjectName
+                await _emailService.SendEmailAsync(
+                    body: body,
+                    toName: createReservationViewModel.FirstName,
+                    toAddress: createReservationViewModel.Email,
+                    subject: EmailTemplates.ReservationSuccess.SubjectName
                 );
+
+                await transaction.CommitAsync();
+            }
+            catch(Exception e)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
             
             return new ResponseViewModel { Success = true, Message = "Create successful" };
         }
