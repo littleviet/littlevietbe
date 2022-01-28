@@ -63,7 +63,7 @@ public class ProductController : BaseController
         }
     }
 
-    // [AuthorizeRoles(Role.ADMIN, Role.MANAGER)] TODO: make this authorized then move takeaway logic to other pages.
+    [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpGet]
     public async Task<IActionResult> GetListProducts([FromQuery] BaseListQueryParameters parameters)
     {

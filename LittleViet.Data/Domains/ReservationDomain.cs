@@ -87,23 +87,21 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
         {
             var existedReservation = await _reservationRepository.GetById(updateReservationViewModel.Id);
 
-            if (existedReservation != null)
-            {
-                existedReservation.Firstname = updateReservationViewModel.FirstName;
-                existedReservation.Lastname = updateReservationViewModel.LastName;
-                existedReservation.Email = updateReservationViewModel.Email;
-                existedReservation.NoOfPeople = updateReservationViewModel.NoOfPeople;
-                existedReservation.BookingDate = updateReservationViewModel.BookingDate;
-                existedReservation.FurtherRequest = updateReservationViewModel.FurtherRequest;
-                existedReservation.Status = updateReservationViewModel.Status;
-                existedReservation.PhoneNumber = updateReservationViewModel.PhoneNumber;
+            if (existedReservation == null)
+                return new ResponseViewModel {Success = false, Message = "This reservation does not exist"};
+            
+            existedReservation.Firstname = updateReservationViewModel.FirstName;
+            existedReservation.Lastname = updateReservationViewModel.LastName;
+            existedReservation.Email = updateReservationViewModel.Email;
+            existedReservation.NoOfPeople = updateReservationViewModel.NoOfPeople;
+            existedReservation.BookingDate = updateReservationViewModel.BookingDate;
+            existedReservation.FurtherRequest = updateReservationViewModel.FurtherRequest;
+            existedReservation.Status = updateReservationViewModel.Status;
+            existedReservation.PhoneNumber = updateReservationViewModel.PhoneNumber;
 
-                _reservationRepository.Modify(existedReservation);
-                await _uow.SaveAsync();
-                return new ResponseViewModel { Success = true, Message = "Update successful" };
-            }
-
-            return new ResponseViewModel { Success = false, Message = "This reservation does not exist" };
+            _reservationRepository.Modify(existedReservation);
+            await _uow.SaveAsync();
+            return new ResponseViewModel { Success = true, Message = "Update successful" };
         }
         catch (Exception e)
         {
@@ -117,15 +115,13 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
         {
             var reservation = await _reservationRepository.GetById(Id);
 
-            if (reservation != null)
-            {
-                _reservationRepository.Deactivate(reservation);
-                await _uow.SaveAsync();
+            if (reservation == null)
+                return new ResponseViewModel {Success = false, Message = "This reservation does not exist"};
+            
+            _reservationRepository.Deactivate(reservation);
+            await _uow.SaveAsync();
 
-                return new ResponseViewModel { Success = true, Message = "Deactivate successful" };
-            }
-
-            return new ResponseViewModel { Success = false, Message = "This reservation does not exist" };
+            return new ResponseViewModel { Success = true, Message = "Deactivate successful" };
         }
         catch (Exception e)
         {

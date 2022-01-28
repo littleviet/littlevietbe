@@ -35,7 +35,8 @@ public class OrderController : Controller
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(UpdateOrderViewModel updateOrderViewModel)// TODO: should this be needed?
+    [NonAction]
+    public async Task<IActionResult> Update(UpdateOrderViewModel updateOrderViewModel)
     {
         try
         {
