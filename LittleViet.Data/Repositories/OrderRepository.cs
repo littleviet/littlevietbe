@@ -15,6 +15,9 @@ internal class OrderRepository : BaseRepository<Order>, IOrderRepository
 
     public Task<Order> GetById(Guid id)
     {
-        return DbSet().FirstOrDefaultAsync(q => q.Id == id);
+        return DbSet()
+            .Include(o => o.OrderDetails)
+                .ThenInclude(od => od.Serving)
+            .FirstOrDefaultAsync(q => q.Id == id);
     }
 }

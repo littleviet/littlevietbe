@@ -43,10 +43,6 @@ internal class ServingDomain : BaseDomain, IServingDomain
             var date = DateTime.UtcNow;
 
             serving.Id = Guid.NewGuid();
-            serving.CreatedDate = date;
-            serving.UpdatedDate = date;
-            serving.UpdatedBy = createServingViewModel.CreatedBy;
-            serving.IsDeleted = false;
 
             var entry = _servingRepository.Add(serving);
             await _uow.SaveAsync();
@@ -59,6 +55,7 @@ internal class ServingDomain : BaseDomain, IServingDomain
                 Currency = "eur",
                 StripeProductId = entry.Entity.Product.StripeProductId,
             };
+            
             var stripePrice = await _stripePriceService.CreatePrice(createStripePriceDto);
             serving.StripePriceId = stripePrice.Id;
 
@@ -118,13 +115,11 @@ internal class ServingDomain : BaseDomain, IServingDomain
 
             if (existedServing != null)
             {
-                existedServing.UpdatedDate = DateTime.UtcNow;
                 existedServing.Price = updateServingViewModel.Price;
                 existedServing.Description = updateServingViewModel.Description;
                 existedServing.NumberOfPeople = updateServingViewModel.NumberOfPeople;
                 existedServing.ProductId = updateServingViewModel.ProductId;
                 existedServing.Name = updateServingViewModel.Name;
-                existedServing.UpdatedBy = updateServingViewModel.UpdatedBy;
 
                 _servingRepository.Modify(existedServing);
                 await _uow.SaveAsync();

@@ -42,39 +42,26 @@ internal class OrderDomain : BaseDomain, IOrderDomain
 
     public async Task<ResponseViewModel> Create(Guid userId, CreateOrderViewModel createOrderViewModel)
     {
+        var order = _mapper.Map<Order>(createOrderViewModel);
+        var orderGuid = Guid.NewGuid();
+
+        order.Id = orderGuid;
+        order.OrderStatus = OrderStatus.Ordered;
+
+        foreach (var orderDetail in order.OrderDetails)
+        {
+            orderDetail.Id = Guid.NewGuid();
+            orderDetail.OrderId = orderGuid;
+        }
+        
+        await using var transaction = _uow.BeginTransation();
+
         try
         {
-            var order = _mapper.Map<Order>(createOrderViewModel);
-            var now = DateTime.UtcNow;
-            var orderGuid = Guid.NewGuid();
-
-            order.Id = orderGuid;
-            order.IsDeleted = false;
-            order.OrderStatus = OrderStatus.Ordered;
-            order.UpdatedDate = now;
-            order.CreatedDate = now;
-            order.UpdatedBy = userId;
-            order.AccountId = userId;
-
-            foreach (var orderDetail in order.OrderDetails)
-            {
-                orderDetail.Id = Guid.NewGuid();
-                orderDetail.OrderId = orderGuid;
-                orderDetail.IsDeleted = false;
-                orderDetail.UpdatedDate = now;
-                orderDetail.CreatedDate = now;
-                orderDetail.UpdatedBy = userId;
-                orderDetail.CreatedBy = userId;
-            }
-
             _orderRepository.Add(order);
             await _uow.SaveAsync();
 
-            var savedOrder = await _orderRepository.DbSet()
-                .Include(o => o.OrderDetails)
-                    .ThenInclude(od => od.Serving)
-                .Where(o => o.Id == order.Id)
-                .FirstOrDefaultAsync();
+            var savedOrder = await _orderRepository.GetById(orderGuid);
 
             var stripeSessionDto = new CreateSessionDto()
             {
@@ -85,11 +72,13 @@ internal class OrderDomain : BaseDomain, IOrderDomain
                     Quantity = od.Quantity,
                 }).ToList()
             };
+            
             var checkoutSessionResult = await _stripePaymentService.CreateCheckoutSession(stripeSessionDto);
 
             order.LastStripeSessionId = checkoutSessionResult.Id;
 
             await _uow.SaveAsync();
+            await transaction.CommitAsync();
 
             return new ResponseViewModel
             {
@@ -105,10 +94,7 @@ internal class OrderDomain : BaseDomain, IOrderDomain
         }
         catch (StripeException se)
         {
-            throw;
-        }
-        catch (Exception e)
-        {
+            await transaction.RollbackAsync();
             throw;
         }
     }
@@ -121,12 +107,10 @@ internal class OrderDomain : BaseDomain, IOrderDomain
 
             if (existedOrder != null)
             {
-                existedOrder.UpdatedBy = updateOrderViewModel.UpdatedBy;
                 existedOrder.PaymentType = updateOrderViewModel.PaymentType;
                 existedOrder.PickupTime = updateOrderViewModel.PickupTime;
                 existedOrder.TotalPrice = updateOrderViewModel.TotalPrice;
                 existedOrder.OrderType = updateOrderViewModel.OrderType;
-                existedOrder.UpdatedDate = DateTime.UtcNow;
 
                 _orderRepository.Modify(existedOrder);
                 await _uow.SaveAsync();

@@ -33,13 +33,7 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
         {
             var productType = _mapper.Map<ProductType>(createProductTypeViewModel);
 
-            var datetime = DateTime.UtcNow;
-
             productType.Id = Guid.NewGuid();
-            productType.IsDeleted = false;
-            productType.UpdatedDate = datetime;
-            productType.CreatedDate = datetime;
-            productType.UpdatedBy = createProductTypeViewModel.CreatedBy;
 
             _productTypeRepository.Add(productType);
             await _uow.SaveAsync();
@@ -64,8 +58,6 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
                 existedProductType.Description = updateProductTypeViewModel.Description;
                 existedProductType.EsName = updateProductTypeViewModel.EsName;
                 existedProductType.CaName = updateProductTypeViewModel.CaName;
-                existedProductType.UpdatedDate = DateTime.UtcNow;
-                existedProductType.UpdatedBy = existedProductType.UpdatedBy;
 
                 _productTypeRepository.Modify(existedProductType);
                 await _uow.SaveAsync();

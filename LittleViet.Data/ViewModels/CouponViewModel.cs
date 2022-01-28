@@ -4,7 +4,6 @@ namespace LittleViet.Data.ViewModels;
 
 public class CreateCouponViewModel
 {
-    public Guid CreatedBy { get; set; }
     public double Amount { get; set; }
     public string Email { get; set; }
     public string PhoneNumber { get; set; }

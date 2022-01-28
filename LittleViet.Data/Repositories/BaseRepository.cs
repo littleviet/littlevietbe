@@ -11,6 +11,7 @@ public interface IRepository
 public interface IBaseRepository<TEntity> : IRepository where TEntity : class, IEntity
 {
     IQueryable<TEntity> DbSet();
+    IQueryable<TEntity> DbSetWithDeletedEntities();
     TEntity Get<TKey>(TKey id);
     IQueryable<TEntity> Get(Expression<Func<TEntity, bool>> predicate);
     TEntity FirstOrDefault();
@@ -85,14 +86,9 @@ public class BaseRepository<TEntity> : IBaseRepository<TEntity>, IRepository whe
 
     public virtual void Deactivate(TEntity entity)
     {
-        if (entity.IsDeleted == false)
-        {
-            entity.IsDeleted = true;
-        }
-        else
-        {
-            throw new InvalidOperationException("Cannot deactivate already deactivated entity!");
-        }
+        entity.IsDeleted = entity.IsDeleted == false
+            ? true
+            : throw new InvalidOperationException("Cannot deactivate already deactivated entity!");
     }
 }
 

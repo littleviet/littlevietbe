@@ -50,14 +50,8 @@ internal class ProductDomain : BaseDomain, IProductDomain
             var product = _mapper.Map<Product>(createProductViewModel);
 
             var productId = Guid.NewGuid();
-            var now = DateTime.UtcNow;
 
             product.Id = productId;
-            product.IsDeleted = false;
-            product.CreatedBy = userId;
-            product.UpdatedDate = now;
-            product.CreatedDate = now;
-            product.UpdatedBy = userId;
 
             if (productImages.Count > 0)
             {
@@ -69,11 +63,6 @@ internal class ProductDomain : BaseDomain, IProductDomain
                     Url = imageLinks[index],
                     ProductId = productId,
                     Id = Guid.NewGuid(),
-                    UpdatedBy = userId,
-                    UpdatedDate = now,
-                    CreatedBy = userId,
-                    CreatedDate = now,
-                    IsDeleted = false,
                     IsMain = createProductViewModel.MainImage == index ? true : false
                 }).ToList();
             }
@@ -115,16 +104,12 @@ internal class ProductDomain : BaseDomain, IProductDomain
                     _ = await _stripeProductService.UpdateProduct(stripeProductDto);
                 }
 
-                var now = DateTime.UtcNow;
-
                 existedProduct.ProductTypeId = updateProductViewModel.ProductTypeId;
                 existedProduct.Name = updateProductViewModel.Name;
                 existedProduct.Description = updateProductViewModel.Description;
                 existedProduct.EsName = updateProductViewModel.EsName;
                 existedProduct.CaName = updateProductViewModel.CaName;
                 existedProduct.Status = updateProductViewModel.Status;
-                existedProduct.UpdatedDate = now;
-                existedProduct.UpdatedBy = userId;
 
                 if (updateProductViewModel.ImageChange)
                 {
@@ -142,11 +127,6 @@ internal class ProductDomain : BaseDomain, IProductDomain
                             Url = imageLinks[index],
                             ProductId = existedProduct.Id,
                             Id = Guid.NewGuid(),
-                            UpdatedBy = userId,
-                            UpdatedDate = now,
-                            CreatedBy = userId,
-                            CreatedDate = now,
-                            IsDeleted = false,
                             IsMain = updateProductViewModel.MainImage == index ? true : false
                         }).ToList();
 

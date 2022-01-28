@@ -88,15 +88,8 @@ public class AccountDomain : BaseDomain, IAccountDomain
             }
             var account = _mapper.Map<Account>(createAccountViewModel);
 
-            var datetime = DateTime.UtcNow;
-
             account.Id = Guid.NewGuid();
             account.Password = BCryptNet.HashPassword(createAccountViewModel.Password);
-            account.IsDeleted = false;
-            account.UpdatedDate = datetime;
-            account.CreatedDate = datetime;
-            account.UpdatedBy = userId;
-            account.CreatedBy = userId;
 
             _accountRepository.Add(account);
             await _uow.SaveAsync();
@@ -121,13 +114,8 @@ public class AccountDomain : BaseDomain, IAccountDomain
             }
             var account = _mapper.Map<Account>(createAccountViewModel);
 
-            var datetime = DateTime.UtcNow;
-
             account.Id = Guid.NewGuid();
             account.Password = BCryptNet.HashPassword(createAccountViewModel.Password);
-            account.IsDeleted = false;
-            account.UpdatedDate = datetime;
-            account.CreatedDate = datetime;
 
             _accountRepository.Add(account);
             await _uow.SaveAsync();
@@ -155,8 +143,6 @@ public class AccountDomain : BaseDomain, IAccountDomain
                 existedAccount.PhoneNumber2 = updateAccountViewModel.PhoneNumber2;
                 existedAccount.Address = updateAccountViewModel.Address;
                 existedAccount.AccountType = updateAccountViewModel.AccountType;
-                existedAccount.UpdatedDate = DateTime.UtcNow;
-                existedAccount.UpdatedBy = existedAccount.UpdatedBy;
 
                 _accountRepository.Modify(existedAccount);
                 await _uow.SaveAsync();
@@ -310,11 +296,6 @@ public class AccountDomain : BaseDomain, IAccountDomain
             var accountDetails = _mapper.Map<AccountDetailsViewModel>(account);
 
             accountDetails.AccountTypeName = account.AccountType.ToString();
-
-            if (account == null)
-            {
-                return new ResponseViewModel { Success = false, Message = "This account does not exist" };
-            }
 
             return new ResponseViewModel { Success = true, Payload = accountDetails };
         }

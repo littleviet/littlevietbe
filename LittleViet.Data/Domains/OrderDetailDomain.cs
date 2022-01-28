@@ -10,7 +10,7 @@ internal class OrderDetailDomain : BaseDomain, IOrderDetailDomain
 {
     public OrderDetailDomain(IUnitOfWork uow) : base(uow)
     {
-
+        
     }
 }
 

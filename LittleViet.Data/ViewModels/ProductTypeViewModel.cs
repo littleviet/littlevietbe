@@ -18,7 +18,6 @@ internal class ProductsLandingPageViewModel
 
 public class CreateProductTypeViewModel
 {
-    public Guid CreatedBy { get; set; }
     public string Name { get; set; }
     public string EsName { get; set; }
     public string CaName { get; set; }

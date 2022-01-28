@@ -36,10 +36,6 @@ internal class CouponDomain : BaseDomain, ICouponDomain
             var date = DateTime.UtcNow;
 
             coupon.Id = Guid.NewGuid();
-            coupon.UpdatedBy = createCouponViewModel.CreatedBy;
-            coupon.UpdatedDate = date;
-            coupon.CreatedDate = date;
-            coupon.IsDeleted = false;
             coupon.CouponCode = GenerateCouponCode();
             coupon.Status = CouponStatus.Created;
 
@@ -65,7 +61,6 @@ internal class CouponDomain : BaseDomain, ICouponDomain
                 existedCoupon.PhoneNumber = updateCouponViewModel.PhoneNumber;
                 existedCoupon.Email = updateCouponViewModel.Email;
                 existedCoupon.Amount = updateCouponViewModel.Amount;
-                existedCoupon.UpdatedDate = DateTime.UtcNow;
 
                 _couponRepository.Modify(existedCoupon);
                 await _uow.SaveAsync();
@@ -200,11 +195,6 @@ internal class CouponDomain : BaseDomain, ICouponDomain
             var couponDetails = _mapper.Map<CouponDetailsViewModel>(coupon);
 
             couponDetails.StatusName = coupon.Status.ToString();
-
-            if (coupon == null)
-            {
-                return new ResponseViewModel { Success = false, Message = "This coupon does not exist" };
-            }
 
             return new ResponseViewModel { Success = true, Payload = couponDetails };
         }

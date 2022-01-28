@@ -97,8 +97,6 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
                 existedReservation.FurtherRequest = updateReservationViewModel.FurtherRequest;
                 existedReservation.Status = updateReservationViewModel.Status;
                 existedReservation.PhoneNumber = updateReservationViewModel.PhoneNumber;
-                existedReservation.UpdatedBy = updateReservationViewModel.UpdatedBy;
-                existedReservation.UpdatedDate = DateTime.UtcNow;
 
                 _reservationRepository.Modify(existedReservation);
                 await _uow.SaveAsync();

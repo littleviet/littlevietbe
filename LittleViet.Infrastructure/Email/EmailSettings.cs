@@ -1,6 +1,5 @@
 ﻿using System.Net.Mail;
 using System.Text;
-using System.IO;
 
 namespace LittleViet.Infrastructure.Email;
 
