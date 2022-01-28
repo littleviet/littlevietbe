@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace LittleViet.Data.ServiceHelper;
+namespace LittleViet.Data.Models;
 
 public enum RoleEnum
 {
@@ -53,4 +53,12 @@ public enum OrderStatus
     Paid = 2,
     Cancelled = 3,
     Expired = 4,
+}
+
+public class Role
+{
+    public const string ADMIN = "ADMIN";
+    public const string AUTHORIZED = "AUTHORIZED";
+    public const string UNAUTHORIZED = "UNAUTHORIZED";
+    public const string MANAGER = "MANAGER";
 }

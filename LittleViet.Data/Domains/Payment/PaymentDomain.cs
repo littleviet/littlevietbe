@@ -1,12 +1,10 @@
 ﻿using AutoMapper;
 using LittleViet.Data.Models.Global;
-using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
-using LittleViet.Infrastructure.Stripe;
 using LittleViet.Infrastructure.Stripe.Interface;
 using Stripe.Checkout;
 
-namespace LittleViet.Data.Domains;
+namespace LittleViet.Data.Domains.Payment;
 
 public interface IPaymentDomain
 {
@@ -29,14 +27,14 @@ public class PaymentDomain : BaseDomain, IPaymentDomain
 
     public async Task<ResponseViewModel> HandleSuccessfulPayment(Session session)
     {
-        var orderGuid = Guid.Parse(session.Metadata.GetValueOrDefault(Payment.OrderMetaDataKey));
+        var orderGuid = Guid.Parse(session.Metadata.GetValueOrDefault(Infrastructure.Stripe.Payment.OrderMetaDataKey));
         return await _orderDomain.HandleSuccessfulOrder(orderGuid, session.Id);
     }
 
 
     public async Task<ResponseViewModel> HandleExpiredPayment(Session session)
     {
-        var orderGuid = Guid.Parse(session.Metadata.GetValueOrDefault(Payment.OrderMetaDataKey));
+        var orderGuid = Guid.Parse(session.Metadata.GetValueOrDefault(Infrastructure.Stripe.Payment.OrderMetaDataKey));
         return await _orderDomain.HandleSuccessfulOrder(orderGuid, session.Id);
     }
 }

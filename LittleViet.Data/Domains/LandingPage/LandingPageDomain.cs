@@ -3,7 +3,7 @@ using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
 using Microsoft.EntityFrameworkCore;
 
-namespace LittleViet.Data.Domains;
+namespace LittleViet.Data.Domains.LandingPage;
 
 public interface ILandingPageDomain
 {

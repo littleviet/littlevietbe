@@ -1,4 +1,5 @@
 ﻿using LittleViet.Infrastructure.Email;
+using LittleViet.Infrastructure.Security;
 using LittleViet.Infrastructure.Stripe;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -36,7 +37,8 @@ public static class StartupConfigurationExtensions
     {
         serviceCollection
             .Configure<StripeSettings>(configurationManager.GetSection(StripeSettings.ConfigSection))
-            .Configure<EmailSettings>(configurationManager.GetSection(EmailSettings.ConfigSection));        
+            .Configure<EmailSettings>(configurationManager.GetSection(EmailSettings.ConfigSection))
+            .Configure<AppSettings>(configurationManager.GetSection(AppSettings.ConfigSection));
         
         return serviceCollection;
     }

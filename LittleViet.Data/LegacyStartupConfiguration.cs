@@ -1,5 +1,14 @@
 ﻿using AutoMapper;
 using LittleViet.Data.Domains;
+using LittleViet.Data.Domains.Account;
+using LittleViet.Data.Domains.Coupon;
+using LittleViet.Data.Domains.LandingPage;
+using LittleViet.Data.Domains.Payment;
+using LittleViet.Data.Domains.Product;
+using LittleViet.Data.Domains.ProductType;
+using LittleViet.Data.Domains.Reservation;
+using LittleViet.Data.Domains.Serving;
+using LittleViet.Data.Domains.TakeAway;
 using LittleViet.Data.Models;
 using LittleViet.Data.Models.Global;
 using LittleViet.Data.Repositories;
@@ -73,7 +82,6 @@ public static partial class StartupConfiguration
         services.AddScoped<IAccountDomain, AccountDomain>()
             .AddScoped<ICouponDomain, CouponDomain>()
             .AddScoped<IOrderDomain, OrderDomain>()
-            .AddScoped<IOrderDetailDomain, OrderDetailDomain>()
             .AddScoped<IProductDomain, ProductDomain>()
             .AddScoped<IProductTypeDomain, ProductTypeDomain>()
             .AddScoped<ILandingPageDomain, LandingPageDomain>()

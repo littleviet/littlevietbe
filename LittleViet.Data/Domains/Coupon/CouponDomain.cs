@@ -1,12 +1,12 @@
 ﻿using AutoMapper;
+using LittleViet.Data.Models;
 using LittleViet.Data.Models.Global;
 using LittleViet.Data.Repositories;
-using LittleViet.Data.ServiceHelper;
 using LittleViet.Data.ViewModels;
+using LittleViet.Infrastructure.Utilities;
 using Microsoft.EntityFrameworkCore;
-using Coupon = LittleViet.Data.Models.Coupon;
 
-namespace LittleViet.Data.Domains;
+namespace LittleViet.Data.Domains.Coupon;
 
 public interface ICouponDomain
 {
@@ -32,7 +32,7 @@ internal class CouponDomain : BaseDomain, ICouponDomain
     {
         try
         {
-            var coupon = _mapper.Map<Coupon>(createCouponViewModel);
+            var coupon = _mapper.Map<Models.Coupon>(createCouponViewModel);
             var date = DateTime.UtcNow;
 
             coupon.Id = Guid.NewGuid();

@@ -6,8 +6,10 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using LittleViet.Infrastructure.Configurations;
 using LittleViet.Infrastructure.Middleware;
+using LittleViet.Infrastructure.Security.JWT;
 using LittleViet.Infrastructure.Stripe;
 using LittleViet.Infrastructure.Swagger;
+using LittleViet.Infrastructure.Utilities;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
@@ -27,37 +29,10 @@ builder.Services
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer()
-    .AddApplicationSwagger();
-
-builder.Services.AddHttpContextAccessor();
-
-var appSettingsSection = builder.Configuration.GetSection("AppSettings");
-builder.Services.Configure<AppSettings>(appSettingsSection);
-
-builder.Services.AddConfigurationBinding(builder.Configuration)
-    .ConfigureStripe(builder.Configuration);
-
-var appSettings = appSettingsSection.Get<AppSettings>();
-var key = Encoding.ASCII.GetBytes(appSettings.JwtSecret);
-builder.Services.AddAuthentication(x =>
-    {
-        x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    })
-    .AddJwtBearer(x =>
-    {
-        x.RequireHttpsMetadata = false;
-        x.SaveToken = true;
-        x.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(key),
-            ValidateIssuer = false,
-            ValidateAudience = false
-        };
-    });
-
-builder.Services.ConfigureLegacy();
+    .AddApplicationSwagger()
+    .AddHttpContextAccessor()
+    .AddAppJwtAuthentication(builder.Configuration)
+    .ConfigureLegacy();
 
 var app = builder.Build();
 

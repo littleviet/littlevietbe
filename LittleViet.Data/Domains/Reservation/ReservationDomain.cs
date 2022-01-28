@@ -1,14 +1,14 @@
 ﻿using AutoMapper;
+using LittleViet.Data.Models;
 using LittleViet.Data.Models.Global;
 using LittleViet.Data.Repositories;
-using LittleViet.Data.ServiceHelper;
 using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.Email.Interface;
 using LittleViet.Infrastructure.Email.Models;
+using LittleViet.Infrastructure.Utilities;
 using Microsoft.EntityFrameworkCore;
-using Reservation = LittleViet.Data.Models.Reservation;
 
-namespace LittleViet.Data.Domains;
+namespace LittleViet.Data.Domains.Reservation;
 
 public interface IReservationDomain
 {
@@ -37,7 +37,7 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
     {
         try
         {
-            var reservation = _mapper.Map<Reservation>(createReservationViewModel);
+            var reservation = _mapper.Map<Models.Reservation>(createReservationViewModel);
 
             reservation.Id = Guid.NewGuid();
             reservation.Status = ReservationStatus.Reserved;

@@ -1,12 +1,11 @@
 ﻿using AutoMapper;
 using LittleViet.Data.Models.Global;
 using LittleViet.Data.Repositories;
-using LittleViet.Data.ServiceHelper;
 using LittleViet.Data.ViewModels;
+using LittleViet.Infrastructure.Utilities;
 using Microsoft.EntityFrameworkCore;
-using ProductType = LittleViet.Data.Models.ProductType;
 
-namespace LittleViet.Data.Domains;
+namespace LittleViet.Data.Domains.ProductType;
 
 public interface IProductTypeDomain
 {
@@ -31,7 +30,7 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
     {
         try
         {
-            var productType = _mapper.Map<ProductType>(createProductTypeViewModel);
+            var productType = _mapper.Map<Models.ProductType>(createProductTypeViewModel);
 
             productType.Id = Guid.NewGuid();
 

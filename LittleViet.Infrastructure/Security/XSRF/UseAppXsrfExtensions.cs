@@ -1,7 +1,4 @@
-﻿using LittleViet.Infrastructure.Stripe;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Stripe;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace LittleViet.Infrastructure.Security.XSRF;
 

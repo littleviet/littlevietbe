@@ -1,14 +1,13 @@
 ﻿using AutoMapper;
 using LittleViet.Data.Models.Global;
 using LittleViet.Data.Repositories;
-using LittleViet.Data.ServiceHelper;
 using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.Stripe.Interface;
 using LittleViet.Infrastructure.Stripe.Models;
+using LittleViet.Infrastructure.Utilities;
 using Microsoft.EntityFrameworkCore;
-using Serving = LittleViet.Data.Models.Serving;
 
-namespace LittleViet.Data.Domains;
+namespace LittleViet.Data.Domains.Serving;
 
 public interface IServingDomain
 {
@@ -38,7 +37,7 @@ internal class ServingDomain : BaseDomain, IServingDomain
     {
         try
         {
-            var serving = _mapper.Map<Serving>(createServingViewModel);
+            var serving = _mapper.Map<Models.Serving>(createServingViewModel);
 
             var date = DateTime.UtcNow;
 
@@ -135,7 +134,7 @@ internal class ServingDomain : BaseDomain, IServingDomain
         }
     }
 
-    private bool IsPriceDifferent(Serving existedServing, UpdateServingViewModel updateServingViewModel)
+    private bool IsPriceDifferent(Models.Serving existedServing, UpdateServingViewModel updateServingViewModel)
     {
         return false;
         throw new NotImplementedException(); //TODO: finish later

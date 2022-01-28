@@ -1,18 +1,17 @@
-﻿using AutoMapper;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using AutoMapper;
 using LittleViet.Data.Models.Global;
 using LittleViet.Data.Repositories;
-using LittleViet.Data.ServiceHelper;
 using LittleViet.Data.ViewModels;
+using LittleViet.Infrastructure.Utilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using Account = LittleViet.Data.Models.Account;
 using BCryptNet = BCrypt.Net.BCrypt;
 
-namespace LittleViet.Data.Domains;
+namespace LittleViet.Data.Domains.Account;
 
 public interface IAccountDomain
 {
@@ -86,7 +85,7 @@ public class AccountDomain : BaseDomain, IAccountDomain
             {
                 return new ResponseViewModel { Success = false, Message = "This email already existed" };
             }
-            var account = _mapper.Map<Account>(createAccountViewModel);
+            var account = _mapper.Map<Models.Account>(createAccountViewModel);
 
             account.Id = Guid.NewGuid();
             account.Password = BCryptNet.HashPassword(createAccountViewModel.Password);
@@ -112,7 +111,7 @@ public class AccountDomain : BaseDomain, IAccountDomain
             {
                 return new ResponseViewModel { Success = false, Message = "This email already existed" };
             }
-            var account = _mapper.Map<Account>(createAccountViewModel);
+            var account = _mapper.Map<Models.Account>(createAccountViewModel);
 
             account.Id = Guid.NewGuid();
             account.Password = BCryptNet.HashPassword(createAccountViewModel.Password);

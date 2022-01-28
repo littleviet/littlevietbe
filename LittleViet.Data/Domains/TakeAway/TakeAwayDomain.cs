@@ -1,10 +1,10 @@
 ﻿using LittleViet.Data.Models.Global;
 using LittleViet.Data.Repositories;
-using LittleViet.Data.ServiceHelper;
 using LittleViet.Data.ViewModels;
+using LittleViet.Infrastructure.Utilities;
 using Microsoft.EntityFrameworkCore;
 
-namespace LittleViet.Data.Domains;
+namespace LittleViet.Data.Domains.TakeAway;
 
 public interface ITakeAwayDomain
 {

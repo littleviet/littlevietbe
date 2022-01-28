@@ -1,4 +1,5 @@
 ﻿using LittleViet.Data.Domains;
+using LittleViet.Data.Domains.LandingPage;
 using LittleViet.Data.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 

@@ -1,8 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Reflection;
 
-namespace LittleViet.Data.ServiceHelper;
+namespace LittleViet.Infrastructure.Utilities;
 
 public static class EnumExtensions
 {
@@ -19,14 +18,6 @@ public static class EnumExtensions
             displayName = enumValue.ToString();
         }
         return displayName;
-    }
-}
-
-public static class IQueryableExtensions
-{
-    public static IQueryable<TSource> Paginate<TSource>(this IQueryable<TSource> query, int pageNum, int pageSize)
-    {
-        return query.Skip((pageNum > 0 ? (pageNum - 1) : 0) * pageSize).Take(pageSize);
     }
 }
 

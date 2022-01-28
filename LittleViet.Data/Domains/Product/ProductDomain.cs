@@ -1,19 +1,18 @@
 ﻿using AutoMapper;
-using Microsoft.Extensions.Configuration;
 using LittleViet.Data.Models.Global;
 using LittleViet.Data.Repositories;
-using LittleViet.Data.ServiceHelper;
 using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.Azure.AzureBlobStorage.Interface;
 using LittleViet.Infrastructure.Stripe.Interface;
 using LittleViet.Infrastructure.Stripe.Models;
-using Microsoft.EntityFrameworkCore;
-using Stripe;
-using Product = LittleViet.Data.Models.Product;
-using ProductImage = LittleViet.Data.Models.ProductImage;
+using LittleViet.Infrastructure.Utilities;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Stripe;
+using ProductImage = LittleViet.Data.Models.ProductImage;
 
-namespace LittleViet.Data.Domains;
+namespace LittleViet.Data.Domains.Product;
 public interface IProductDomain
 {
     Task<ResponseViewModel> Create(Guid userId, CreateProductViewModel createProductViewModel, List<IFormFile> productImages);
@@ -47,7 +46,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
     {
         try
         {
-            var product = _mapper.Map<Product>(createProductViewModel);
+            var product = _mapper.Map<Models.Product>(createProductViewModel);
 
             var productId = Guid.NewGuid();
 
@@ -152,7 +151,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
         }
     }
 
-    private bool IsStripeProductChanged(Product product, UpdateProductViewModel stripeProduct)
+    private bool IsStripeProductChanged(Models.Product product, UpdateProductViewModel stripeProduct)
     {
         // var imagesDifferent = product.ProductImages.Select(i => i.Url).ToList().Except(stripeProduct.); TODO: resolve this after finishing image upload
         return product.Name != stripeProduct.Name || product.Description != stripeProduct.Description;
