@@ -1,13 +1,11 @@
+using FluentValidation.AspNetCore;
+using LittleViet.Data;
+using LittleViet.Data.Domains;
 using LittleViet.Data.Models;
-using LittleViet.Data.ServiceHelper;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using LittleViet.Infrastructure.Configurations;
 using LittleViet.Infrastructure.Middleware;
 using LittleViet.Infrastructure.Security.JWT;
-using LittleViet.Infrastructure.Stripe;
 using LittleViet.Infrastructure.Swagger;
 using LittleViet.Infrastructure.Utilities;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
@@ -25,7 +23,9 @@ builder.Services
     .AddMvc(options =>
         {
             options.Conventions.Add(new RouteTokenTransformerConvention(new SlugifyParameterTransformer()));
-        });
+        })
+    .AddFluentValidation(fv 
+        => fv.RegisterValidatorsFromAssemblyContaining<BaseDomain>(lifetime: ServiceLifetime.Singleton));
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer()

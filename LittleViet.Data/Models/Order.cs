@@ -1,6 +1,4 @@
-﻿using LittleViet.Data.ServiceHelper;
-
-namespace LittleViet.Data.Models;
+﻿namespace LittleViet.Data.Models;
 
 public class Order : AuditableEntity
 {
