@@ -5,5 +5,5 @@ namespace LittleViet.Infrastructure.Stripe.Interface;
 
 public interface IStripePaymentService
 {
-    Task<Session> CreateCheckoutSession(CreateSessionDto dto);
+    Task<Session> CreateOrderCheckoutSession(CreateSessionDto dto);
 }

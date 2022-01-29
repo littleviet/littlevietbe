@@ -32,24 +32,20 @@ public class PaymentController : Controller
                 Request.Headers["Stripe-Signature"],
                 _stripeSettings.WebhookSecret
             );
-            
-            switch (stripeEvent.Type)
+
+            return stripeEvent.Type switch
             {
-                case Events.CheckoutSessionCompleted:
-                    var sessionSuccess = stripeEvent.Data.Object as Stripe.Checkout.Session;
-                    return Ok(await _paymentDomain.HandleSuccessfulPayment(sessionSuccess));
-                case Events.CheckoutSessionExpired:
-                    var sessionExpired = stripeEvent.Data.Object as Stripe.Checkout.Session;
-                    return Ok(await _paymentDomain.HandleSuccessfulPayment(sessionExpired));
-                default:
-                    return BadRequest();
-            }
+                Events.CheckoutSessionCompleted => Ok(
+                    await _paymentDomain.HandleSuccessfulPayment(stripeEvent.Data.Object as Stripe.Checkout.Session)),
+                Events.CheckoutSessionExpired => Ok(
+                    await _paymentDomain.HandleExpiredPayment(stripeEvent.Data.Object as Stripe.Checkout.Session)),
+                _ => BadRequest()
+            };
         }
         catch (Exception e)
         {
             return BadRequest("Bad request from Stripe");
         }
-
     }
 }
 

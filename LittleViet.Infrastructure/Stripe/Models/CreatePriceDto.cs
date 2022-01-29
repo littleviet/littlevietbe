@@ -5,4 +5,5 @@ public class CreatePriceDto
     public long? Price { get; set; }
     public string Currency { get; set; }
     public string StripeProductId { get; set; }
+    public Dictionary<string, string> Metadata { get; set; }
 }

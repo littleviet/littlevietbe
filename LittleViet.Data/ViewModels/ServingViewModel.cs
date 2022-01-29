@@ -2,7 +2,6 @@
 
 public class CreateServingViewModel
 {
-    public Guid CreatedBy { get; set; }
     public string Name { get; set; }
     public int NumberOfPeople { get; set; }
     public string Description { get; set; }
@@ -13,7 +12,6 @@ public class CreateServingViewModel
 public class UpdateServingViewModel
 {
     public Guid Id { get; set; }
-    public Guid UpdatedBy { get; set; }
     public string Name { get; set; }
     public int NumberOfPeople { get; set; }
     public string Description { get; set; }

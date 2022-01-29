@@ -5,6 +5,7 @@ using LittleViet.Infrastructure.Stripe.Interface;
 using LittleViet.Infrastructure.Stripe.Models;
 using LittleViet.Infrastructure.Utilities;
 using Microsoft.EntityFrameworkCore;
+using Stripe;
 
 namespace LittleViet.Data.Domains.Serving;
 
@@ -34,14 +35,12 @@ internal class ServingDomain : BaseDomain, IServingDomain
 
     public async Task<ResponseViewModel> Create(CreateServingViewModel createServingViewModel)
     {
+        var serving = _mapper.Map<Models.Serving>(createServingViewModel);
+        serving.Id = Guid.NewGuid();
+
+        await using var transaction = _uow.BeginTransation();
         try
         {
-            var serving = _mapper.Map<Models.Serving>(createServingViewModel);
-
-            var date = DateTime.UtcNow;
-
-            serving.Id = Guid.NewGuid();
-
             var entry = _servingRepository.Add(serving);
             await _uow.SaveAsync();
 
@@ -49,17 +48,24 @@ internal class ServingDomain : BaseDomain, IServingDomain
 
             var createStripePriceDto = new CreatePriceDto()
             {
-                Price = (long)serving.Price * 100,
+                Price = (long) serving.Price * 100,
                 Currency = "eur",
                 StripeProductId = entry.Entity.Product.StripeProductId,
+                Metadata = new() { { Infrastructure.Stripe.Payment.PriceMetaDataKey, serving.Id.ToString() } },
             };
-            
+
             var stripePrice = await _stripePriceService.CreatePrice(createStripePriceDto);
             serving.StripePriceId = stripePrice.Id;
 
             await _uow.SaveAsync();
-
-            return new ResponseViewModel { Success = true, Message = "Create successful" };
+            await transaction.CommitAsync();
+            
+            return new ResponseViewModel {Success = true, Message = "Create successful"};
+        }
+        catch (StripeException se)
+        {
+            await transaction.RollbackAsync();
+            throw;
         }
         catch (Exception e)
         {
@@ -69,36 +75,38 @@ internal class ServingDomain : BaseDomain, IServingDomain
 
     public async Task<ResponseViewModel> Deactivate(Guid id)
     {
+        var serving = await _servingRepository.GetById(id);
+        await using var transaction = _uow.BeginTransation();
+
         try
         {
-            var serving = await _servingRepository.GetById(id);
-
-            if (serving != null)
-            {
-                _servingRepository.Deactivate(serving);
-                await _uow.SaveAsync();
-                await _stripePriceService.DeactivatePrice(serving.StripePriceId);
-
-                return new ResponseViewModel { Success = true, Message = "Delete successful" };
-            }
-
-            return new ResponseViewModel { Success = false, Message = "This serving does not exist" };
+            if (serving == null)
+                return new ResponseViewModel {Success = false, Message = "This serving does not exist"};
+            
+            _servingRepository.Deactivate(serving);
+            await _uow.SaveAsync();
+            await _stripePriceService.DeactivatePrice(serving.StripePriceId);
+            await transaction.CommitAsync();
+            return new ResponseViewModel { Success = true, Message = "Delete successful" };
         }
         catch (Exception e)
         {
+            await transaction.RollbackAsync();
             return new ResponseViewModel { Success = false, Message = e.Message };
         }
     }
 
     public async Task<ResponseViewModel> Update(UpdateServingViewModel updateServingViewModel)
     {
+        var existedServing = await _servingRepository.GetById(updateServingViewModel.Id);// TODO: check if okay
+        if (existedServing == null)
+            return new ResponseViewModel {Success = false, Message = "This serving does not exist"};
+        
+        await using var transaction = _uow.BeginTransation();
+
         try
         {
-            var existedServing = await _servingRepository.GetById(updateServingViewModel.Id);
-
-            var pricesDifferent = IsPriceDifferent(existedServing, updateServingViewModel);
-
-            if (pricesDifferent == true)
+            if (IsPriceDifferent(existedServing, updateServingViewModel))
             {
                 var newPrice = await _stripePriceService.UpdatePrice(
                     new UpdatePriceDto
@@ -107,36 +115,34 @@ internal class ServingDomain : BaseDomain, IServingDomain
                         Currency = "eur",
                         Id = existedServing.StripePriceId,
                         ProductId = existedServing.Product.StripeProductId,
+                        Metadata = new() { { Infrastructure.Stripe.Payment.PriceMetaDataKey, existedServing.Id.ToString() } },
                     });
+                
                 existedServing.StripePriceId = newPrice.Id;
             }
 
-            if (existedServing != null)
-            {
-                existedServing.Price = updateServingViewModel.Price;
-                existedServing.Description = updateServingViewModel.Description;
-                existedServing.NumberOfPeople = updateServingViewModel.NumberOfPeople;
-                existedServing.ProductId = updateServingViewModel.ProductId;
-                existedServing.Name = updateServingViewModel.Name;
+            existedServing.Price = updateServingViewModel.Price;
+            existedServing.Description = updateServingViewModel.Description;
+            existedServing.NumberOfPeople = updateServingViewModel.NumberOfPeople;
+            existedServing.ProductId = updateServingViewModel.ProductId;
+            existedServing.Name = updateServingViewModel.Name;
 
-                _servingRepository.Modify(existedServing);
-                await _uow.SaveAsync();
+            _servingRepository.Modify(existedServing);
+            await _uow.SaveAsync();
+            await transaction.CommitAsync();
 
-                return new ResponseViewModel { Success = true, Message = "Update successful" };
-            }
-
-            return new ResponseViewModel { Success = false, Message = "This serving does not exist" };
+            return new ResponseViewModel { Success = true, Message = "Update successful" };
         }
         catch (Exception e)
         {
+            await transaction.RollbackAsync();
             return new ResponseViewModel { Success = false, Message = e.Message };
         }
     }
 
     private bool IsPriceDifferent(Models.Serving existedServing, UpdateServingViewModel updateServingViewModel)
     {
-        return false;
-        throw new NotImplementedException(); //TODO: finish later
+        return Math.Abs(existedServing.Price - updateServingViewModel.Price) > .00001f; //TODO: figure this float out later, also do full checks
     }
 
     public async Task<BaseListResponseViewModel> GetListServing(BaseListQueryParameters parameters)

@@ -3,6 +3,7 @@ using LittleViet.Data.Domains;
 using LittleViet.Data.Domains.Account;
 using LittleViet.Data.Domains.Coupon;
 using LittleViet.Data.Domains.LandingPage;
+using LittleViet.Data.Domains.Order;
 using LittleViet.Data.Domains.Payment;
 using LittleViet.Data.Domains.Product;
 using LittleViet.Data.Domains.ProductType;

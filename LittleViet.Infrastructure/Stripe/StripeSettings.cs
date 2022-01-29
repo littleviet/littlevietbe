@@ -12,9 +12,11 @@ public class StripeSettings
 public class Payment
 {
     public const string OrderMetaDataKey = "orderId";
+    public const string PriceMetaDataKey = "priceId";
+    public const string ProductMetaDataKey = "productId";
     public string PaymentType { get; set; } = "payment";
     public string SuccessUrl { get; set; }
     public string CancelUrl { get; set; }
     public string BaseDomain { get; set; }
-    public string Currency { get; set; }
+    public string Currency { get; set; } = "eur";
 }

@@ -2,14 +2,14 @@
 using LittleViet.Data.Models;
 using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
+using LittleViet.Infrastructure.Stripe;
 using LittleViet.Infrastructure.Stripe.Interface;
 using LittleViet.Infrastructure.Stripe.Models;
 using LittleViet.Infrastructure.Utilities;
 using Microsoft.EntityFrameworkCore;
 using Stripe;
-using Order = LittleViet.Data.Models.Order;
 
-namespace LittleViet.Data.Domains;
+namespace LittleViet.Data.Domains.Order;
 
 public interface IOrderDomain
 {
@@ -42,7 +42,7 @@ internal class OrderDomain : BaseDomain, IOrderDomain
 
     public async Task<ResponseViewModel> Create(Guid userId, CreateOrderViewModel createOrderViewModel)
     {
-        var order = _mapper.Map<Order>(createOrderViewModel);
+        var order = _mapper.Map<Models.Order>(createOrderViewModel);
         var orderGuid = Guid.NewGuid();
 
         order.Id = orderGuid;
@@ -65,7 +65,7 @@ internal class OrderDomain : BaseDomain, IOrderDomain
 
             var stripeSessionDto = new CreateSessionDto()
             {
-                Metadata = new() { { "orderId", orderGuid.ToString() } },
+                Metadata = new() { { Infrastructure.Stripe.Payment.OrderMetaDataKey, orderGuid.ToString() } },
                 SessionItems = savedOrder.OrderDetails.Select(od => new SessionItem()
                 {
                     StripePriceId = od.Serving.StripePriceId,
@@ -73,7 +73,7 @@ internal class OrderDomain : BaseDomain, IOrderDomain
                 }).ToList()
             };
             
-            var checkoutSessionResult = await _stripePaymentService.CreateCheckoutSession(stripeSessionDto);
+            var checkoutSessionResult = await _stripePaymentService.CreateOrderCheckoutSession(stripeSessionDto);
 
             order.LastStripeSessionId = checkoutSessionResult.Id;
 

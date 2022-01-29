@@ -22,7 +22,7 @@ public class StripePriceService : BaseStripeService, IStripePriceService
             UnitAmount = dto.Price,
             Currency = dto.Currency,
             Product = dto.StripeProductId,
-            
+            Metadata = dto.Metadata,
         };
 
         return _priceService.CreateAsync(options);
@@ -37,6 +37,7 @@ public class StripePriceService : BaseStripeService, IStripePriceService
             UnitAmount = dto.Amount,
             Currency = dto.Currency,
             Product = dto.ProductId,
+            Metadata = dto.Metadata,
         };
 
         return await _priceService.CreateAsync(options);

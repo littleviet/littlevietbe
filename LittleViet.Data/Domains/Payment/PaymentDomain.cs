@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using LittleViet.Data.Domains.Order;
 using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.Stripe.Interface;
@@ -14,14 +15,10 @@ public interface IPaymentDomain
 
 public class PaymentDomain : BaseDomain, IPaymentDomain
 {
-    private readonly IMapper _mapper;
-    private readonly IStripePaymentService _stripePaymentService;
     private readonly IOrderDomain _orderDomain;
 
-    public PaymentDomain(IUnitOfWork uow, IMapper mapper, IStripePaymentService stripePaymentService, IOrderDomain orderRepository) : base(uow)
+    public PaymentDomain(IUnitOfWork uow, IOrderDomain orderRepository) : base(uow)
     {
-        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-        _stripePaymentService = stripePaymentService ?? throw new ArgumentNullException(nameof(stripePaymentService));
         _orderDomain = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
     }
 
@@ -35,7 +32,7 @@ public class PaymentDomain : BaseDomain, IPaymentDomain
     public async Task<ResponseViewModel> HandleExpiredPayment(Session session)
     {
         var orderGuid = Guid.Parse(session.Metadata.GetValueOrDefault(Infrastructure.Stripe.Payment.OrderMetaDataKey));
-        return await _orderDomain.HandleSuccessfulOrder(orderGuid, session.Id);
+        return await _orderDomain.HandleExpiredOrder(orderGuid, session.Id);
     }
 }
 

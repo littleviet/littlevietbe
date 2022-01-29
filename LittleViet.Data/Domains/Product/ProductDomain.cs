@@ -14,8 +14,8 @@ using LittleViet.Data.Models;
 namespace LittleViet.Data.Domains.Product;
 public interface IProductDomain
 {
-    Task<ResponseViewModel> Create(Guid userId, CreateProductViewModel createProductViewModel, List<IFormFile> productImages);
-    Task<ResponseViewModel> Update(Guid userId, UpdateProductViewModel updateProductViewModel, List<IFormFile> productImages);
+    Task<ResponseViewModel> Create(CreateProductViewModel createProductViewModel, List<IFormFile> productImages);
+    Task<ResponseViewModel> Update(UpdateProductViewModel updateProductViewModel, List<IFormFile> productImages);
     Task<ResponseViewModel> Deactivate(Guid id);
     Task<BaseListResponseViewModel> GetListProducts(BaseListQueryParameters parameters);
     Task<BaseListResponseViewModel> Search(BaseSearchParameters parameters);
@@ -41,7 +41,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
         _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
     }
 
-    public async Task<ResponseViewModel> Create(Guid userId, CreateProductViewModel createProductViewModel, List<IFormFile> productImages)
+    public async Task<ResponseViewModel> Create(CreateProductViewModel createProductViewModel, List<IFormFile> productImages)
     {
         
         var product = _mapper.Map<Models.Product>(createProductViewModel);
@@ -92,74 +92,76 @@ internal class ProductDomain : BaseDomain, IProductDomain
         }
     }
 
-    public async Task<ResponseViewModel> Update(Guid userId, UpdateProductViewModel updateProductViewModel, List<IFormFile> images)
+    public async Task<ResponseViewModel> Update(UpdateProductViewModel updateProductViewModel, List<IFormFile> images)
     {
+
+        var existedProduct = await _productRepository.DbSet()
+            .Include(q => q.ProductImages.Where(x => x.IsDeleted == false))
+            .Where(q => q.Id == updateProductViewModel.Id)
+            .FirstOrDefaultAsync();
+
+        if (existedProduct == null)
+            return new ResponseViewModel {Success = false, Message = "This product does not exist"};
+            
+        await using var transaction = _uow.BeginTransation();
+    
         try
         {
-            var existedProduct = await _productRepository.DbSet()
-                .Include(q => q.ProductImages.Where(x => x.IsDeleted == false))
-                .Where(q => q.Id == updateProductViewModel.Id)
-                .FirstOrDefaultAsync();
-
-            if (existedProduct != null)
+            if (IsStripeProductChanged(existedProduct, updateProductViewModel) || updateProductViewModel.ImageChange)
             {
-                if (IsStripeProductChanged(existedProduct, updateProductViewModel))
-                {
-                    var stripeProductDto = _mapper.Map<UpdateProductDto>(updateProductViewModel);
-                    _ = await _stripeProductService.UpdateProduct(stripeProductDto);
-                }
-
-                existedProduct.ProductTypeId = updateProductViewModel.ProductTypeId;
-                existedProduct.Name = updateProductViewModel.Name;
-                existedProduct.Description = updateProductViewModel.Description;
-                existedProduct.EsName = updateProductViewModel.EsName;
-                existedProduct.CaName = updateProductViewModel.CaName;
-                existedProduct.Status = updateProductViewModel.Status;
-
-                if (updateProductViewModel.ImageChange)
-                {
-                    foreach (var item in existedProduct.ProductImages)
-                    {
-                        _productImageRepository.Deactivate(item);
-                    }
-
-                    if (images.Count > 0)
-                    {
-                        var imageLinks = await _blobProductImageService.CreateProductImages(images);
-
-                        var productImages = imageLinks.Select((q, index) => new ProductImage()
-                        {
-                            Url = imageLinks[index],
-                            ProductId = existedProduct.Id,
-                            Id = Guid.NewGuid(),
-                            IsMain = updateProductViewModel.MainImage == index ? true : false
-                        }).ToList();
-
-                        _productImageRepository.AddRange(productImages);
-                    }
-                }
-
-                _productRepository.Modify(existedProduct);
-                await _uow.SaveAsync();
-
-                return new ResponseViewModel { Success = true, Message = "Update successful" };
+                var stripeProductDto = _mapper.Map<UpdateProductDto>(updateProductViewModel);
+                _ = await _stripeProductService.UpdateProduct(stripeProductDto);
             }
 
-            return new ResponseViewModel { Success = false, Message = "This product does not exist" };
+            existedProduct.ProductTypeId = updateProductViewModel.ProductTypeId;
+            existedProduct.Name = updateProductViewModel.Name;
+            existedProduct.Description = updateProductViewModel.Description;
+            existedProduct.EsName = updateProductViewModel.EsName;
+            existedProduct.CaName = updateProductViewModel.CaName;
+            existedProduct.Status = updateProductViewModel.Status;
+
+            if (updateProductViewModel.ImageChange)
+            {
+                foreach (var item in existedProduct.ProductImages)
+                    _productImageRepository.Deactivate(item);
+
+                if (images.Any())
+                {
+                    var imageLinks = await _blobProductImageService.CreateProductImages(images);
+
+                    var productImages = imageLinks.Select((q, index) => new ProductImage()
+                    {
+                        Url = imageLinks[index],
+                        ProductId = existedProduct.Id,
+                        Id = Guid.NewGuid(),
+                        IsMain = updateProductViewModel.MainImage == index ? true : false
+                    }).ToList();
+
+                    _productImageRepository.AddRange(productImages);
+                }
+            }
+
+            _productRepository.Modify(existedProduct);
+            await _uow.SaveAsync();
+            await transaction.CommitAsync();
+            
+            return new ResponseViewModel { Success = true, Message = "Update successful" };
         }
         catch (StripeException es)
         {
+            await transaction.RollbackAsync();
             throw;
         }
         catch (Exception e)
-        {
+        {            
+            await transaction.RollbackAsync();
             return new ResponseViewModel { Success = false, Message = e.Message };
         }
     }
 
     private bool IsStripeProductChanged(Models.Product product, UpdateProductViewModel stripeProduct)
     {
-        // var imagesDifferent = product.ProductImages.Select(i => i.Url).ToList().Except(stripeProduct.); TODO: resolve this after finishing image upload
+        // var imagesDifferent = product.ProductImages.Select(i => i.Url).ToList().Except(stripeProduct.); TODO: use better logic for this
         return product.Name != stripeProduct.Name || product.Description != stripeProduct.Description;
     }
 

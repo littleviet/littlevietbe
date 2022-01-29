@@ -16,7 +16,7 @@ public class StripePaymentService : BaseStripeService, IStripePaymentService
         _sessionService = sessionService ?? throw new ArgumentNullException(nameof(sessionService));
     }
 
-    public Task<Session> CreateCheckoutSession(CreateSessionDto dto)
+    public Task<Session> CreateOrderCheckoutSession(CreateSessionDto dto)
     {
         var options = new SessionCreateOptions
         {

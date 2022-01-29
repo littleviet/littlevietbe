@@ -42,9 +42,7 @@ public enum CouponStatus
 
 public enum PaymentType
 {
-    Cash = 1,
-    Coupon = 2,
-    Wallet = 3,
+    Stripe = 1,
 }
 
 public enum OrderStatus

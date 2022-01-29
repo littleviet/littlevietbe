@@ -25,8 +25,7 @@ public class ProductController : BaseController
     {
         try
         {
-            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var result = await _productDomain.Create(userId, createProductViewModel, productImages);
+            var result = await _productDomain.Create(createProductViewModel, productImages);
             return Ok(result);
         }
         catch (Exception e)
@@ -41,8 +40,7 @@ public class ProductController : BaseController
     {
         try
         {
-            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var result = await _productDomain.Update(userId, updateProductViewModel, productImages);
+            var result = await _productDomain.Update(updateProductViewModel, productImages);
             return Ok(result);
         }
         catch (Exception e)
