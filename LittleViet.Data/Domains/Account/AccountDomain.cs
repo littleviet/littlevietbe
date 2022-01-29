@@ -2,7 +2,6 @@
 using System.Security.Claims;
 using System.Text;
 using AutoMapper;
-using LittleViet.Data.Models.Global;
 using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.Utilities;
@@ -49,7 +48,7 @@ public class AccountDomain : BaseDomain, IAccountDomain
                 return new ResponseViewModel { Message = "Invalid username or password", Success = false };
             }
 
-            var accountViewModel = _mapper.Map<AccountViewModel>(account);
+            var accountViewModel = _mapper.Map<GenericAccountViewModel>(account);
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_configuration["AppSettings:JwtSecret"]);
@@ -224,7 +223,7 @@ public class AccountDomain : BaseDomain, IAccountDomain
             return new BaseListResponseViewModel
             {
                 Payload = await accounts.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
-                .Select(q => new AccountViewModel()
+                .Select(q => new GenericAccountViewModel()
                 {
                     AccountType = q.AccountType,
                     AccountTypeName = q.AccountType.ToString(),
@@ -261,7 +260,7 @@ public class AccountDomain : BaseDomain, IAccountDomain
             return new BaseListResponseViewModel
             {
                 Payload = await accounts.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
-                .Select(q => new AccountViewModel()
+                .Select(q => new GenericAccountViewModel()
                 {
                     AccountType = q.AccountType,
                     AccountTypeName = q.AccountType.ToString(),

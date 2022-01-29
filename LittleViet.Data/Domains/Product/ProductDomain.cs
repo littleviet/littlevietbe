@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using LittleViet.Data.Models.Global;
 using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.Azure.AzureBlobStorage.Interface;
@@ -10,7 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Stripe;
-using ProductImage = LittleViet.Data.Models.ProductImage;
+using LittleViet.Data.Models;
 
 namespace LittleViet.Data.Domains.Product;
 public interface IProductDomain
@@ -44,25 +43,27 @@ internal class ProductDomain : BaseDomain, IProductDomain
 
     public async Task<ResponseViewModel> Create(Guid userId, CreateProductViewModel createProductViewModel, List<IFormFile> productImages)
     {
+        
+        var product = _mapper.Map<Models.Product>(createProductViewModel);
+        var productId = Guid.NewGuid();
+        product.Id = productId;
+
+        await using var transaction = _uow.BeginTransation();
+        
         try
         {
-            var product = _mapper.Map<Models.Product>(createProductViewModel);
-
-            var productId = Guid.NewGuid();
-
-            product.Id = productId;
-
-            if (productImages.Count > 0)
+            
+            if (productImages.Any())
             {
                 product.ProductImages = new List<ProductImage>();
-                var imageLinks = await _blobProductImageService.CreateProductImages(productImages);
+                var imageUrls = await _blobProductImageService.CreateProductImages(productImages);
 
-                product.ProductImages = imageLinks.Select((q, index) => new ProductImage()
+                product.ProductImages = imageUrls.Select((q, index) => new ProductImage()
                 {
-                    Url = imageLinks[index],
+                    Url = imageUrls[index],
                     ProductId = productId,
                     Id = Guid.NewGuid(),
-                    IsMain = createProductViewModel.MainImage == index ? true : false
+                    IsMain = createProductViewModel.MainImage == index
                 }).ToList();
             }
 
@@ -70,19 +71,24 @@ internal class ProductDomain : BaseDomain, IProductDomain
             await _uow.SaveAsync();
 
             var createStripeProductDto = _mapper.Map<CreateProductDto>(createProductViewModel);
+            createStripeProductDto.Images = product.ProductImages.Select(p => p.Url).ToList();
             var stripeProduct = await _stripeProductService.CreateProduct(createStripeProductDto);
             product.StripeProductId = stripeProduct.Id;
             await _uow.SaveAsync();
 
+            await transaction.CommitAsync();
+            
             return new ResponseViewModel { Success = true, Message = "Create successful" };
         }
         catch (StripeException se)
         {
+            await transaction.RollbackAsync();
             throw;
         }
         catch (Exception e)
         {
-            return new ResponseViewModel { Success = false, Message = e.Message };
+            await transaction.RollbackAsync();
+            throw;
         }
     }
 

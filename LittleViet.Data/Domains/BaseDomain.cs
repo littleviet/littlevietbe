@@ -1,4 +1,4 @@
-﻿using LittleViet.Data.Models.Global;
+﻿using LittleViet.Data.Repositories;
 
 namespace LittleViet.Data.Domains;
 

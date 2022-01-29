@@ -15,6 +15,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.AddConfigurations();
 
+builder.Services.AddConfigurationBinding(builder.Configuration);
+
 builder.Services
     .AddDbContext<LittleVietContext>(options =>
         options.UseLazyLoadingProxies()

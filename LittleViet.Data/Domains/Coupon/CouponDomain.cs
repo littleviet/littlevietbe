@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using LittleViet.Data.Models;
-using LittleViet.Data.Models.Global;
 using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.Utilities;

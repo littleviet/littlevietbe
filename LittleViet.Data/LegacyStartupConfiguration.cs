@@ -10,7 +10,6 @@ using LittleViet.Data.Domains.Reservation;
 using LittleViet.Data.Domains.Serving;
 using LittleViet.Data.Domains.TakeAway;
 using LittleViet.Data.Models;
-using LittleViet.Data.Models.Global;
 using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.Azure.AzureBlobStorage.Interface;
@@ -107,7 +106,7 @@ public static partial class LegacyStartupConfiguration
     {
         MapperConfigs.Add(cfg =>
         {
-            cfg.CreateMap<Account, AccountViewModel>().ReverseMap();
+            cfg.CreateMap<Account, GenericAccountViewModel>().ReverseMap();
             cfg.CreateMap<Account, CreateAccountViewModel>().ReverseMap();
             cfg.CreateMap<Account, UpdateAccountViewModel>().ReverseMap();
             cfg.CreateMap<Account, AccountDetailsViewModel>().ReverseMap();

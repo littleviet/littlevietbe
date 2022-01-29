@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using LittleViet.Data.Models;
-using LittleViet.Data.Models.Global;
 using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.Stripe.Interface;
@@ -173,7 +172,7 @@ internal class OrderDomain : BaseDomain, IOrderDomain
                         PaymentTypeName = q.PaymentType.ToString(),
                         PickupTime = q.PickupTime,
                         TotalPrice = q.TotalPrice,
-                        Account = new AccountViewModel()
+                        Account = new GenericAccountViewModel()
                         {
                             AccountType = q.Account.AccountType,
                             AccountTypeName = q.Account.AccountType.ToString(),
@@ -222,7 +221,7 @@ internal class OrderDomain : BaseDomain, IOrderDomain
                          PaymentTypeName = q.PaymentType.ToString(),
                          PickupTime = q.PickupTime,
                          TotalPrice = q.TotalPrice,
-                         Account = new AccountViewModel()
+                         Account = new GenericAccountViewModel()
                          {
                              AccountType = q.Account.AccountType,
                              AccountTypeName = q.Account.AccountType.ToString(),
@@ -262,7 +261,7 @@ internal class OrderDomain : BaseDomain, IOrderDomain
             orderDetails.PaymentTypeName = order.PaymentType.ToString();
             orderDetails.OrderTypeName = order.OrderType.ToString();
             orderDetails.OrderDetails = _mapper.Map<List<OrderDetailViewModel>>(order.OrderDetails);
-            orderDetails.Account = _mapper.Map<AccountViewModel>(order.Account);
+            orderDetails.Account = _mapper.Map<GenericAccountViewModel>(order.Account);
             orderDetails.Account.AccountTypeName = order.Account.AccountType.ToString();
 
             if (order == null)

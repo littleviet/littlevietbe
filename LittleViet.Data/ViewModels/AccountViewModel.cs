@@ -2,7 +2,7 @@
 
 namespace LittleViet.Data.ViewModels;
 
-public class AccountViewModel
+public class GenericAccountViewModel
 {
     public string Email { get; set; }
     public RoleEnum AccountType { get; set; }
