@@ -33,9 +33,9 @@ using Reservation = LittleViet.Data.Models.Reservation;
 using Serving = LittleViet.Data.Models.Serving;
 using OrderDetail = LittleViet.Data.Models.OrderDetail;
 
-namespace LittleViet.Data.ServiceHelper;
+namespace LittleViet.Data;
 
-public static partial class StartupConfiguration
+public static partial class LegacyStartupConfiguration
 {
     public static IMapper Mapper { get; private set; }
     private static List<Action<IMapperConfigurationExpression>> MapperConfigs
