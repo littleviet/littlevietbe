@@ -1,4 +1,5 @@
 ﻿using LittleViet.Data.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace LittleViet.Data.ViewModels;
 
@@ -11,6 +12,7 @@ public class CreateProductViewModel
     public ProductStatus Status { get; set; }
     public Guid ProductTypeId { get; set; }
     public int MainImage { get; set; }
+    public List<IFormFile> ProductImages { get; set; }
 }
 
 public class UpdateProductViewModel
@@ -24,6 +26,7 @@ public class UpdateProductViewModel
     public Guid ProductTypeId { get; set; }
     public bool ImageChange { get; set; }
     public int MainImage { get; set; }
+    public List<IFormFile> ProductImages { get; set; }
 }
 
 public class ProductViewModel

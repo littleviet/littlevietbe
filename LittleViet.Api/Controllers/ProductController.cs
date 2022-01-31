@@ -1,11 +1,8 @@
-﻿using LittleViet.Data.Domains;
-using LittleViet.Data.ViewModels;
+﻿using LittleViet.Data.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using LittleViet.Api.Utilities;
 using LittleViet.Data.Domains.Product;
 using LittleViet.Data.Models;
-using LittleViet.Infrastructure.Utilities;
 
 namespace LittleViet.Api.Controllers;
 
@@ -21,11 +18,11 @@ public class ProductController : BaseController
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpPost("")]
-    public async Task<IActionResult> Create([FromForm] CreateProductViewModel createProductViewModel, [FromForm] List<IFormFile> productImages)
+    public async Task<IActionResult> Create([FromForm] CreateProductViewModel createProductViewModel)
     {
         try
         {
-            var result = await _productDomain.Create(createProductViewModel, productImages);
+            var result = await _productDomain.Create(createProductViewModel);
             return Ok(result);
         }
         catch (Exception e)
@@ -36,11 +33,11 @@ public class ProductController : BaseController
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update([FromForm] UpdateProductViewModel updateProductViewModel, [FromForm] List<IFormFile> productImages)
+    public async Task<IActionResult> Update([FromForm] UpdateProductViewModel updateProductViewModel)
     {
         try
         {
-            var result = await _productDomain.Update(updateProductViewModel, productImages);
+            var result = await _productDomain.Update(updateProductViewModel);
             return Ok(result);
         }
         catch (Exception e)
