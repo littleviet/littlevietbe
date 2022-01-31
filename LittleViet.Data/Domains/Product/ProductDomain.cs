@@ -5,17 +5,15 @@ using LittleViet.Infrastructure.Azure.AzureBlobStorage.Interface;
 using LittleViet.Infrastructure.Stripe.Interface;
 using LittleViet.Infrastructure.Stripe.Models;
 using LittleViet.Infrastructure.Utilities;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Stripe;
 using LittleViet.Data.Models;
 
 namespace LittleViet.Data.Domains.Product;
 public interface IProductDomain
 {
-    Task<ResponseViewModel> Create(CreateProductViewModel createProductViewModel, List<IFormFile> productImages);
-    Task<ResponseViewModel> Update(UpdateProductViewModel updateProductViewModel, List<IFormFile> productImages);
+    Task<ResponseViewModel> Create(CreateProductViewModel createProductViewModel);
+    Task<ResponseViewModel> Update(UpdateProductViewModel updateProductViewModel);
     Task<ResponseViewModel> Deactivate(Guid id);
     Task<BaseListResponseViewModel> GetListProducts(BaseListQueryParameters parameters);
     Task<BaseListResponseViewModel> Search(BaseSearchParameters parameters);
@@ -29,19 +27,17 @@ internal class ProductDomain : BaseDomain, IProductDomain
     private readonly IStripeProductService _stripeProductService;
     private readonly IMapper _mapper;
     private readonly IBlobProductImageService _blobProductImageService;
-    private readonly IConfiguration _configuration;
 
-    public ProductDomain(IUnitOfWork uow, IProductRepository productRepository, IProductImageRepository productImageRepository, IMapper mapper, IStripeProductService stripeProductService, IBlobProductImageService blobProductImageService, IConfiguration configuration) : base(uow)
+    public ProductDomain(IUnitOfWork uow, IProductRepository productRepository, IProductImageRepository productImageRepository, IMapper mapper, IStripeProductService stripeProductService, IBlobProductImageService blobProductImageService) : base(uow)
     {
         _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
         _productImageRepository = productImageRepository ?? throw new ArgumentNullException(nameof(productImageRepository));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _stripeProductService = stripeProductService ?? throw new ArgumentNullException(nameof(stripeProductService));
         _blobProductImageService = blobProductImageService ?? throw new ArgumentNullException(nameof(blobProductImageService));
-        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
     }
 
-    public async Task<ResponseViewModel> Create(CreateProductViewModel createProductViewModel, List<IFormFile> productImages)
+    public async Task<ResponseViewModel> Create(CreateProductViewModel createProductViewModel)
     {
         
         var product = _mapper.Map<Models.Product>(createProductViewModel);
@@ -52,12 +48,11 @@ internal class ProductDomain : BaseDomain, IProductDomain
         
         try
         {
-            
-            if (productImages.Any())
+            if (createProductViewModel.ProductImages.Any())
             {
                 product.ProductImages = new List<ProductImage>();
-                var imageUrls = await _blobProductImageService.CreateProductImages(productImages);
-
+                var imageUrls = await _blobProductImageService.CreateProductImages(createProductViewModel.ProductImages);
+            
                 product.ProductImages = imageUrls.Select((q, index) => new ProductImage()
                 {
                     Url = imageUrls[index],
@@ -72,6 +67,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
 
             var createStripeProductDto = _mapper.Map<CreateProductDto>(createProductViewModel);
             createStripeProductDto.Images = product.ProductImages.Select(p => p.Url).ToList();
+            createStripeProductDto.Metadata = new () {{Infrastructure.Stripe.Payment.ProductMetaDataKey, productId.ToString()}};
             var stripeProduct = await _stripeProductService.CreateProduct(createStripeProductDto);
             product.StripeProductId = stripeProduct.Id;
             await _uow.SaveAsync();
@@ -92,26 +88,19 @@ internal class ProductDomain : BaseDomain, IProductDomain
         }
     }
 
-    public async Task<ResponseViewModel> Update(UpdateProductViewModel updateProductViewModel, List<IFormFile> images)
+    public async Task<ResponseViewModel> Update(UpdateProductViewModel updateProductViewModel)
     {
-
-        var existedProduct = await _productRepository.DbSet()
-            .Include(q => q.ProductImages.Where(x => x.IsDeleted == false))
-            .Where(q => q.Id == updateProductViewModel.Id)
-            .FirstOrDefaultAsync();
-
-        if (existedProduct == null)
-            return new ResponseViewModel {Success = false, Message = "This product does not exist"};
-            
         await using var transaction = _uow.BeginTransation();
-    
+        
         try
         {
-            if (IsStripeProductChanged(existedProduct, updateProductViewModel) || updateProductViewModel.ImageChange)
-            {
-                var stripeProductDto = _mapper.Map<UpdateProductDto>(updateProductViewModel);
-                _ = await _stripeProductService.UpdateProduct(stripeProductDto);
-            }
+            var existedProduct = await _productRepository.DbSet()
+                .Include(q => q.ProductImages.Where(x => x.IsDeleted == false))
+                .Where(q => q.Id == updateProductViewModel.Id)
+                .FirstOrDefaultAsync();
+
+            if (existedProduct == null)
+                return new ResponseViewModel {Success = false, Message = "This product does not exist"};
 
             existedProduct.ProductTypeId = updateProductViewModel.ProductTypeId;
             existedProduct.Name = updateProductViewModel.Name;
@@ -125,16 +114,16 @@ internal class ProductDomain : BaseDomain, IProductDomain
                 foreach (var item in existedProduct.ProductImages)
                     _productImageRepository.Deactivate(item);
 
-                if (images.Any())
+                if (updateProductViewModel.ProductImages.Any())
                 {
-                    var imageLinks = await _blobProductImageService.CreateProductImages(images);
+                    var imageLinks = await _blobProductImageService.CreateProductImages(updateProductViewModel.ProductImages);
 
                     var productImages = imageLinks.Select((q, index) => new ProductImage()
                     {
                         Url = imageLinks[index],
                         ProductId = existedProduct.Id,
                         Id = Guid.NewGuid(),
-                        IsMain = updateProductViewModel.MainImage == index ? true : false
+                        IsMain = updateProductViewModel.MainImage == index
                     }).ToList();
 
                     _productImageRepository.AddRange(productImages);
@@ -143,6 +132,15 @@ internal class ProductDomain : BaseDomain, IProductDomain
 
             _productRepository.Modify(existedProduct);
             await _uow.SaveAsync();
+            
+            if (IsStripeProductChanged(existedProduct, updateProductViewModel) || updateProductViewModel.ImageChange)
+            {
+                var stripeProductDto = _mapper.Map<UpdateProductDto>(updateProductViewModel);
+                stripeProductDto.Images = existedProduct.ProductImages.Select(p => p.Url).ToList();
+                stripeProductDto.Metadata = new () {{Infrastructure.Stripe.Payment.ProductMetaDataKey, existedProduct.Id.ToString()}};
+                _ = await _stripeProductService.UpdateProduct(stripeProductDto);
+            }
+            
             await transaction.CommitAsync();
             
             return new ResponseViewModel { Success = true, Message = "Update successful" };
@@ -162,7 +160,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
     private bool IsStripeProductChanged(Models.Product product, UpdateProductViewModel stripeProduct)
     {
         // var imagesDifferent = product.ProductImages.Select(i => i.Url).ToList().Except(stripeProduct.); TODO: use better logic for this
-        return product.Name != stripeProduct.Name || product.Description != stripeProduct.Description;
+        return product.Name != stripeProduct.Name || product.Description != stripeProduct.Description || stripeProduct.ImageChange;
     }
 
     public async Task<ResponseViewModel> Deactivate(Guid id)

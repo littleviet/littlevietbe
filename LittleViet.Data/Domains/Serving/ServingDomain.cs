@@ -51,7 +51,7 @@ internal class ServingDomain : BaseDomain, IServingDomain
                 Price = (long) serving.Price * 100,
                 Currency = "eur",
                 StripeProductId = entry.Entity.Product.StripeProductId,
-                Metadata = new() { { Infrastructure.Stripe.Payment.PriceMetaDataKey, serving.Id.ToString() } },
+                Metadata = new() { { Infrastructure.Stripe.Payment.ServingPriceMetaDataKey, serving.Id.ToString() } },
             };
 
             var stripePrice = await _stripePriceService.CreatePrice(createStripePriceDto);
@@ -115,7 +115,7 @@ internal class ServingDomain : BaseDomain, IServingDomain
                         Currency = "eur",
                         Id = existedServing.StripePriceId,
                         ProductId = existedServing.Product.StripeProductId,
-                        Metadata = new() { { Infrastructure.Stripe.Payment.PriceMetaDataKey, existedServing.Id.ToString() } },
+                        Metadata = new() { { Infrastructure.Stripe.Payment.ServingPriceMetaDataKey, existedServing.Id.ToString() } },
                     });
                 
                 existedServing.StripePriceId = newPrice.Id;
@@ -216,12 +216,9 @@ internal class ServingDomain : BaseDomain, IServingDomain
             var serving = await _servingRepository.GetById(id);
             var servingDetails = _mapper.Map<ServingViewDetailsModel>(serving);
 
-            if (serving == null)
-            {
-                return new ResponseViewModel { Success = false, Message = "This serving does not exist" };
-            }
-
-            return new ResponseViewModel { Success = true, Payload = servingDetails };
+            return serving == null 
+                ? new ResponseViewModel { Success = false, Message = "This serving does not exist" } 
+                : new ResponseViewModel { Success = true, Payload = servingDetails };
         }
         catch (Exception e)
         {

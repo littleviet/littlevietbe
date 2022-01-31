@@ -65,7 +65,7 @@ internal class OrderDomain : BaseDomain, IOrderDomain
 
             var stripeSessionDto = new CreateSessionDto()
             {
-                Metadata = new() { { Infrastructure.Stripe.Payment.OrderMetaDataKey, orderGuid.ToString() } },
+                Metadata = new() { { Infrastructure.Stripe.Payment.OrderCheckoutMetaDataKey, orderGuid.ToString() } },
                 SessionItems = savedOrder.OrderDetails.Select(od => new SessionItem()
                 {
                     StripePriceId = od.Serving.StripePriceId,

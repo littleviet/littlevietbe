@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using LittleViet.Data.Domains;
 using LittleViet.Data.Domains.Account;
 using LittleViet.Data.Domains.Coupon;
 using LittleViet.Data.Domains.LandingPage;

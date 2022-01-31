@@ -16,6 +16,19 @@ public class CreateAccountViewModelValidator : AbstractValidator<CreateAccountVi
     }
 }
 
+public class UpdatePasswordViewModelValidator : AbstractValidator<UpdatePasswordViewModel> 
+{
+    public UpdatePasswordViewModelValidator() 
+    {
+        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.ConfirmPassword).Length(5, 64)
+            .Must(((model, confirmPassword) => model.NewPassword == confirmPassword))
+            .WithMessage("Password confirmations not matched!");
+        RuleFor(x => x.NewPassword).Length(5, 64);
+        RuleFor(x => x.OldPassword).Length(5, 64);
+    }
+}
+
 public class LoginViewModelValidator : AbstractValidator<LoginViewModel> 
 {
     public LoginViewModelValidator() 

@@ -2,10 +2,11 @@
 
 namespace LittleViet.Data.Domains;
 
-public partial class BaseDomain
+public class BaseDomain
 {
     protected IUnitOfWork _uow;
-    public BaseDomain(IUnitOfWork uow)
+
+    protected BaseDomain(IUnitOfWork uow)
     {
         _uow = uow;
     }

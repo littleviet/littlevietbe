@@ -6,6 +6,7 @@ using LittleViet.Data.Models;
 using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.Utilities;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 
 namespace LittleViet.Api.Controllers;
 
@@ -24,6 +25,7 @@ public class AccountController : BaseController
     {
         try
         {
+            Log.Information("Begin login with {userEmail}", loginViewModel.Email);
             var result = _accountDomain.Login(loginViewModel.Email, loginViewModel.Password);
             return Ok(result);
         }

@@ -11,8 +11,8 @@ public class StripeSettings
 
 public class Payment
 {
-    public const string OrderMetaDataKey = "orderId";
-    public const string PriceMetaDataKey = "priceId";
+    public const string OrderCheckoutMetaDataKey = "orderId";
+    public const string ServingPriceMetaDataKey = "servingId";
     public const string ProductMetaDataKey = "productId";
     public string PaymentType { get; set; } = "payment";
     public string SuccessUrl { get; set; }

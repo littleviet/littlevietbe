@@ -1,5 +1,6 @@
 ﻿using LittleViet.Infrastructure.Security.XSRF;
 using Microsoft.AspNetCore.Builder;
+using Serilog;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace LittleViet.Infrastructure.Middleware;
@@ -14,6 +15,8 @@ public static class StartupMiddlewareExtensions
             .AllowAnyHeader());
 
         webApplication.UseMiddleware<XsrfMiddleware>();
+
+        webApplication.UseSerilogRequestLogging();
         
         webApplication.UseSwagger()
             .UseSwaggerUI(o =>
