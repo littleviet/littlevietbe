@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using FluentValidation.AspNetCore;
 using LittleViet.Data;
 using LittleViet.Data.Domains;
@@ -26,6 +27,8 @@ builder.Services
         {
             options.Conventions.Add(new RouteTokenTransformerConvention(new SlugifyParameterTransformer()));
         })
+    .AddJsonOptions(options => 
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()))
     .AddFluentValidation(fv 
         => fv.RegisterValidatorsFromAssemblyContaining<BaseDomain>(lifetime: ServiceLifetime.Singleton));
 

@@ -1,5 +1,6 @@
 ﻿using LittleViet.Infrastructure.Security.XSRF;
 using Microsoft.AspNetCore.Builder;
+using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace LittleViet.Infrastructure.Middleware;
 
@@ -15,7 +16,11 @@ public static class StartupMiddlewareExtensions
         webApplication.UseMiddleware<XsrfMiddleware>();
         
         webApplication.UseSwagger()
-            .UseSwaggerUI();
+            .UseSwaggerUI(o =>
+            {
+                o.DocumentTitle = "Documentation";
+                o.DocExpansion(DocExpansion.None);
+            });
         
         webApplication.UseAuthentication();
         

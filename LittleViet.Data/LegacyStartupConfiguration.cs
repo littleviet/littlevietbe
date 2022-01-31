@@ -37,9 +37,8 @@ namespace LittleViet.Data;
 
 public static partial class LegacyStartupConfiguration
 {
-    public static IMapper Mapper { get; private set; }
-    private static List<Action<IMapperConfigurationExpression>> MapperConfigs
-        = new List<Action<IMapperConfigurationExpression>>();
+    private static IMapper Mapper { get; set; }
+    private static readonly List<Action<IMapperConfigurationExpression>> MapperConfigs = new();
 
 
 
