@@ -99,7 +99,7 @@ internal class OrderDomain : BaseDomain, IOrderDomain
         }
     }
 
-    public async Task<ResponseViewModel> Update(UpdateOrderViewModel updateOrderViewModel) //TODO: remove this as orders are immutable?
+    public async Task<ResponseViewModel> Update(UpdateOrderViewModel updateOrderViewModel)
     {
         try
         {

@@ -28,7 +28,6 @@ public class PaymentDomain : BaseDomain, IPaymentDomain
         return await _orderDomain.HandleSuccessfulOrder(orderGuid, session.Id);
     }
 
-
     public async Task<ResponseViewModel> HandleExpiredPayment(Session session)
     {
         var orderGuid = Guid.Parse(session.Metadata.GetValueOrDefault(Infrastructure.Stripe.Payment.OrderMetaDataKey));

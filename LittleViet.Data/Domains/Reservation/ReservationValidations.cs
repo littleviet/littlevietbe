@@ -14,3 +14,16 @@ public class CreateReservationViewModelValidator : AbstractValidator<CreateReser
         RuleFor(x => x.NoOfPeople).GreaterThan(0);
     }
 }
+
+public class UpdateReservationViewModelValidator : AbstractValidator<UpdateReservationViewModel> 
+{
+    public UpdateReservationViewModelValidator() 
+    {
+        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.Email).EmailAddress();
+        RuleFor(x => x.BookingDate).NotEmpty().GreaterThan(DateTime.Now);
+        RuleFor(x => x.FirstName).NotEmpty();
+        RuleFor(x => x.PhoneNumber).NotEmpty();
+        RuleFor(x => x.NoOfPeople).GreaterThan(0);
+    }
+}

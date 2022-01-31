@@ -26,7 +26,6 @@ public class CreateProductTypeViewModel
 
 public class UpdateProductTypeViewModel
 {
-    public Guid UpdatedBy { get; set; }
     public Guid Id { get; set; }
     public string Name { get; set; }
     public string EsName { get; set; }

@@ -18,7 +18,7 @@ public static class StartupMiddlewareExtensions
         webApplication.UseSwagger()
             .UseSwaggerUI(o =>
             {
-                o.DocumentTitle = "Documentation";
+                o.DocumentTitle = "LittleViet - API Documentation";
                 o.DocExpansion(DocExpansion.None);
             });
         
