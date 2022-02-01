@@ -13,7 +13,7 @@ namespace LittleViet.Data.Domains.Order;
 
 public interface IOrderDomain
 {
-    Task<ResponseViewModel> Create(Guid userId, CreateOrderViewModel createOrderViewModel);
+    Task<ResponseViewModel> Create(CreateOrderViewModel createOrderViewModel);
     Task<ResponseViewModel> Update(UpdateOrderViewModel updateOrderViewModel);
     Task<ResponseViewModel> Deactivate(Guid id);
     Task<BaseListResponseViewModel> GetListOrders(BaseListQueryParameters parameters);
@@ -40,7 +40,7 @@ internal class OrderDomain : BaseDomain, IOrderDomain
         _stripePaymentService = stripePaymentService ?? throw new ArgumentNullException(nameof(stripePaymentService));
     }
 
-    public async Task<ResponseViewModel> Create(Guid userId, CreateOrderViewModel createOrderViewModel)
+    public async Task<ResponseViewModel> Create(CreateOrderViewModel createOrderViewModel)
     {
         var order = _mapper.Map<Models.Order>(createOrderViewModel);
         var orderGuid = Guid.NewGuid();

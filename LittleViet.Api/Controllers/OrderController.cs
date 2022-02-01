@@ -27,7 +27,8 @@ public class OrderController : Controller
         try
         {
             var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var result = await _orderDomain.Create(userId, createOrderViewModel);
+            createOrderViewModel.AccountId = userId;
+            var result = await _orderDomain.Create(createOrderViewModel);
             return Ok(result);
         }
         catch (Exception e)

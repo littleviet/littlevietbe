@@ -6,6 +6,7 @@ public class CreateOrderViewModel
 {
     public OrderType OrderType { get; set; } = OrderType.TakeAway;
     public double TotalPrice { get; set; }
+    public Guid AccountId { get; set; }
     public PaymentType PaymentType { get; set; }
     public DateTime PickupTime { get; set; }
     public List<CreateOrderDetailViewModel> OrderDetails { get; set; }
