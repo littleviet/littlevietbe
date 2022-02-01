@@ -33,7 +33,7 @@ public static class AppSerilogExtensions
     
     public static IServiceCollection AddAppLoggingAndTelemetry(this IServiceCollection services, IConfiguration config)
     {
-        var azureSettings = config.GetSection(AzureSettings.ConfigSection).Get<AzureSettings>();
-        return services.AddApplicationInsightsTelemetry(azureSettings.AppInsightsKey);
+        var key = config.GetSection(AzureSettings.ConfigSection).Get<AzureSettings>().AppInsightsKey;
+        return services.AddApplicationInsightsTelemetry(key);
     }
 }
