@@ -8,6 +8,7 @@ using LittleViet.Infrastructure.Configurations;
 using LittleViet.Infrastructure.Logging;
 using LittleViet.Infrastructure.Middleware;
 using LittleViet.Infrastructure.Security.JWT;
+using LittleViet.Infrastructure.Stripe;
 using LittleViet.Infrastructure.Swagger;
 using LittleViet.Infrastructure.Utilities;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
@@ -27,7 +28,8 @@ try
     builder.Host.AddConfigurations();
     builder.Services
         .AddConfigurationBinding(builder.Configuration)
-        .AddAppLoggingAndTelemetry(builder.Configuration);
+        .AddAppLoggingAndTelemetry(builder.Configuration)
+        .ConfigureStripe(builder.Configuration);
     
     builder.Host
         .UseAppSerilog();

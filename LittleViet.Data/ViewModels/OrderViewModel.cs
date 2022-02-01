@@ -1,4 +1,5 @@
-﻿using LittleViet.Data.Models;
+﻿using System.Text.Json.Serialization;
+using LittleViet.Data.Models;
 
 namespace LittleViet.Data.ViewModels;
 
@@ -6,6 +7,7 @@ public class CreateOrderViewModel
 {
     public OrderType OrderType { get; set; } = OrderType.TakeAway;
     public double TotalPrice { get; set; }
+    [JsonIgnore]
     public Guid AccountId { get; set; }
     public PaymentType PaymentType { get; set; }
     public DateTime PickupTime { get; set; }
