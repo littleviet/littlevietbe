@@ -7,7 +7,7 @@ public class CreateOrderViewModelValidator : AbstractValidator<CreateOrderViewMo
 {
     public CreateOrderViewModelValidator() 
     {
-        RuleFor(x => x.PickupTime).GreaterThan(DateTime.Now);
+        RuleFor(x => x.PickupTime).GreaterThan(DateTime.UtcNow);
         RuleFor(x => x.OrderType).IsInEnum();
         RuleFor(x => x.TotalPrice).NotNull();
         RuleFor(x => x.PaymentType).IsInEnum();
