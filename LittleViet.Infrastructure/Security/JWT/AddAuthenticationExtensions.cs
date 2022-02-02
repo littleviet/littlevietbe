@@ -10,7 +10,7 @@ public static class AddAuthenticationExtensions
 {
     public static IServiceCollection AddAppJwtAuthentication(this IServiceCollection serviceCollection, IConfiguration configurationManager)
     {
-        var appSettings = configurationManager.GetSection(AppSettings.ConfigSection).Get<AppSettings>();
+        var appSettings = configurationManager.GetRequiredSection(AppSettings.ConfigSection).Get<AppSettings>();
         var key = Encoding.ASCII.GetBytes(appSettings.JwtSecret);
         serviceCollection.AddAuthentication(x =>
             {

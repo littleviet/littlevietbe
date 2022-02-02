@@ -15,21 +15,20 @@ using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Serilog;
 
-Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console()
-    .CreateBootstrapLogger();
-
-Log.Information("Starting up");
-
 try
 {
+    Log.Logger = new LoggerConfiguration()
+        .WriteTo.Console()
+        .CreateBootstrapLogger();
+
+    Log.Information("Starting up");
+    
     var builder = WebApplication.CreateBuilder(args);
 
     builder.Host.AddConfigurations();
     builder.Services
         .AddConfigurationBinding(builder.Configuration)
-        .AddAppLoggingAndTelemetry(builder.Configuration)
-        .ConfigureStripe(builder.Configuration);
+        .AddAppLoggingAndTelemetry(builder.Configuration);
     
     builder.Host
         .UseAppSerilog();
@@ -53,7 +52,8 @@ try
         .AddApplicationSwagger()
         .AddHttpContextAccessor()
         .AddAppJwtAuthentication(builder.Configuration)
-        .ConfigureLegacy();
+        .ConfigureLegacy()
+        .ConfigureStripe(builder.Configuration);
 
     var app = builder.Build();
 

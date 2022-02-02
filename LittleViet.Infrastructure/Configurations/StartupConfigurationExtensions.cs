@@ -37,10 +37,10 @@ public static class StartupConfigurationExtensions
     public static IServiceCollection AddConfigurationBinding(this IServiceCollection serviceCollection, IConfiguration configurationManager)
     {
         serviceCollection
-            .Configure<StripeSettings>(configurationManager.GetSection(StripeSettings.ConfigSection))
-            .Configure<EmailSettings>(configurationManager.GetSection(EmailSettings.ConfigSection))
-            .Configure<AppSettings>(configurationManager.GetSection(AppSettings.ConfigSection))
-            .Configure<AzureSettings>(configurationManager.GetSection(AzureSettings.ConfigSection));
+            .Configure<StripeSettings>(configurationManager.GetRequiredSection(StripeSettings.ConfigSection))
+            .Configure<EmailSettings>(configurationManager.GetRequiredSection(EmailSettings.ConfigSection))
+            .Configure<AppSettings>(configurationManager.GetRequiredSection(AppSettings.ConfigSection))
+            .Configure<AzureSettings>(configurationManager.GetRequiredSection(AzureSettings.ConfigSection));
         
         return serviceCollection;
     }
