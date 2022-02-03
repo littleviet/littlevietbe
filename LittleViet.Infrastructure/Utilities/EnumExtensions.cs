@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 
-namespace LittleViet.Infrastructure.Utilities;
+namespace LittleViet.Infrastructure.EntityFramework;
 
 public static class EnumExtensions
 {

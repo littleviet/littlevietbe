@@ -3,7 +3,7 @@ using LittleViet.Data.Domains;
 using LittleViet.Data.Domains.Coupon;
 using LittleViet.Data.Models;
 using LittleViet.Data.ViewModels;
-using LittleViet.Infrastructure.Utilities;
+using LittleViet.Infrastructure.EntityFramework;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

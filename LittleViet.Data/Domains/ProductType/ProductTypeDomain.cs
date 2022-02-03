@@ -2,7 +2,6 @@
 using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.EntityFramework;
-using LittleViet.Infrastructure.Utilities;
 using Microsoft.EntityFrameworkCore;
 
 namespace LittleViet.Data.Domains.ProductType;

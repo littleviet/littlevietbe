@@ -1,6 +1,6 @@
 ﻿using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
-using LittleViet.Infrastructure.Utilities;
+using LittleViet.Infrastructure.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 
 namespace LittleViet.Data.Domains.TakeAway;

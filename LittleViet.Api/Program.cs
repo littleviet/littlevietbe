@@ -10,7 +10,7 @@ using LittleViet.Infrastructure.Middleware;
 using LittleViet.Infrastructure.Security.JWT;
 using LittleViet.Infrastructure.Stripe;
 using LittleViet.Infrastructure.Swagger;
-using LittleViet.Infrastructure.Utilities;
+using LittleViet.Infrastructure.EntityFramework;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Serilog;
