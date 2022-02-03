@@ -69,26 +69,11 @@ public class ReservationController : Controller
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpGet]
-    public async Task<IActionResult> GetListReservations([FromQuery] BaseListQueryParameters parameters)
+    public async Task<IActionResult> GetListReservations([FromQuery] GetListReservationParameters parameters)
     {
         try
         {
             var result = await _resevationDomain.GetListReservations(parameters);
-            return Ok(result);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseViewModel { Message = e.Message, Success = false });
-        }
-    }
-
-    [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
-    [HttpGet("search")]
-    public async Task<IActionResult> SearchReservations([FromQuery] BaseSearchParameters parameters)
-    {
-        try
-        {
-            var result = await _resevationDomain.Search(parameters);
             return Ok(result);
         }
         catch (Exception e)

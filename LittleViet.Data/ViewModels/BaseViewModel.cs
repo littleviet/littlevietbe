@@ -19,6 +19,10 @@ public class BaseListQueryParameters
     public string OrderBy { get; set; } = "CreatedDate desc";
 }
 
+public class BaseListQueryParameters<T> : BaseListQueryParameters
+{
+}
+
 public class BaseListResponseViewModel : ResponseViewModel
 {
     public int PageNumber { get; set; }

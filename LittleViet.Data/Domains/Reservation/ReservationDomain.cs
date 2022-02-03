@@ -14,8 +14,7 @@ public interface IReservationDomain
     Task<ResponseViewModel> Create(CreateReservationViewModel reservationVm);
     Task<ResponseViewModel> Update(UpdateReservationViewModel reservationVm);
     Task<ResponseViewModel> Deactivate(Guid id);
-    Task<BaseListResponseViewModel> Search(BaseSearchParameters parameters);
-    Task<BaseListResponseViewModel> GetListReservations(BaseListQueryParameters parameters);
+    Task<BaseListResponseViewModel> GetListReservations(GetListReservationParameters parameters);
     Task<ResponseViewModel> GetReservationById(Guid id);
 }
 
@@ -133,53 +132,24 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
         }
     }
 
-    public async Task<BaseListResponseViewModel> Search(BaseSearchParameters parameters)
+    public async Task<BaseListResponseViewModel> GetListReservations(GetListReservationParameters parameters)
     {
         try
         {
-            var reservations = _reservationRepository.DbSet().AsNoTracking()
-                .Where(p => p.Firstname.Contains(parameters.Keyword) || p.PhoneNumber.Contains(parameters.Keyword)
-                                                                     || p.Email.Contains(parameters.Keyword) ||
-                                                                     p.Lastname.Contains(parameters.Keyword) ||
-                                                                     p.PhoneNumber.Contains(parameters.Keyword));
+            var reservationQuery = _reservationRepository.DbSet().AsNoTracking()
+                .WhereIf(!string.IsNullOrEmpty(parameters.Email), r => r.Email.Contains(parameters.Email))
+                .WhereIf(!string.IsNullOrEmpty(parameters.FirstName), r => r.Firstname.Contains(parameters.FirstName))
+                .WhereIf(!string.IsNullOrEmpty(parameters.LastName), r => r.Lastname.Contains(parameters.LastName))
+                .WhereIf(!string.IsNullOrEmpty(parameters.FurtherRequest), r => r.FurtherRequest.Contains(parameters.FurtherRequest))
+                .WhereIf(!string.IsNullOrEmpty(parameters.PhoneNumber), r => r.PhoneNumber.Contains(parameters.PhoneNumber))
+                .WhereIf(parameters.Status is not null, r => r.Status == parameters.Status)
+                .WhereIf(parameters.BookingDateFrom is not null, r => r.BookingDate >= parameters.BookingDateFrom)
+                .WhereIf(parameters.BookingDateTo is not null, r => r.BookingDate <= parameters.BookingDateTo)
+                .WhereIf(parameters.NoOfPeople is not null, r => r.NoOfPeople == parameters.NoOfPeople);
 
             return new BaseListResponseViewModel
             {
-                Payload = await reservations.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
-                    .Select(q => new ReservationViewModel()
-                    {
-                        BookingDate = q.BookingDate,
-                        Email = q.Email,
-                        FirstName = q.Firstname,
-                        FurtherRequest = q.FurtherRequest,
-                        Id = q.Id,
-                        LastName = q.Lastname,
-                        NoOfPeople = q.NoOfPeople,
-                        PhoneNumber = q.PhoneNumber,
-                        Status = q.Status,
-                        StatusName = q.Status.ToString()
-                    }).ToListAsync(),
-                Success = true,
-                Total = await reservations.CountAsync(),
-                PageNumber = parameters.PageNumber,
-                PageSize = parameters.PageSize,
-            };
-        }
-        catch (Exception e)
-        {
-            return new BaseListResponseViewModel {Success = false, Message = e.Message};
-        }
-    }
-
-    public async Task<BaseListResponseViewModel> GetListReservations(BaseListQueryParameters parameters)
-    {
-        try
-        {
-            var reservation = _reservationRepository.DbSet().AsNoTracking();
-
-            return new BaseListResponseViewModel
-            {
-                Payload = await reservation
+                Payload = await reservationQuery
                     .Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
                     .ApplySort(parameters.OrderBy)
                     .Select(q => new ReservationViewModel()
@@ -197,7 +167,7 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
                     })
                     .ToListAsync(),
                 Success = true,
-                Total = await reservation.CountAsync(),
+                Total = await reservationQuery.CountAsync(),
                 PageNumber = parameters.PageNumber,
                 PageSize = parameters.PageSize,
             };
@@ -214,8 +184,6 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
         {
             var reservation = await _reservationRepository.GetById(id);
             var reservationDetails = _mapper.Map<ReservationDetailsViewModel>(reservation);
-
-            reservationDetails.StatusName = reservation.Status.ToString();
 
             return reservation == null
                 ? new ResponseViewModel {Success = false, Message = "This reservation does not exist"}
