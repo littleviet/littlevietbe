@@ -2,6 +2,7 @@
 using LittleViet.Data.Models;
 using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
+using LittleViet.Infrastructure.EntityFramework;
 using LittleViet.Infrastructure.Stripe;
 using LittleViet.Infrastructure.Stripe.Interface;
 using LittleViet.Infrastructure.Stripe.Models;
@@ -162,7 +163,9 @@ internal class OrderDomain : BaseDomain, IOrderDomain
 
             return new BaseListResponseViewModel
             {
-                Payload = await orders.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
+                Payload = await orders
+                    .Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
+                    .ApplySort(parameters.OrderBy)
                     .Select(q => new OrderViewModel()
                     {
                         Id = q.Id,

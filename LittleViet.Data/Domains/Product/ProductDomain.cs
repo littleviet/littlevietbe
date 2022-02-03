@@ -8,6 +8,7 @@ using LittleViet.Infrastructure.Utilities;
 using Microsoft.EntityFrameworkCore;
 using Stripe;
 using LittleViet.Data.Models;
+using LittleViet.Infrastructure.EntityFramework;
 
 namespace LittleViet.Data.Domains.Product;
 public interface IProductDomain
@@ -15,7 +16,7 @@ public interface IProductDomain
     Task<ResponseViewModel> Create(CreateProductViewModel createProductViewModel);
     Task<ResponseViewModel> Update(UpdateProductViewModel updateProductViewModel);
     Task<ResponseViewModel> Deactivate(Guid id);
-    Task<BaseListResponseViewModel> GetListProducts(BaseListQueryParameters parameters);
+    Task<BaseListResponseViewModel> GetListProducts(GetListProductParameters parameters);
     Task<BaseListResponseViewModel> Search(BaseSearchParameters parameters);
     Task<ResponseViewModel> GetProductById(Guid id);
 }
@@ -185,7 +186,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
         }
     }
 
-    public async Task<BaseListResponseViewModel> GetListProducts(BaseListQueryParameters parameters)
+    public async Task<BaseListResponseViewModel> GetListProducts(GetListProductParameters parameters)
     {
         try
         {
@@ -197,7 +198,9 @@ internal class ProductDomain : BaseDomain, IProductDomain
 
             return new BaseListResponseViewModel
             {
-                Payload = await products.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
+                Payload = await products
+                    .Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
+                    .ApplySort(parameters.OrderBy)
                     .Select(p => new GetListProductViewModel()
                     {
                         Description = p.Description,

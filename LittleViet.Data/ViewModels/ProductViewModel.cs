@@ -58,6 +58,14 @@ public class GetListProductViewModel
     }
 }
 
+public class GetListProductParameters : BaseListQueryParameters
+{
+    public GetListProductParameters()
+    {
+        OrderBy = "CreatedDate asc";
+    }
+}
+
 public class ProductDetailsViewModel
 {
     public Guid Id { get; set; }

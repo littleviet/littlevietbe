@@ -4,6 +4,7 @@ using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.Email.Interface;
 using LittleViet.Infrastructure.Email.Models;
+using LittleViet.Infrastructure.EntityFramework;
 using LittleViet.Infrastructure.Utilities;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,15 +19,19 @@ public interface IReservationDomain
     Task<BaseListResponseViewModel> GetListReservations(BaseListQueryParameters parameters);
     Task<ResponseViewModel> GetReservationById(Guid id);
 }
+
 internal class ReservationDomain : BaseDomain, IReservationDomain
 {
     private readonly IReservationRepository _reservationRepository;
     private readonly IMapper _mapper;
     private readonly IEmailService _emailService;
     private readonly ITemplateService _templateService;
-    public ReservationDomain(IUnitOfWork uow, IReservationRepository reservationRepository, IMapper mapper, ITemplateService templateService, IEmailService emailService) : base(uow)
+
+    public ReservationDomain(IUnitOfWork uow, IReservationRepository reservationRepository, IMapper mapper,
+        ITemplateService templateService, IEmailService emailService) : base(uow)
     {
-        _reservationRepository = reservationRepository ?? throw new ArgumentNullException(nameof(reservationRepository));
+        _reservationRepository =
+            reservationRepository ?? throw new ArgumentNullException(nameof(reservationRepository));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _templateService = templateService ?? throw new ArgumentNullException(nameof(templateService));
         _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
@@ -47,7 +52,7 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
             {
                 _reservationRepository.Add(reservation);
                 await _uow.SaveAsync();
-            
+
                 var template = await _templateService.GetTemplateEmail(EmailTemplates.ReservationSuccess);
 
                 var body = template
@@ -66,17 +71,17 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
 
                 await transaction.CommitAsync();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 await transaction.RollbackAsync();
                 throw;
             }
-            
-            return new ResponseViewModel { Success = true, Message = "Create successful" };
+
+            return new ResponseViewModel {Success = true, Message = "Create successful"};
         }
         catch (Exception e)
         {
-            return new ResponseViewModel { Success = false, Message = e.Message };
+            return new ResponseViewModel {Success = false, Message = e.Message};
         }
     }
 
@@ -88,7 +93,7 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
 
             if (existedReservation == null)
                 return new ResponseViewModel {Success = false, Message = "This reservation does not exist"};
-            
+
             existedReservation.Firstname = updateReservationViewModel.FirstName;
             existedReservation.Lastname = updateReservationViewModel.LastName;
             existedReservation.Email = updateReservationViewModel.Email;
@@ -101,11 +106,11 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
 
             _reservationRepository.Modify(existedReservation);
             await _uow.SaveAsync();
-            return new ResponseViewModel { Success = true, Message = "Update successful" };
+            return new ResponseViewModel {Success = true, Message = "Update successful"};
         }
         catch (Exception e)
         {
-            return new ResponseViewModel { Success = false, Message = e.Message };
+            return new ResponseViewModel {Success = false, Message = e.Message};
         }
     }
 
@@ -117,15 +122,15 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
 
             if (reservation == null)
                 return new ResponseViewModel {Success = false, Message = "This reservation does not exist"};
-            
+
             _reservationRepository.Deactivate(reservation);
             await _uow.SaveAsync();
 
-            return new ResponseViewModel { Success = true, Message = "Deactivate successful" };
+            return new ResponseViewModel {Success = true, Message = "Deactivate successful"};
         }
         catch (Exception e)
         {
-            return new ResponseViewModel { Success = false, Message = e.Message };
+            return new ResponseViewModel {Success = false, Message = e.Message};
         }
     }
 
@@ -135,24 +140,26 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
         {
             var reservations = _reservationRepository.DbSet().AsNoTracking()
                 .Where(p => p.Firstname.Contains(parameters.Keyword) || p.PhoneNumber.Contains(parameters.Keyword)
-                || p.Email.Contains(parameters.Keyword) || p.Lastname.Contains(parameters.Keyword) || p.PhoneNumber.Contains(parameters.Keyword));
+                                                                     || p.Email.Contains(parameters.Keyword) ||
+                                                                     p.Lastname.Contains(parameters.Keyword) ||
+                                                                     p.PhoneNumber.Contains(parameters.Keyword));
 
             return new BaseListResponseViewModel
             {
                 Payload = await reservations.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
-                .Select(q => new ReservationViewModel()
-                {
-                    BookingDate = q.BookingDate,
-                    Email = q.Email,
-                    FirstName = q.Firstname,
-                    FurtherRequest = q.FurtherRequest,
-                    Id = q.Id,
-                    LastName = q.Lastname,
-                    NoOfPeople = q.NoOfPeople,
-                    PhoneNumber = q.PhoneNumber,
-                    Status = q.Status,
-                    StatusName = q.Status.ToString()
-                }).ToListAsync(),
+                    .Select(q => new ReservationViewModel()
+                    {
+                        BookingDate = q.BookingDate,
+                        Email = q.Email,
+                        FirstName = q.Firstname,
+                        FurtherRequest = q.FurtherRequest,
+                        Id = q.Id,
+                        LastName = q.Lastname,
+                        NoOfPeople = q.NoOfPeople,
+                        PhoneNumber = q.PhoneNumber,
+                        Status = q.Status,
+                        StatusName = q.Status.ToString()
+                    }).ToListAsync(),
                 Success = true,
                 Total = await reservations.CountAsync(),
                 PageNumber = parameters.PageNumber,
@@ -161,7 +168,7 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
         }
         catch (Exception e)
         {
-            return new BaseListResponseViewModel { Success = false, Message = e.Message };
+            return new BaseListResponseViewModel {Success = false, Message = e.Message};
         }
     }
 
@@ -173,21 +180,23 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
 
             return new BaseListResponseViewModel
             {
-                Payload = await reservation.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
-                .Select(q => new ReservationViewModel()
-                {
-                    BookingDate = q.BookingDate,
-                    Email = q.Email,
-                    FirstName = q.Firstname,
-                    FurtherRequest = q.FurtherRequest,
-                    Id = q.Id,
-                    LastName = q.Lastname,
-                    NoOfPeople = q.NoOfPeople,
-                    PhoneNumber = q.PhoneNumber,
-                    Status = q.Status,
-                    StatusName = q.Status.ToString()
-                })
-                .ToListAsync(),
+                Payload = await reservation
+                    .Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
+                    .ApplySort(parameters.OrderBy)
+                    .Select(q => new ReservationViewModel()
+                    {
+                        BookingDate = q.BookingDate,
+                        Email = q.Email,
+                        FirstName = q.Firstname,
+                        FurtherRequest = q.FurtherRequest,
+                        Id = q.Id,
+                        LastName = q.Lastname,
+                        NoOfPeople = q.NoOfPeople,
+                        PhoneNumber = q.PhoneNumber,
+                        Status = q.Status,
+                        StatusName = q.Status.ToString()
+                    })
+                    .ToListAsync(),
                 Success = true,
                 Total = await reservation.CountAsync(),
                 PageNumber = parameters.PageNumber,
@@ -196,7 +205,7 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
         }
         catch (Exception e)
         {
-            return new BaseListResponseViewModel { Success = false, Message = e.Message };
+            return new BaseListResponseViewModel {Success = false, Message = e.Message};
         }
     }
 
@@ -209,14 +218,13 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
 
             reservationDetails.StatusName = reservation.Status.ToString();
 
-            return reservation == null 
-                ? new ResponseViewModel { Success = false, Message = "This reservation does not exist" }
-                : new ResponseViewModel { Success = true, Payload = reservationDetails };
+            return reservation == null
+                ? new ResponseViewModel {Success = false, Message = "This reservation does not exist"}
+                : new ResponseViewModel {Success = true, Payload = reservationDetails};
         }
         catch (Exception e)
         {
-            return new ResponseViewModel { Success = false, Message = e.Message };
+            return new ResponseViewModel {Success = false, Message = e.Message};
         }
     }
 }
-

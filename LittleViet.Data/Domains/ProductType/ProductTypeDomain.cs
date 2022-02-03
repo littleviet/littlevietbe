@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
+using LittleViet.Infrastructure.EntityFramework;
 using LittleViet.Infrastructure.Utilities;
 using Microsoft.EntityFrameworkCore;
 
@@ -136,6 +137,7 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
             {
                 Payload = await productTypes
                     .Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
+                    .ApplySort(parameters.OrderBy)
                     .Select(pt => new ProductTypeItemViewModel()
                     {
                         Id = pt.Id,

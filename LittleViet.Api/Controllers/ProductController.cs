@@ -63,7 +63,7 @@ public class ProductController : BaseController
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpGet]
-    public async Task<IActionResult> GetListProducts([FromQuery] BaseListQueryParameters parameters)
+    public async Task<IActionResult> GetListProducts([FromQuery] GetListProductParameters parameters)
     {
         try
         {
