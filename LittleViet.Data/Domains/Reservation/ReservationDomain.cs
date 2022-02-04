@@ -138,10 +138,12 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
         {
             var reservationQuery = _reservationRepository.DbSet().AsNoTracking()
                 .WhereIf(!string.IsNullOrEmpty(parameters.Email), r => r.Email.Contains(parameters.Email))
-                .WhereIf(!string.IsNullOrEmpty(parameters.FirstName), r => r.Firstname.Contains(parameters.FirstName))
-                .WhereIf(!string.IsNullOrEmpty(parameters.LastName), r => r.Lastname.Contains(parameters.LastName))
-                .WhereIf(!string.IsNullOrEmpty(parameters.FurtherRequest), r => r.FurtherRequest.Contains(parameters.FurtherRequest))
-                .WhereIf(!string.IsNullOrEmpty(parameters.PhoneNumber), r => r.PhoneNumber.Contains(parameters.PhoneNumber))
+                .WhereIf(!string.IsNullOrEmpty(parameters.FullName),
+                    r => (r.Firstname + " " + r.Lastname).Contains(parameters.FullName))
+                .WhereIf(!string.IsNullOrEmpty(parameters.FurtherRequest),
+                    r => r.FurtherRequest.Contains(parameters.FurtherRequest))
+                .WhereIf(!string.IsNullOrEmpty(parameters.PhoneNumber),
+                    r => r.PhoneNumber.Contains(parameters.PhoneNumber))
                 .WhereIf(parameters.Status is not null, r => r.Status == parameters.Status)
                 .WhereIf(parameters.BookingDateFrom is not null, r => r.BookingDate >= parameters.BookingDateFrom)
                 .WhereIf(parameters.BookingDateTo is not null, r => r.BookingDate <= parameters.BookingDateTo)

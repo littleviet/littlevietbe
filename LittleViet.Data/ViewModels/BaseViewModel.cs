@@ -1,4 +1,6 @@
-﻿namespace LittleViet.Data.ViewModels;
+﻿using LittleViet.Data.Models;
+
+namespace LittleViet.Data.ViewModels;
 
 public class BaseSearchParameters : BaseListQueryParameters
 {
@@ -16,10 +18,10 @@ public class BaseListQueryParameters
         set => _pageSize = (value > MaxPageSize) ? MaxPageSize : value;
     }
 
-    public string OrderBy { get; set; } = "CreatedDate desc";
+    public string OrderBy { get; set; } = $"{nameof(AuditableEntity.CreatedDate)} desc";
 }
 
-public class BaseListQueryParameters<T> : BaseListQueryParameters
+public class BaseListQueryParameters<T> : BaseListQueryParameters where T : AuditableEntity
 {
 }
 
