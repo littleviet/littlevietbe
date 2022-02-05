@@ -2,6 +2,7 @@
 using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.EntityFramework;
+using static LittleViet.Infrastructure.EntityFramework.SqlHelper;
 using Microsoft.EntityFrameworkCore;
 
 namespace LittleViet.Data.Domains.ProductType;
@@ -11,7 +12,7 @@ public interface IProductTypeDomain
     Task<ResponseViewModel> Create(CreateProductTypeViewModel createProductTypeViewModel);
     Task<ResponseViewModel> Update(UpdateProductTypeViewModel updateProductTypeViewModel);
     Task<ResponseViewModel> Deactivate(Guid id);
-    Task<BaseListResponseViewModel<ProductTypeItemViewModel>> GetListProductTypes(BaseListQueryParameters parameters);
+    Task<BaseListResponseViewModel<ProductTypeItemViewModel>> GetListProductTypes(GetListProductTypeParameters parameters);
     Task<BaseListResponseViewModel> Search(BaseSearchParameters parameters);
     Task<ResponseViewModel> GetProductTypeById(Guid id);
 }
@@ -93,16 +94,25 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
         }
     }
 
-    public async Task<BaseListResponseViewModel<ProductTypeItemViewModel>> GetListProductTypes(BaseListQueryParameters parameters)
+    public async Task<BaseListResponseViewModel<ProductTypeItemViewModel>> GetListProductTypes(GetListProductTypeParameters parameters)
     {
         try
         {
-            var productTypes = _productTypeRepository.DbSet().AsNoTracking();
+            var productTypes = _productTypeRepository.DbSet().AsNoTracking()
+                .WhereIf(!string.IsNullOrEmpty(parameters.Name),
+                    ContainsIgnoreCase<Models.ProductType>(nameof(Models.ProductType.Name), parameters.Name))
+                .WhereIf(!string.IsNullOrEmpty(parameters.CaName),
+                    ContainsIgnoreCase<Models.ProductType>(nameof(Models.ProductType.CaName), parameters.CaName))
+                .WhereIf(!string.IsNullOrEmpty(parameters.EsName),
+                    ContainsIgnoreCase<Models.ProductType>(nameof(Models.ProductType.EsName), parameters.EsName))
+                .WhereIf(!string.IsNullOrEmpty(parameters.Description),
+                    ContainsIgnoreCase<Models.ProductType>(nameof(Models.ProductType.Description), parameters.Description));
 
             return new BaseListResponseViewModel<ProductTypeItemViewModel>
             {
                 Payload = await productTypes
                     .Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
+                    .ApplySort(parameters.OrderBy)
                     .Select(pt => new ProductTypeItemViewModel()
                     {
                         Id = pt.Id,

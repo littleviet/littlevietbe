@@ -65,7 +65,7 @@ public class ServingController : Controller
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpGet]
-    public async Task<IActionResult> GetListServings([FromQuery] BaseListQueryParameters parameters)
+    public async Task<IActionResult> GetListServings([FromQuery] GetListServingParameters parameters)
     {
         try
         {

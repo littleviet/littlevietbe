@@ -65,7 +65,7 @@ public class ProductTypeController : BaseController
 
     // [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpGet]
-    public async Task<IActionResult> GetListProductTypes([FromQuery] BaseListQueryParameters parameters)
+    public async Task<IActionResult> GetListProductTypes([FromQuery] GetListProductTypeParameters parameters)
     {
         try
         {

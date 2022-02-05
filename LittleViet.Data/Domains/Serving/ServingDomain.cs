@@ -5,6 +5,7 @@ using LittleViet.Infrastructure.EntityFramework;
 using LittleViet.Infrastructure.Stripe.Interface;
 using LittleViet.Infrastructure.Stripe.Models;
 using Microsoft.EntityFrameworkCore;
+using static LittleViet.Infrastructure.EntityFramework.SqlHelper;
 using Stripe;
 
 namespace LittleViet.Data.Domains.Serving;
@@ -14,7 +15,7 @@ public interface IServingDomain
     Task<ResponseViewModel> Create(CreateServingViewModel createServingViewModel);
     Task<ResponseViewModel> Update(UpdateServingViewModel updateServingViewModel);
     Task<ResponseViewModel> Deactivate(Guid id);
-    Task<BaseListResponseViewModel> GetListServing(BaseListQueryParameters parameters);
+    Task<BaseListResponseViewModel> GetListServing(GetListServingParameters parameters);
     Task<BaseListResponseViewModel> Search(BaseSearchParameters parameters);
     Task<ResponseViewModel> GetServingById(Guid id);
 }
@@ -147,15 +148,24 @@ internal class ServingDomain : BaseDomain, IServingDomain
                .00001f; //TODO: figure this float out later, also do full checks
     }
 
-    public async Task<BaseListResponseViewModel> GetListServing(BaseListQueryParameters parameters)
+    public async Task<BaseListResponseViewModel> GetListServing(GetListServingParameters parameters)
     {
         try
         {
-            var servings = _servingRepository.DbSet().AsNoTracking();
+            var servings = _servingRepository.DbSet().AsNoTracking()
+                .WhereIf(!string.IsNullOrEmpty(parameters.Name),
+                    ContainsIgnoreCase<Models.Serving>(nameof(Models.Serving.Name), parameters.Name))
+                .WhereIf(!string.IsNullOrEmpty(parameters.Description),
+                    ContainsIgnoreCase<Models.Serving>(nameof(Models.Serving.Description), parameters.Description))
+                .WhereIf(parameters.NumberOfPeople is not null, s => s.NumberOfPeople == parameters.NumberOfPeople)
+                .WhereIf(parameters.Price is not null, s => s.Price == parameters.Price)
+                .WhereIf(parameters.ProductId is not null, s => s.ProductId == parameters.ProductId)
+                ;
 
             return new BaseListResponseViewModel
             {
                 Payload = await servings.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
+                    .ApplySort(parameters.OrderBy)
                     .Select(q => new ServingViewModel()
                     {
                         Description = q.Description,
