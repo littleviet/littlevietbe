@@ -7,9 +7,10 @@ using LittleViet.Infrastructure.Stripe.Models;
 using Microsoft.EntityFrameworkCore;
 using Stripe;
 using LittleViet.Data.Models;
+using static LittleViet.Infrastructure.EntityFramework.SqlHelper;
 using LittleViet.Infrastructure.EntityFramework;
 
-namespace LittleViet.Data.Domains.Product;
+namespace LittleViet.Data.Domains.Products;
 public interface IProductDomain
 {
     Task<ResponseViewModel> Create(CreateProductViewModel createProductViewModel);
@@ -193,6 +194,16 @@ internal class ProductDomain : BaseDomain, IProductDomain
                 .Include(p => p.ProductType)
                 .Include(p => p.Servings)
                 .Include(p => p.ProductImages.Where(pm => pm.IsMain))
+                .WhereIf(!string.IsNullOrEmpty(parameters.Name),
+                    ContainsIgnoreCase<Models.Product>(nameof(Models.Product.Name), parameters.Name))
+                .WhereIf(!string.IsNullOrEmpty(parameters.CaName),
+                    ContainsIgnoreCase<Models.Product>(nameof(Models.Product.CaName), parameters.CaName))
+                .WhereIf(!string.IsNullOrEmpty(parameters.EsName),
+                    ContainsIgnoreCase<Models.Product>(nameof(Models.Product.EsName), parameters.EsName))
+                .WhereIf(!string.IsNullOrEmpty(parameters.Description),
+                    ContainsIgnoreCase<Models.Product>(nameof(Models.Product.Description), parameters.Description))
+                .WhereIf(parameters.Status is not null, p => p.Status == parameters.Status)
+                .WhereIf(parameters.ProductTypeId is not null, p => p.ProductTypeId == parameters.ProductTypeId)
                 .AsNoTracking();
 
             return new BaseListResponseViewModel

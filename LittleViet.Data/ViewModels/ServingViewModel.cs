@@ -44,15 +44,10 @@ public class ServingViewDetailsModel
     public Guid UpdatedBy { get; set; }
 }
 
-// public class GetListServingParameters : BaseListQueryParameters
-// {
-//     public string FirstName { get; set; }
-//     public string LastName { get; set; }
-//     public string Email { get; set; }
-//     public string FurtherRequest { get; set; }
-//     public int? NoOfPeople { get; set; }
-//     public DateTime? BookingDateFrom { get; set; }
-//     public DateTime? BookingDateTo { get; set; }
-//     public ReservationStatus? Status { get; set; }
-//     public string PhoneNumber { get; set; }
-// }
+public class GetListServingParameters : BaseListQueryParameters
+{
+    public string Name { get; set; }
+    public int NumberOfPeople { get; set; }
+    public string Description { get; set; }
+    public double Price { get; set; }
+}

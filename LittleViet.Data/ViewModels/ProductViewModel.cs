@@ -60,10 +60,12 @@ public class GetListProductViewModel
 
 public class GetListProductParameters : BaseListQueryParameters
 {
-    public GetListProductParameters()
-    {
-        OrderBy = "CreatedDate asc";
-    }
+    public string Name { get; set; }
+    public string EsName { get; set; }
+    public string CaName { get; set; }
+    public string Description { get; set; }
+    public ProductStatus? Status { get; set; }
+    public Guid? ProductTypeId { get; set; }
 }
 
 public class ProductDetailsViewModel
@@ -83,16 +85,3 @@ public class ProductDetailsViewModel
     public string ProductTypeName { get; set; }
 }
 
-public class ProductsMenuViewModel
-{
-    public string Name { get; set; }
-    public string EsName { get; set; }
-    public string CaName { get; set; }
-    public string Description { get; set; }
-    public ProductStatus Status { get; set; }
-    public Guid Id { get; set; }
-    public Guid ProductTypeId { get; set; }
-    public string PropductType { get; set; }
-    public string EsPropductType { get; set; }
-    public string CaPropductType { get; set; }
-}

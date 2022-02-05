@@ -4,7 +4,7 @@ using LittleViet.Data.Domains.Coupon;
 using LittleViet.Data.Domains.LandingPage;
 using LittleViet.Data.Domains.Order;
 using LittleViet.Data.Domains.Payment;
-using LittleViet.Data.Domains.Product;
+using LittleViet.Data.Domains.Products;
 using LittleViet.Data.Domains.ProductType;
 using LittleViet.Data.Domains.Reservations;
 using LittleViet.Data.Domains.Serving;

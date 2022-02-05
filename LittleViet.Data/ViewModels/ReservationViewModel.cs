@@ -63,7 +63,7 @@ public class GetListReservationParameters : BaseListQueryParameters
 {
     public GetListReservationParameters()
     {
-        OrderBy = "BookingDate";
+        OrderBy = $"{nameof(Reservation.BookingDate)}";
     }
     
     public string FullName { get; set; }
