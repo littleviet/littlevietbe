@@ -6,7 +6,7 @@ using LittleViet.Data.Domains.Order;
 using LittleViet.Data.Domains.Payment;
 using LittleViet.Data.Domains.Product;
 using LittleViet.Data.Domains.ProductType;
-using LittleViet.Data.Domains.Reservation;
+using LittleViet.Data.Domains.Reservations;
 using LittleViet.Data.Domains.Serving;
 using LittleViet.Data.Domains.TakeAway;
 using LittleViet.Data.Models;

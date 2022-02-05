@@ -5,9 +5,10 @@ using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.Email.Interface;
 using LittleViet.Infrastructure.Email.Models;
 using LittleViet.Infrastructure.EntityFramework;
+using static LittleViet.Infrastructure.EntityFramework.SqlHelper;
 using Microsoft.EntityFrameworkCore;
 
-namespace LittleViet.Data.Domains.Reservation;
+namespace LittleViet.Data.Domains.Reservations;
 
 public interface IReservationDomain
 {
@@ -39,7 +40,7 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
     {
         try
         {
-            var reservation = _mapper.Map<Models.Reservation>(createReservationViewModel);
+            var reservation = _mapper.Map<Reservation>(createReservationViewModel);
 
             reservation.Id = Guid.NewGuid();
             reservation.Status = ReservationStatus.Reserved;
@@ -137,11 +138,12 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
         try
         {
             var reservationQuery = _reservationRepository.DbSet().AsNoTracking()
-                .WhereIf(!string.IsNullOrEmpty(parameters.Email), r => r.Email.Contains(parameters.Email))
+                .WhereIf(!string.IsNullOrEmpty(parameters.Email),
+                    ContainsIgnoreCase<Reservation>(nameof(Reservation.Email), parameters.Email))
                 .WhereIf(!string.IsNullOrEmpty(parameters.FullName),
-                    r => (r.Firstname + " " + r.Lastname).Contains(parameters.FullName))
+                    ContainsIgnoreCase<Reservation>(new[]{nameof(Reservation.Firstname), nameof(Reservation.Lastname)}, parameters.FullName))
                 .WhereIf(!string.IsNullOrEmpty(parameters.FurtherRequest),
-                    r => r.FurtherRequest.Contains(parameters.FurtherRequest))
+                    ContainsIgnoreCase<Reservation>(nameof(Reservation.FurtherRequest), parameters.FurtherRequest))
                 .WhereIf(!string.IsNullOrEmpty(parameters.PhoneNumber),
                     r => r.PhoneNumber.Contains(parameters.PhoneNumber))
                 .WhereIf(parameters.Status is not null, r => r.Status == parameters.Status)

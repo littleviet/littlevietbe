@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
 using LittleViet.Api.Utilities;
 using LittleViet.Data.Domains;
-using LittleViet.Data.Domains.Reservation;
+using LittleViet.Data.Domains.Reservations;
 using LittleViet.Data.Models;
 using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.EntityFramework;
