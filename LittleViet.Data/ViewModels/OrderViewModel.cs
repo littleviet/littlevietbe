@@ -53,3 +53,14 @@ public class OrderDetailsViewModel
     public List<OrderDetailViewModel> OrderDetails { get; set; }
     public GenericAccountViewModel Account { get; set; }
 }
+
+public class GetListOrderParameters : BaseListQueryParameters
+{
+    public Guid? AccountId { get; set; }
+    public List<OrderType> OrderTypes { get; set; }
+    public double? TotalPriceFrom { get; set; }
+    public double? TotalPriceTo { get; set; }
+    public List<PaymentType> PaymentTypes { get; set; }
+    public DateTime? PickupTimeTo { get; set; }
+    public DateTime? PickupTimeFrom { get; set; }
+}

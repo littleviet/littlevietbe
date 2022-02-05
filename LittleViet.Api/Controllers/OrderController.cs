@@ -70,7 +70,7 @@ public class OrderController : Controller
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpGet]
-    public async Task<IActionResult> GetListOrders([FromQuery] BaseListQueryParameters parameters)
+    public async Task<IActionResult> GetListOrders([FromQuery] GetListOrderParameters parameters)
     {
         try
         {

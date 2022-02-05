@@ -16,7 +16,7 @@ public interface IOrderDomain
     Task<ResponseViewModel> Create(CreateOrderViewModel createOrderViewModel);
     Task<ResponseViewModel> Update(UpdateOrderViewModel updateOrderViewModel);
     Task<ResponseViewModel> Deactivate(Guid id);
-    Task<BaseListResponseViewModel> GetListOrders(BaseListQueryParameters parameters);
+    Task<BaseListResponseViewModel> GetListOrders(GetListOrderParameters parameters);
     Task<ResponseViewModel> GetOrderById(Guid id);
     Task<ResponseViewModel> HandleSuccessfulOrder(Guid orderId, string stripeSessionId);
     Task<ResponseViewModel> HandleExpiredOrder(Guid orderId, string stripeSessionId);
@@ -53,7 +53,7 @@ internal class OrderDomain : BaseDomain, IOrderDomain
             orderDetail.Id = Guid.NewGuid();
             orderDetail.OrderId = orderGuid;
         }
-        
+
         await using var transaction = _uow.BeginTransation();
 
         try
@@ -65,14 +65,14 @@ internal class OrderDomain : BaseDomain, IOrderDomain
 
             var stripeSessionDto = new CreateSessionDto()
             {
-                Metadata = new() { { Infrastructure.Stripe.Payment.OrderCheckoutMetaDataKey, orderGuid.ToString() } },
+                Metadata = new() {{Infrastructure.Stripe.Payment.OrderCheckoutMetaDataKey, orderGuid.ToString()}},
                 SessionItems = savedOrder.OrderDetails.Select(od => new SessionItem()
                 {
                     StripePriceId = od.Serving.StripePriceId,
                     Quantity = od.Quantity,
                 }).ToList()
             };
-            
+
             var checkoutSessionResult = await _stripePaymentService.CreateOrderCheckoutSession(stripeSessionDto);
 
             order.LastStripeSessionId = checkoutSessionResult.Id;
@@ -115,10 +115,10 @@ internal class OrderDomain : BaseDomain, IOrderDomain
                 _orderRepository.Modify(existedOrder);
                 await _uow.SaveAsync();
 
-                return new ResponseViewModel { Success = true, Message = "Update successful" };
+                return new ResponseViewModel {Success = true, Message = "Update successful"};
             }
 
-            return new ResponseViewModel { Success = false, Message = "This order does not exist" };
+            return new ResponseViewModel {Success = false, Message = "This order does not exist"};
         }
         catch (Exception e)
         {
@@ -143,10 +143,10 @@ internal class OrderDomain : BaseDomain, IOrderDomain
                 }
 
                 await _uow.SaveAsync();
-                return new ResponseViewModel { Success = true, Message = "Delete successful" };
+                return new ResponseViewModel {Success = true, Message = "Delete successful"};
             }
 
-            return new ResponseViewModel { Success = false, Message = "This order does not exist" };
+            return new ResponseViewModel {Success = false, Message = "This order does not exist"};
         }
         catch (Exception e)
         {
@@ -154,11 +154,20 @@ internal class OrderDomain : BaseDomain, IOrderDomain
         }
     }
 
-    public async Task<BaseListResponseViewModel> GetListOrders(BaseListQueryParameters parameters)
+    public async Task<BaseListResponseViewModel> GetListOrders(GetListOrderParameters parameters)
     {
         try
         {
-            var orders = _orderRepository.DbSet().Include(q => q.Account).AsNoTracking();
+            var orders = _orderRepository.DbSet().Include(q => q.Account).AsNoTracking()
+                    .WhereIf(parameters.AccountId is not null, o => o.AccountId == parameters.AccountId)
+                    .WhereIf(parameters.PickupTimeTo is not null, o => o.PickupTime <= parameters.PickupTimeTo)
+                    .WhereIf(parameters.PickupTimeFrom is not null, o => o.PickupTime >= parameters.PickupTimeFrom)
+                    .WhereIf(parameters.TotalPriceTo is not null, o => o.TotalPrice <= parameters.TotalPriceTo)
+                    .WhereIf(parameters.TotalPriceFrom is not null, o => o.TotalPrice >= parameters.TotalPriceFrom)
+                    .WhereIf(parameters.OrderTypes is not null && parameters.OrderTypes.Any(),
+                        o => parameters.OrderTypes.Contains(o.OrderType))
+                    .WhereIf(parameters.PaymentTypes is not null && parameters.PaymentTypes.Any(),
+                        o => parameters.PaymentTypes.Contains(o.PaymentType));
 
             return new BaseListResponseViewModel
             {
@@ -207,36 +216,39 @@ internal class OrderDomain : BaseDomain, IOrderDomain
         {
             var keyword = parameters.Keyword.ToLower();
             var orders = _orderRepository.DbSet().Include(q => q.Account).AsNoTracking()
-                .Where(p => p.Account.Firstname.ToLower().Contains(keyword) || p.Account.Lastname.ToLower().Contains(keyword) || p.Account.Email.ToLower().Contains(keyword)
-                || p.Account.PhoneNumber1.ToLower().Contains(keyword) || p.Account.PhoneNumber2.ToLower().Contains(keyword));
+                .Where(p => p.Account.Firstname.ToLower().Contains(keyword) ||
+                            p.Account.Lastname.ToLower().Contains(keyword) ||
+                            p.Account.Email.ToLower().Contains(keyword)
+                            || p.Account.PhoneNumber1.ToLower().Contains(keyword) ||
+                            p.Account.PhoneNumber2.ToLower().Contains(keyword));
 
             return new BaseListResponseViewModel
             {
                 Payload = await orders
                     .Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
-                     .Select(q => new OrderViewModel()
-                     {
-                         Id = q.Id,
-                         OrderType = q.OrderType,
-                         OrderTypeName = q.OrderType.ToString(),
-                         PaymentType = q.PaymentType,
-                         PaymentTypeName = q.PaymentType.ToString(),
-                         PickupTime = q.PickupTime,
-                         TotalPrice = q.TotalPrice,
-                         Account = new GenericAccountViewModel()
-                         {
-                             AccountType = q.Account.AccountType,
-                             AccountTypeName = q.Account.AccountType.ToString(),
-                             Address = q.Account.Address,
-                             Email = q.Account.Email,
-                             Firstname = q.Account.Firstname,
-                             Id = q.Account.Id,
-                             Lastname = q.Account.Lastname,
-                             PhoneNumber1 = q.Account.PhoneNumber1,
-                             PhoneNumber2 = q.Account.PhoneNumber2,
-                             PostalCode = q.Account.PostalCode,
-                         }
-                     })
+                    .Select(q => new OrderViewModel()
+                    {
+                        Id = q.Id,
+                        OrderType = q.OrderType,
+                        OrderTypeName = q.OrderType.ToString(),
+                        PaymentType = q.PaymentType,
+                        PaymentTypeName = q.PaymentType.ToString(),
+                        PickupTime = q.PickupTime,
+                        TotalPrice = q.TotalPrice,
+                        Account = new GenericAccountViewModel()
+                        {
+                            AccountType = q.Account.AccountType,
+                            AccountTypeName = q.Account.AccountType.ToString(),
+                            Address = q.Account.Address,
+                            Email = q.Account.Email,
+                            Firstname = q.Account.Firstname,
+                            Id = q.Account.Id,
+                            Lastname = q.Account.Lastname,
+                            PhoneNumber1 = q.Account.PhoneNumber1,
+                            PhoneNumber2 = q.Account.PhoneNumber2,
+                            PostalCode = q.Account.PostalCode,
+                        }
+                    })
                     .ToListAsync(),
                 Success = true,
                 Total = await orders.CountAsync(),
@@ -268,10 +280,10 @@ internal class OrderDomain : BaseDomain, IOrderDomain
 
             if (order == null)
             {
-                return new ResponseViewModel { Success = false, Message = "This order does not exist" };
+                return new ResponseViewModel {Success = false, Message = "This order does not exist"};
             }
 
-            return new ResponseViewModel { Success = true, Payload = orderDetails };
+            return new ResponseViewModel {Success = true, Payload = orderDetails};
         }
         catch (Exception e)
         {
@@ -295,7 +307,7 @@ internal class OrderDomain : BaseDomain, IOrderDomain
 
             await _uow.SaveAsync();
 
-            return new ResponseViewModel { Success = true };
+            return new ResponseViewModel {Success = true};
         }
         catch (Exception e)
         {
@@ -319,7 +331,7 @@ internal class OrderDomain : BaseDomain, IOrderDomain
 
             await _uow.SaveAsync();
 
-            return new ResponseViewModel { Success = true };
+            return new ResponseViewModel {Success = true};
         }
         catch (Exception e)
         {
