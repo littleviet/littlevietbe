@@ -8,6 +8,7 @@ using LittleViet.Infrastructure.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using static LittleViet.Infrastructure.EntityFramework.SqlHelper;
 using BCryptNet = BCrypt.Net.BCrypt;
 
 namespace LittleViet.Data.Domains.Account;
@@ -20,7 +21,7 @@ public interface IAccountDomain
     Task<ResponseViewModel> Register(CreateAccountViewModel createAccountViewModel);
     Task<ResponseViewModel> Update(UpdateAccountViewModel updateAccountViewModel);
     Task<ResponseViewModel> UpdatePassword(UpdatePasswordViewModel updatePasswordViewModel);
-    Task<BaseListResponseViewModel> GetListAccounts(BaseListQueryParameters parameters);
+    Task<BaseListResponseViewModel> GetListAccounts(GetListAccountParameters parameters);
     Task<BaseListResponseViewModel> Search(BaseSearchParameters parameters);
     Task<ResponseViewModel> GetAccountById(Guid id);
 }
@@ -215,11 +216,25 @@ public class AccountDomain : BaseDomain, IAccountDomain
         }
     }
 
-    public async Task<BaseListResponseViewModel> GetListAccounts(BaseListQueryParameters parameters)
+    public async Task<BaseListResponseViewModel> GetListAccounts(GetListAccountParameters parameters)
     {
         try
         {
-            var accounts = _accountRepository.DbSet().AsNoTracking();
+            var accounts = _accountRepository.DbSet().AsNoTracking()
+                .WhereIf(!string.IsNullOrEmpty(parameters.Email),
+                    ContainsIgnoreCase<Models.Account>(nameof(Models.Account.Email), parameters.Email))
+                .WhereIf(!string.IsNullOrEmpty(parameters.FullName),
+                    ContainsIgnoreCase<Models.Account>(
+                        new[] {nameof(Models.Account.Firstname), nameof(Models.Account.Lastname)},
+                        parameters.FullName))
+                .WhereIf(!string.IsNullOrEmpty(parameters.Address),
+                    ContainsIgnoreCase<Models.Account>(nameof(Models.Account.Address), parameters.Address))
+                .WhereIf(!string.IsNullOrEmpty(parameters.PhoneNumber),
+                    ContainsIgnoreCase<Models.Account>(
+                        new[] {nameof(Models.Account.PhoneNumber1), nameof(Models.Account.PhoneNumber2)},
+                        parameters.Address))
+                .WhereIf(!string.IsNullOrEmpty(parameters.PostalCode),
+                    a => a.PostalCode.Contains(parameters.PostalCode));
 
             return new BaseListResponseViewModel
             {

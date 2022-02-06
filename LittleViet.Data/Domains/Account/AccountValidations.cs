@@ -37,3 +37,13 @@ public class LoginViewModelValidator : AbstractValidator<LoginViewModel>
         RuleFor(x => x.Password).NotNull().Length(5, 64);
     }
 }
+
+public class GetListAccountParametersValidator : AbstractValidator<GetListAccountParameters> 
+{
+    public GetListAccountParametersValidator() 
+    {
+        Include(new BaseListQueryParametersValidator());
+        RuleFor(x => x.Email).EmailAddress();
+        RuleForEach(x => x.AccountTypes).IsInEnum();
+    }
+}

@@ -158,9 +158,9 @@ internal class ServingDomain : BaseDomain, IServingDomain
                 .WhereIf(!string.IsNullOrEmpty(parameters.Description),
                     ContainsIgnoreCase<Models.Serving>(nameof(Models.Serving.Description), parameters.Description))
                 .WhereIf(parameters.NumberOfPeople is not null, s => s.NumberOfPeople == parameters.NumberOfPeople)
-                .WhereIf(parameters.Price is not null, s => s.Price == parameters.Price)
-                .WhereIf(parameters.ProductId is not null, s => s.ProductId == parameters.ProductId)
-                ;
+                .WhereIf(parameters.PriceFrom is not null, s => s.Price >= parameters.PriceFrom)
+                .WhereIf(parameters.PriceTo is not null, s => s.Price <= parameters.PriceTo)
+                .WhereIf(parameters.ProductId is not null, s => s.ProductId == parameters.ProductId);
 
             return new BaseListResponseViewModel
             {

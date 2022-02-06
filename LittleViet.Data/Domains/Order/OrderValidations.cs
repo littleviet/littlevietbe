@@ -35,5 +35,7 @@ public class GetListOrderParametersValidator : AbstractValidator<GetListOrderPar
             .Must(((model, totalPriceFrom) => model.TotalPriceTo > totalPriceFrom))
             .When(model => model.TotalPriceFrom is not null && model.TotalPriceTo is not null)
             .WithMessage("Total price from must be greater than Total price to");
+        RuleFor(x => x.TotalPriceFrom).GreaterThan(0).When(x => x.TotalPriceFrom is not null);
+        RuleFor(x => x.TotalPriceTo).GreaterThan(0).When(x => x.TotalPriceTo is not null);
     }
 }

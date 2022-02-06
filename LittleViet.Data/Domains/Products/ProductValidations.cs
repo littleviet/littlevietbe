@@ -33,3 +33,12 @@ public class UpdateProductViewModelValidator : AbstractValidator<UpdateProductVi
         RuleForEach(x => x.ProductImages).NotEmpty();
     }
 }
+
+public class GetListProductParametersValidator : AbstractValidator<GetListProductParameters> 
+{
+    public GetListProductParametersValidator()
+    {
+        Include(new BaseListQueryParametersValidator());
+        RuleForEach(x => x.Statuses).IsInEnum();
+    }
+}

@@ -72,6 +72,6 @@ public class GetListReservationParameters : BaseListQueryParameters
     public int? NoOfPeople { get; set; }
     public DateTime? BookingDateFrom { get; set; }
     public DateTime? BookingDateTo { get; set; }
-    public ReservationStatus? Status { get; set; }
+    public IEnumerable<ReservationStatus> Statuses { get; set; }
     public string PhoneNumber { get; set; }
 }

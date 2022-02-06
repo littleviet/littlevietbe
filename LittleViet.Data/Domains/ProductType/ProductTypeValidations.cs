@@ -25,3 +25,11 @@ public class UpdateProductTypeModelValidator : AbstractValidator<UpdateProductTy
         RuleFor(x => x.EsName).Length(2, 100);
     }
 }
+
+public class GetListProductTypeParametersValidator : AbstractValidator<GetListProductTypeParameters> 
+{
+    public GetListProductTypeParametersValidator()
+    {
+        Include(new BaseListQueryParametersValidator());
+    }
+}

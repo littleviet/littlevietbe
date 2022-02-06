@@ -64,7 +64,7 @@ public class GetListProductParameters : BaseListQueryParameters
     public string EsName { get; set; }
     public string CaName { get; set; }
     public string Description { get; set; }
-    public ProductStatus? Status { get; set; }
+    public IEnumerable<ProductStatus> Statuses { get; set; }
     public Guid? ProductTypeId { get; set; }
 }
 

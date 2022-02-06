@@ -78,3 +78,13 @@ public class UpdatePasswordViewModel
     public string ConfirmPassword { get; set; }
 }
 
+public class GetListAccountParameters : BaseListQueryParameters
+{
+    public string Email { get; set; }
+    public IEnumerable<RoleEnum> AccountTypes { get; set; }
+    public string FullName { get; set; }
+    public string Address { get; set; }
+    public string PostalCode { get; set; }
+    public string PhoneNumber { get; set; }
+}
+

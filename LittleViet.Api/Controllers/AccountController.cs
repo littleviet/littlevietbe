@@ -112,7 +112,7 @@ public class AccountController : BaseController
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpGet]
-    public async Task<IActionResult> GetListAccounts([FromQuery] BaseListQueryParameters parameters)
+    public async Task<IActionResult> GetListAccounts([FromQuery] GetListAccountParameters parameters)
     {
         try
         {

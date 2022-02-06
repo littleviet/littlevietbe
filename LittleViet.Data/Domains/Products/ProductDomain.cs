@@ -202,7 +202,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
                     ContainsIgnoreCase<Models.Product>(nameof(Models.Product.EsName), parameters.EsName))
                 .WhereIf(!string.IsNullOrEmpty(parameters.Description),
                     ContainsIgnoreCase<Models.Product>(nameof(Models.Product.Description), parameters.Description))
-                .WhereIf(parameters.Status is not null, p => p.Status == parameters.Status)
+                .WhereIf(parameters.Statuses is not null && parameters.Statuses.Any(), p => parameters.Statuses.Contains(p.Status))
                 .WhereIf(parameters.ProductTypeId is not null, p => p.ProductTypeId == parameters.ProductTypeId)
                 .AsNoTracking();
 

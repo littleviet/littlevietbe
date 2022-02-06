@@ -27,3 +27,17 @@ public class UpdateReservationViewModelValidator : AbstractValidator<UpdateReser
         RuleFor(x => x.NoOfPeople).GreaterThan(0);
     }
 }
+
+public class GetListReservationParametersValidator : AbstractValidator<GetListReservationParameters> 
+{
+    public GetListReservationParametersValidator()
+    {
+        Include(new BaseListQueryParametersValidator());
+        RuleForEach(x => x.Statuses).IsInEnum();
+        RuleFor(x => x.NoOfPeople).GreaterThan(0).When(x => x.NoOfPeople > 0);
+        RuleFor(x => x.BookingDateFrom)
+            .Must(((model, bookingDateFrom) => model.BookingDateTo > bookingDateFrom))
+            .When(model => model.BookingDateFrom is not null && model.BookingDateTo is not null)
+            .WithMessage("Booking Date from must be greater than Booking Date to");
+    }
+}

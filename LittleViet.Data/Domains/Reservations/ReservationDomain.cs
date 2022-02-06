@@ -146,7 +146,7 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
                     ContainsIgnoreCase<Reservation>(nameof(Reservation.FurtherRequest), parameters.FurtherRequest))
                 .WhereIf(!string.IsNullOrEmpty(parameters.PhoneNumber),
                     r => r.PhoneNumber.Contains(parameters.PhoneNumber))
-                .WhereIf(parameters.Status is not null, r => r.Status == parameters.Status)
+                .WhereIf(parameters.Statuses is not null && parameters.Statuses.Any(), r => parameters.Statuses.Contains(r.Status))
                 .WhereIf(parameters.BookingDateFrom is not null, r => r.BookingDate >= parameters.BookingDateFrom)
                 .WhereIf(parameters.BookingDateTo is not null, r => r.BookingDate <= parameters.BookingDateTo)
                 .WhereIf(parameters.NoOfPeople is not null, r => r.NoOfPeople == parameters.NoOfPeople);
