@@ -59,7 +59,7 @@ public class ReservationDetailsViewModel
     public Guid UpdatedBy { get; set; }
 }
 
-public class GetListReservationParameters : BaseListQueryParameters
+public class GetListReservationParameters : BaseListQueryParameters<Reservation>
 {
     public GetListReservationParameters()
     {

@@ -30,6 +30,6 @@ public class GetListProductTypeParametersValidator : AbstractValidator<GetListPr
 {
     public GetListProductTypeParametersValidator()
     {
-        Include(new BaseListQueryParametersValidator());
+        Include(new BaseListQueryParametersValidator<Models.ProductType>());
     }
 }

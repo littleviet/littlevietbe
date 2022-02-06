@@ -1,4 +1,6 @@
-﻿namespace LittleViet.Data.ViewModels;
+﻿using LittleViet.Data.Models;
+
+namespace LittleViet.Data.ViewModels;
 
 internal class ProductLandingPageViewModel
 {
@@ -33,7 +35,7 @@ public class UpdateProductTypeViewModel
     public string Description { get; set; }
 }
 
-public class GetListProductTypeParameters : BaseListQueryParameters
+public class GetListProductTypeParameters : BaseListQueryParameters<ProductType>
 {
     public string Name { get; set; }
     public string EsName { get; set; }

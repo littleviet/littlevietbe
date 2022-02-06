@@ -99,6 +99,7 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
         try
         {
             var productTypes = _productTypeRepository.DbSet().AsNoTracking()
+                .ApplySort(parameters.OrderBy)
                 .WhereIf(!string.IsNullOrEmpty(parameters.Name),
                     ContainsIgnoreCase<Models.ProductType>(nameof(Models.ProductType.Name), parameters.Name))
                 .WhereIf(!string.IsNullOrEmpty(parameters.CaName),
@@ -112,7 +113,6 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
             {
                 Payload = await productTypes
                     .Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
-                    .ApplySort(parameters.OrderBy)
                     .Select(pt => new ProductTypeItemViewModel()
                     {
                         Id = pt.Id,

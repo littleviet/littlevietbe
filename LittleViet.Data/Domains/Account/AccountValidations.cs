@@ -42,7 +42,7 @@ public class GetListAccountParametersValidator : AbstractValidator<GetListAccoun
 {
     public GetListAccountParametersValidator() 
     {
-        Include(new BaseListQueryParametersValidator());
+        Include(new BaseListQueryParametersValidator<Models.Account>());
         RuleFor(x => x.Email).EmailAddress();
         RuleForEach(x => x.AccountTypes).IsInEnum();
     }

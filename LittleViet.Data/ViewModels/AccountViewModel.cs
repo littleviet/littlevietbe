@@ -78,7 +78,7 @@ public class UpdatePasswordViewModel
     public string ConfirmPassword { get; set; }
 }
 
-public class GetListAccountParameters : BaseListQueryParameters
+public class GetListAccountParameters : BaseListQueryParameters<Account>
 {
     public string Email { get; set; }
     public IEnumerable<RoleEnum> AccountTypes { get; set; }

@@ -58,7 +58,7 @@ public class GetListProductViewModel
     }
 }
 
-public class GetListProductParameters : BaseListQueryParameters
+public class GetListProductParameters : BaseListQueryParameters<Product>
 {
     public string Name { get; set; }
     public string EsName { get; set; }

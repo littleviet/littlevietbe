@@ -221,6 +221,7 @@ public class AccountDomain : BaseDomain, IAccountDomain
         try
         {
             var accounts = _accountRepository.DbSet().AsNoTracking()
+                .ApplySort(parameters.OrderBy)
                 .WhereIf(!string.IsNullOrEmpty(parameters.Email),
                     ContainsIgnoreCase<Models.Account>(nameof(Models.Account.Email), parameters.Email))
                 .WhereIf(!string.IsNullOrEmpty(parameters.FullName),
@@ -240,7 +241,6 @@ public class AccountDomain : BaseDomain, IAccountDomain
             {
                 Payload = await accounts
                     .Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
-                    .ApplySort(parameters.OrderBy)
                     .Select(q => new GenericAccountViewModel()
                     {
                         AccountType = q.AccountType,

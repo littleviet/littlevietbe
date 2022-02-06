@@ -138,6 +138,7 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
         try
         {
             var reservationQuery = _reservationRepository.DbSet().AsNoTracking()
+                .ApplySort(parameters.OrderBy)
                 .WhereIf(!string.IsNullOrEmpty(parameters.Email),
                     ContainsIgnoreCase<Reservation>(nameof(Reservation.Email), parameters.Email))
                 .WhereIf(!string.IsNullOrEmpty(parameters.FullName),
@@ -155,7 +156,6 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
             {
                 Payload = await reservationQuery
                     .Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
-                    .ApplySort(parameters.OrderBy)
                     .Select(q => new ReservationViewModel()
                     {
                         BookingDate = q.BookingDate,

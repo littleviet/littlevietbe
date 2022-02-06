@@ -158,22 +158,23 @@ internal class OrderDomain : BaseDomain, IOrderDomain
     {
         try
         {
-            var orders = _orderRepository.DbSet().Include(q => q.Account).AsNoTracking()
-                    .WhereIf(parameters.AccountId is not null, o => o.AccountId == parameters.AccountId)
-                    .WhereIf(parameters.PickupTimeTo is not null, o => o.PickupTime <= parameters.PickupTimeTo)
-                    .WhereIf(parameters.PickupTimeFrom is not null, o => o.PickupTime >= parameters.PickupTimeFrom)
-                    .WhereIf(parameters.TotalPriceTo is not null, o => o.TotalPrice <= parameters.TotalPriceTo)
-                    .WhereIf(parameters.TotalPriceFrom is not null, o => o.TotalPrice >= parameters.TotalPriceFrom)
-                    .WhereIf(parameters.OrderTypes is not null && parameters.OrderTypes.Any(),
-                        o => parameters.OrderTypes.Contains(o.OrderType))
-                    .WhereIf(parameters.PaymentTypes is not null && parameters.PaymentTypes.Any(),
-                        o => parameters.PaymentTypes.Contains(o.PaymentType));
+            var orders = _orderRepository.DbSet().AsNoTracking()
+                .ApplySort(parameters.OrderBy)
+                .Include(q => q.Account)
+                .WhereIf(parameters.AccountId is not null, o => o.AccountId == parameters.AccountId)
+                .WhereIf(parameters.PickupTimeTo is not null, o => o.PickupTime <= parameters.PickupTimeTo)
+                .WhereIf(parameters.PickupTimeFrom is not null, o => o.PickupTime >= parameters.PickupTimeFrom)
+                .WhereIf(parameters.TotalPriceTo is not null, o => o.TotalPrice <= parameters.TotalPriceTo)
+                .WhereIf(parameters.TotalPriceFrom is not null, o => o.TotalPrice >= parameters.TotalPriceFrom)
+                .WhereIf(parameters.OrderTypes is not null && parameters.OrderTypes.Any(),
+                    o => parameters.OrderTypes.Contains(o.OrderType))
+                .WhereIf(parameters.PaymentTypes is not null && parameters.PaymentTypes.Any(),
+                    o => parameters.PaymentTypes.Contains(o.PaymentType));
 
             return new BaseListResponseViewModel
             {
                 Payload = await orders
                     .Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
-                    .ApplySort(parameters.OrderBy)
                     .Select(q => new OrderViewModel()
                     {
                         Id = q.Id,

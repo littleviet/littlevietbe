@@ -32,7 +32,7 @@ public class GetListServingParametersValidator : AbstractValidator<GetListServin
 {
     public GetListServingParametersValidator()
     {
-        Include(new BaseListQueryParametersValidator());
+        Include(new BaseListQueryParametersValidator<Models.Serving>());
         RuleFor(x => x.NumberOfPeople).GreaterThan(0).When(x => x.NumberOfPeople is not null);
         RuleFor(x => x.PriceFrom)
             .Must(((model, priceFrom) => model.PriceTo > priceFrom))

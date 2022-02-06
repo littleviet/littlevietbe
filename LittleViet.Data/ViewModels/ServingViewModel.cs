@@ -1,4 +1,6 @@
-﻿namespace LittleViet.Data.ViewModels;
+﻿using LittleViet.Data.Models;
+
+namespace LittleViet.Data.ViewModels;
 
 public class CreateServingViewModel
 {
@@ -44,7 +46,7 @@ public class ServingViewDetailsModel
     public Guid UpdatedBy { get; set; }
 }
 
-public class GetListServingParameters : BaseListQueryParameters
+public class GetListServingParameters : BaseListQueryParameters<Serving>
 {
     public string Name { get; set; }
     public int? NumberOfPeople { get; set; }

@@ -190,7 +190,8 @@ internal class ProductDomain : BaseDomain, IProductDomain
     {
         try
         {
-            var products = _productRepository.DbSet()
+            var products = _productRepository.DbSet().AsNoTracking()
+                .ApplySort(parameters.OrderBy)
                 .Include(p => p.ProductType)
                 .Include(p => p.Servings)
                 .Include(p => p.ProductImages.Where(pm => pm.IsMain))
@@ -203,14 +204,12 @@ internal class ProductDomain : BaseDomain, IProductDomain
                 .WhereIf(!string.IsNullOrEmpty(parameters.Description),
                     ContainsIgnoreCase<Models.Product>(nameof(Models.Product.Description), parameters.Description))
                 .WhereIf(parameters.Statuses is not null && parameters.Statuses.Any(), p => parameters.Statuses.Contains(p.Status))
-                .WhereIf(parameters.ProductTypeId is not null, p => p.ProductTypeId == parameters.ProductTypeId)
-                .AsNoTracking();
+                .WhereIf(parameters.ProductTypeId is not null, p => p.ProductTypeId == parameters.ProductTypeId);
 
             return new BaseListResponseViewModel
             {
                 Payload = await products
                     .Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
-                    .ApplySort(parameters.OrderBy)
                     .Select(p => new GetListProductViewModel()
                     {
                         Description = p.Description,

@@ -54,7 +54,7 @@ public class OrderDetailsViewModel
     public GenericAccountViewModel Account { get; set; }
 }
 
-public class GetListOrderParameters : BaseListQueryParameters
+public class GetListOrderParameters : BaseListQueryParameters<Order>
 {
     public Guid? AccountId { get; set; }
     public IEnumerable<OrderType> OrderTypes { get; set; }

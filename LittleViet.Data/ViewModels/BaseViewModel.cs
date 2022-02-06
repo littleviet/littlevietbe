@@ -1,4 +1,5 @@
-﻿using LittleViet.Data.Models;
+﻿using System.Reflection;
+using LittleViet.Data.Models;
 
 namespace LittleViet.Data.ViewModels;
 
@@ -12,6 +13,7 @@ public class BaseListQueryParameters
     private const int MaxPageSize = 50;
     public int PageNumber { get; set; } = 1;
     private int _pageSize = 10;
+
     public int PageSize
     {
         get => _pageSize;
@@ -21,8 +23,9 @@ public class BaseListQueryParameters
     public string OrderBy { get; set; } = $"{nameof(AuditableEntity.CreatedDate)} desc";
 }
 
-public class BaseListQueryParameters<T> : BaseListQueryParameters where T : AuditableEntity
+public class BaseListQueryParameters<T> : BaseListQueryParameters where T : class
 {
+    public IEnumerable<string> Properties = typeof(T).GetProperties().Select(p => p.Name);
 }
 
 public class BaseListResponseViewModel : ResponseViewModel

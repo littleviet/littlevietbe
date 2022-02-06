@@ -153,6 +153,7 @@ internal class ServingDomain : BaseDomain, IServingDomain
         try
         {
             var servings = _servingRepository.DbSet().AsNoTracking()
+                .ApplySort(parameters.OrderBy)
                 .WhereIf(!string.IsNullOrEmpty(parameters.Name),
                     ContainsIgnoreCase<Models.Serving>(nameof(Models.Serving.Name), parameters.Name))
                 .WhereIf(!string.IsNullOrEmpty(parameters.Description),
@@ -165,7 +166,6 @@ internal class ServingDomain : BaseDomain, IServingDomain
             return new BaseListResponseViewModel
             {
                 Payload = await servings.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
-                    .ApplySort(parameters.OrderBy)
                     .Select(q => new ServingViewModel()
                     {
                         Description = q.Description,

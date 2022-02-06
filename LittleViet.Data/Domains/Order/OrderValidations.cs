@@ -24,7 +24,7 @@ public class GetListOrderParametersValidator : AbstractValidator<GetListOrderPar
 {
     public GetListOrderParametersValidator()
     {
-        Include(new BaseListQueryParametersValidator());
+        Include(new BaseListQueryParametersValidator<Models.Order>());
         RuleForEach(x => x.PaymentTypes).IsInEnum();
         RuleForEach(x => x.OrderTypes).IsInEnum();
         RuleFor(x => x.PickupTimeFrom)

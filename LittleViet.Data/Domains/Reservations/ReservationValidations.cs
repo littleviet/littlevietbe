@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using LittleViet.Data.Models;
 using LittleViet.Data.ViewModels;
 
 namespace LittleViet.Data.Domains.Reservations;
@@ -32,7 +33,7 @@ public class GetListReservationParametersValidator : AbstractValidator<GetListRe
 {
     public GetListReservationParametersValidator()
     {
-        Include(new BaseListQueryParametersValidator());
+        Include(new BaseListQueryParametersValidator<Reservation>());
         RuleForEach(x => x.Statuses).IsInEnum();
         RuleFor(x => x.NoOfPeople).GreaterThan(0).When(x => x.NoOfPeople > 0);
         RuleFor(x => x.BookingDateFrom)

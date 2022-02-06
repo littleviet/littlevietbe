@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using LittleViet.Data.Models;
 using LittleViet.Data.ViewModels;
 
 namespace LittleViet.Data.Domains.Products;
@@ -38,7 +39,7 @@ public class GetListProductParametersValidator : AbstractValidator<GetListProduc
 {
     public GetListProductParametersValidator()
     {
-        Include(new BaseListQueryParametersValidator());
+        Include(new BaseListQueryParametersValidator<Product>());
         RuleForEach(x => x.Statuses).IsInEnum();
     }
 }
