@@ -8,11 +8,6 @@
         "System": "Warning"
       }
     },
-    "WriteTo": [
-      {
-        "Name": "Console"
-      }
-    ],
     "Enrich": [
       "FromLogContext",
       "WithMachineName",
