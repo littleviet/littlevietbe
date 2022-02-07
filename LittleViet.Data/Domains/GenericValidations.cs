@@ -31,16 +31,18 @@ public class BaseListQueryParametersValidator<T> : AbstractValidator<BaseListQue
             .Must((p, orderBy) =>
             {
                 var (correctFormat, properties) = IsOrderByCorrectFormat(orderBy);
-                return correctFormat 
+                return correctFormat
                        && !properties.Except(p.Properties, StringComparer.InvariantCultureIgnoreCase).Any();
             })
             .WithMessage(x => $"Order By syntax incorrect." +
-                         $" Available properties: [{string.Join(", ", x.Properties)}]");
+                              $" Available properties: [{string.Join(", ", x.Properties)}]");
     }
 
     private (bool, string[]) IsOrderByCorrectFormat(string orderBy)
     {
-        var properties = orderBy.Split(',').Select(x => x.Replace(" desc", ""));
+        var properties = orderBy.Split(',').Select(x =>
+            x.Replace(" desc", "", StringComparison.InvariantCultureIgnoreCase)
+                .Replace(" asc", "", StringComparison.InvariantCultureIgnoreCase));
         return (properties.All(x => !string.IsNullOrEmpty(x)), properties.ToArray());
     }
 }
