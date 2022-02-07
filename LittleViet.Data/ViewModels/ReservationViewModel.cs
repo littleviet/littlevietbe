@@ -1,4 +1,6 @@
-﻿using LittleViet.Data.Models;
+﻿using System.Text.Json.Serialization;
+using LittleViet.Data.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace LittleViet.Data.ViewModels;
 
@@ -15,11 +17,13 @@ public class CreateReservationViewModel
 
 public class UpdateReservationViewModel
 {
+    [JsonIgnore]
     public Guid Id { get; set; }
     public string FirstName { get; set; }
     public string LastName { get; set; }
     public string Email { get; set; }
     public string FurtherRequest { get; set; }
+    [JsonIgnore]
     public Guid? AccountId { get; set; }
     public int NoOfPeople { get; set; }
     public DateTime BookingDate { get; set; }

@@ -4,9 +4,9 @@ using LittleViet.Data.ViewModels;
 
 namespace LittleViet.Data.Domains.Reservations;
 
-public class CreateReservationViewModelValidator : AbstractValidator<CreateReservationViewModel> 
+public class CreateReservationViewModelValidator : AbstractValidator<CreateReservationViewModel>
 {
-    public CreateReservationViewModelValidator() 
+    public CreateReservationViewModelValidator()
     {
         RuleFor(x => x.Email).EmailAddress();
         RuleFor(x => x.BookingDate).NotEmpty().GreaterThan(DateTime.UtcNow);
@@ -16,20 +16,21 @@ public class CreateReservationViewModelValidator : AbstractValidator<CreateReser
     }
 }
 
-public class UpdateReservationViewModelValidator : AbstractValidator<UpdateReservationViewModel> 
+public class UpdateReservationViewModelValidator : AbstractValidator<UpdateReservationViewModel>
 {
-    public UpdateReservationViewModelValidator() 
+    public UpdateReservationViewModelValidator()
     {
-        RuleFor(x => x.Id).NotEmpty();
+        // RuleFor(x => x.Id).NotEmpty(); TODO: use Body And Route ModelBinder for this, implement later
         RuleFor(x => x.Email).EmailAddress();
-        RuleFor(x => x.BookingDate).NotEmpty().GreaterThan(DateTime.UtcNow);
+        RuleFor(x => x.BookingDate).NotEmpty().GreaterThan(DateTime.UtcNow)
+            .When(x => x.Status == ReservationStatus.Reserved);
         RuleFor(x => x.FirstName).NotEmpty();
         RuleFor(x => x.PhoneNumber).NotEmpty();
         RuleFor(x => x.NoOfPeople).GreaterThan(0);
     }
 }
 
-public class GetListReservationParametersValidator : AbstractValidator<GetListReservationParameters> 
+public class GetListReservationParametersValidator : AbstractValidator<GetListReservationParameters>
 {
     public GetListReservationParametersValidator()
     {

@@ -37,12 +37,13 @@ public class ReservationController : Controller
 
     [AuthorizeRoles(Role.MANAGER, Role.ADMIN)]
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(UpdateReservationViewModel reservationViewModel)
+    public async Task<IActionResult> Update(Guid id, UpdateReservationViewModel reservationViewModel)
     {
         try
         {
             Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out Guid userId);
             reservationViewModel.AccountId = userId;
+            reservationViewModel.Id = id;
             var result = await _resevationDomain.Update(reservationViewModel);
             return Ok(result);
         }
