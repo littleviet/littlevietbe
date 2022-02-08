@@ -1,5 +1,6 @@
 ﻿using LittleViet.Data.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 namespace LittleViet.Data.ViewModels;
 
@@ -17,6 +18,7 @@ public class CreateProductViewModel
 
 public class UpdateProductViewModel
 {
+    [FromRoute]
     public Guid Id { get; set; }
     public string Name { get; set; }
     public string EsName { get; set; }

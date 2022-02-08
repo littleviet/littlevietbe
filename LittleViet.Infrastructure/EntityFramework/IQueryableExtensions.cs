@@ -1,7 +1,7 @@
 ﻿using System.Linq.Dynamic.Core;
 using System.Linq.Expressions;
 
-namespace LittleViet.Infrastructure.EntityFramework;
+namespace LittleViet.Infrastructure.Mvc;
 
 public static class IQueryableExtensions
 {

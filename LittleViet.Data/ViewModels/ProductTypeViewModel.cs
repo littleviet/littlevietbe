@@ -1,4 +1,6 @@
-﻿using LittleViet.Data.Models;
+﻿using System.Text.Json.Serialization;
+using LittleViet.Data.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace LittleViet.Data.ViewModels;
 
@@ -28,6 +30,7 @@ public class CreateProductTypeViewModel
 
 public class UpdateProductTypeViewModel
 {
+    [JsonIgnore]
     public Guid Id { get; set; }
     public string Name { get; set; }
     public string EsName { get; set; }

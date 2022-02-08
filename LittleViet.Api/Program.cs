@@ -10,9 +10,10 @@ using LittleViet.Infrastructure.Middleware;
 using LittleViet.Infrastructure.Security.JWT;
 using LittleViet.Infrastructure.Stripe;
 using LittleViet.Infrastructure.Swagger;
-using LittleViet.Infrastructure.EntityFramework;
+using LittleViet.Infrastructure.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using LittleViet.Infrastructure.Mvc.BodyAndRouteBinder;
 using Serilog;
 
 try
@@ -41,6 +42,7 @@ try
         .AddMvc(options =>
         {
             options.Conventions.Add(new RouteTokenTransformerConvention(new SlugifyParameterTransformer()));
+            options.ModelBinderProviders.InsertBodyAndRouteBinding();
         })
         .AddJsonOptions(options =>
             options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()))

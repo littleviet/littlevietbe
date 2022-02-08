@@ -6,8 +6,8 @@
       "SuccessUrl": "checkout/order-successful",
       "Currency": "eur"
     },
-    "WebhookSecret": "",
-    "SecretKey": "",
+    "WebhookSecret": "whsec_CQ9HR7QCUuOW40NbOpXNPqFd9mq7eg0n",
+    "SecretKey": "sk_test_51KFcEOFfMUMsujr8HzUQ30eOCCfPruqaVzuri2ix1NcVv7OJ2E7q19cp2B29ZllhSRhYVWpgP2BIauy9kpG4UStA00oq27mcIR",
     "PublishableKey": ""
   }
 }

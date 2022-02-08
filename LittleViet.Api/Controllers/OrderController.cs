@@ -6,7 +6,7 @@ using System.Security.Claims;
 using LittleViet.Api.Utilities;
 using LittleViet.Data.Domains.Order;
 using LittleViet.Data.Models;
-using LittleViet.Infrastructure.EntityFramework;
+using LittleViet.Infrastructure.Mvc;
 
 namespace LittleViet.Api.Controllers;
 

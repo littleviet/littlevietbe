@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 
-namespace LittleViet.Infrastructure.EntityFramework;
+namespace LittleViet.Infrastructure.Mvc;
 
 public static class SqlHelper
 {

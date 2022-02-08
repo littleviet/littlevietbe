@@ -4,8 +4,8 @@ using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.Email.Interface;
 using LittleViet.Infrastructure.Email.Models;
-using LittleViet.Infrastructure.EntityFramework;
-using static LittleViet.Infrastructure.EntityFramework.SqlHelper;
+using LittleViet.Infrastructure.Mvc;
+using static LittleViet.Infrastructure.Mvc.SqlHelper;
 using Microsoft.EntityFrameworkCore;
 
 namespace LittleViet.Data.Domains.Reservations;

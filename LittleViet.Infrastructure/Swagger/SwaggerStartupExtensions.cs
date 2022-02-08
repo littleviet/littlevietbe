@@ -8,6 +8,7 @@ public static class SwaggerStartupExtensions
     public static IServiceCollection AddApplicationSwagger(this IServiceCollection serviceCollection) =>
         serviceCollection.AddSwaggerGen(c =>
         {
+            c.OperationFilter<CustomFromBodyOperationFilter>();
             c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
                 In = ParameterLocation.Header,
@@ -32,6 +33,7 @@ public static class SwaggerStartupExtensions
                     }
                 }
             });
+            c.DescribeAllParametersInCamelCase();
             c.UseInlineDefinitionsForEnums();
         });
 }

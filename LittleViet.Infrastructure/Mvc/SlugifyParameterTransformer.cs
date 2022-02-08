@@ -1,7 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Routing;
 
-namespace LittleViet.Infrastructure.EntityFramework;
+namespace LittleViet.Infrastructure.Mvc;
 
 public class SlugifyParameterTransformer : IOutboundParameterTransformer
 {

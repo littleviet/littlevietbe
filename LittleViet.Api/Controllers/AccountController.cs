@@ -4,7 +4,7 @@ using LittleViet.Data.Domains;
 using LittleViet.Data.Domains.Account;
 using LittleViet.Data.Models;
 using LittleViet.Data.ViewModels;
-using LittleViet.Infrastructure.EntityFramework;
+using LittleViet.Infrastructure.Mvc;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
 

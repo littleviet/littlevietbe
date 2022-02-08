@@ -4,7 +4,7 @@ using LittleViet.Data.Domains;
 using LittleViet.Data.Domains.Reservations;
 using LittleViet.Data.Models;
 using LittleViet.Data.ViewModels;
-using LittleViet.Infrastructure.EntityFramework;
+using LittleViet.Infrastructure.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -42,7 +42,7 @@ public class ReservationController : Controller
         try
         {
             Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out Guid userId);
-            reservationViewModel.AccountId = userId;
+            reservationViewModel.AccountId = userId; // TODO: fix this now that we're using custom binder
             reservationViewModel.Id = id;
             var result = await _resevationDomain.Update(reservationViewModel);
             return Ok(result);

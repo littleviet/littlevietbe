@@ -3,7 +3,8 @@ using LittleViet.Data.Domains;
 using LittleViet.Data.Domains.ProductType;
 using LittleViet.Data.Models;
 using LittleViet.Data.ViewModels;
-using LittleViet.Infrastructure.EntityFramework;
+using LittleViet.Infrastructure.Mvc;
+using LittleViet.Infrastructure.Mvc.BodyAndRouteBinder;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LittleViet.Api.Controllers;
@@ -35,7 +36,7 @@ public class ProductTypeController : BaseController
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(UpdateProductTypeViewModel productTypeVm)
+    public async Task<IActionResult> Update([FromBodyAndRoute] UpdateProductTypeViewModel productTypeVm)
     {
         try
         {

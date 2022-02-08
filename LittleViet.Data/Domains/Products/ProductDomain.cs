@@ -7,8 +7,8 @@ using LittleViet.Infrastructure.Stripe.Models;
 using Microsoft.EntityFrameworkCore;
 using Stripe;
 using LittleViet.Data.Models;
-using static LittleViet.Infrastructure.EntityFramework.SqlHelper;
-using LittleViet.Infrastructure.EntityFramework;
+using static LittleViet.Infrastructure.Mvc.SqlHelper;
+using LittleViet.Infrastructure.Mvc;
 
 namespace LittleViet.Data.Domains.Products;
 public interface IProductDomain

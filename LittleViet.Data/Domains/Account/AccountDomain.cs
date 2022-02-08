@@ -4,11 +4,11 @@ using System.Text;
 using AutoMapper;
 using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
-using LittleViet.Infrastructure.EntityFramework;
+using LittleViet.Infrastructure.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using static LittleViet.Infrastructure.EntityFramework.SqlHelper;
+using static LittleViet.Infrastructure.Mvc.SqlHelper;
 using BCryptNet = BCrypt.Net.BCrypt;
 
 namespace LittleViet.Data.Domains.Account;
