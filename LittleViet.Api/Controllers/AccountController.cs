@@ -141,7 +141,7 @@ public class AccountController : BaseController
     }
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
-    [HttpGet("{id:guid}/details")]
+    [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetAccountDetails(Guid id)
     {
         try

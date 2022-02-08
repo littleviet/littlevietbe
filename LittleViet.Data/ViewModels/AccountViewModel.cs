@@ -6,7 +6,6 @@ public class GenericAccountViewModel
 {
     public string Email { get; set; }
     public RoleEnum AccountType { get; set; }
-    public string AccountTypeName { get; set; }
     public string Firstname { get; set; }
     public string Lastname { get; set; }
     public string Address { get; set; }

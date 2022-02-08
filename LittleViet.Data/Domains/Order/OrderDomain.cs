@@ -187,7 +187,6 @@ internal class OrderDomain : BaseDomain, IOrderDomain
                         Account = new GenericAccountViewModel()
                         {
                             AccountType = q.Account.AccountType,
-                            AccountTypeName = q.Account.AccountType.ToString(),
                             Address = q.Account.Address,
                             Email = q.Account.Email,
                             Firstname = q.Account.Firstname,
@@ -239,7 +238,6 @@ internal class OrderDomain : BaseDomain, IOrderDomain
                         Account = new GenericAccountViewModel()
                         {
                             AccountType = q.Account.AccountType,
-                            AccountTypeName = q.Account.AccountType.ToString(),
                             Address = q.Account.Address,
                             Email = q.Account.Email,
                             Firstname = q.Account.Firstname,
@@ -267,22 +265,26 @@ internal class OrderDomain : BaseDomain, IOrderDomain
     {
         try
         {
-            var order = await _orderRepository.DbSet().Include(t => t.OrderDetails.Where(p => p.IsDeleted == false))
+            var order = await _orderRepository.DbSet()
+                .Include(t => t.OrderDetails.Where(p => p.IsDeleted == false))
+                    .ThenInclude(od => od.Serving)
+                        .ThenInclude(s => s.Product)
                 .Include(p => p.Account)
-                .FirstOrDefaultAsync(q => q.Id == id);
-
+                .FirstOrDefaultAsync(q => q.Id == id) ?? throw new Exception("Order Id not found");
+            
             var orderDetails = _mapper.Map<OrderDetailsViewModel>(order);
 
-            orderDetails.PaymentTypeName = order.PaymentType.ToString();
-            orderDetails.OrderTypeName = order.OrderType.ToString();
-            orderDetails.OrderDetails = _mapper.Map<List<OrderDetailViewModel>>(order.OrderDetails);
-            orderDetails.Account = _mapper.Map<GenericAccountViewModel>(order.Account);
-            orderDetails.Account.AccountTypeName = order.Account.AccountType.ToString();
-
-            if (order == null)
+            orderDetails.OrderDetails = order.OrderDetails.Select(x => new OrderDetailItemViewModel()
             {
-                return new ResponseViewModel {Success = false, Message = "This order does not exist"};
-            }
+                Id = x.Id,
+                ProductId = x.Serving.ProductId,
+                ProductName = x.Serving.Product.Name,
+                Price = x.Serving.Price,
+                ServingId = x.ServingId,
+                ServingName = x.Serving.Name,
+                Quantity = x.Quantity,
+            }).ToList();
+            orderDetails.Account = _mapper.Map<GenericAccountViewModel>(order.Account);
 
             return new ResponseViewModel {Success = true, Payload = orderDetails};
         }

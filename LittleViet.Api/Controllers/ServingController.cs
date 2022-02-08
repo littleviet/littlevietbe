@@ -94,7 +94,7 @@ public class ServingController : Controller
     }
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
-    [HttpGet("{id:guid}/details")]
+    [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetServingDetails(Guid id)
     {
         try

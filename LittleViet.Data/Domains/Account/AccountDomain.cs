@@ -244,7 +244,6 @@ public class AccountDomain : BaseDomain, IAccountDomain
                     .Select(q => new GenericAccountViewModel()
                     {
                         AccountType = q.AccountType,
-                        AccountTypeName = q.AccountType.ToString(),
                         Address = q.Address,
                         Email = q.Email,
                         Firstname = q.Firstname,
@@ -282,7 +281,6 @@ public class AccountDomain : BaseDomain, IAccountDomain
                     .Select(q => new GenericAccountViewModel()
                     {
                         AccountType = q.AccountType,
-                        AccountTypeName = q.AccountType.ToString(),
                         Address = q.Address,
                         Email = q.Email,
                         Firstname = q.Firstname,

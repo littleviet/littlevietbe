@@ -99,7 +99,7 @@ public class OrderController : Controller
     }
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
-    [HttpGet("{id:guid}/details")]
+    [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetOrderDetails(Guid id)
     {
         try

@@ -92,7 +92,7 @@ public class ProductController : BaseController
     }
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
-    [HttpGet("{id:guid}/details")]
+    [HttpGet("{id:guid}")]
     public IActionResult GetProductDetails(Guid id)
     {
         try

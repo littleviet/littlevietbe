@@ -122,7 +122,7 @@ public static partial class LegacyStartupConfiguration
             cfg.CreateMap<Order, UpdateOrderViewModel>().ReverseMap();
             cfg.CreateMap<Order, OrderDetailsViewModel>().ReverseMap();
             cfg.CreateMap<OrderDetail, CreateOrderDetailViewModel>().ReverseMap();
-            cfg.CreateMap<OrderDetail, OrderDetailViewModel>().ReverseMap();
+            cfg.CreateMap<OrderDetail, OrderDetailItemViewModel>().ReverseMap();
             cfg.CreateMap<Serving, CreateServingViewModel>().ReverseMap();
             cfg.CreateMap<Serving, UpdateServingViewModel>().ReverseMap();
             cfg.CreateMap<Serving, ServingViewDetailsModel>().ReverseMap();

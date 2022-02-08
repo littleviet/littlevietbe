@@ -112,7 +112,7 @@ public class CouponController : BaseController
     }
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
-    [HttpGet("{id:guid}/details")]
+    [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetCouponDetails(Guid id)
     {
         try

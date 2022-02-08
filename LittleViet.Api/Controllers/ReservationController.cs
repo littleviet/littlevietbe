@@ -84,7 +84,7 @@ public class ReservationController : Controller
     }
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
-    [HttpGet("{id:guid}/details")]
+    [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetReservationDetails(Guid id)
     {
         try

@@ -94,7 +94,7 @@ public class ProductTypeController : BaseController
     }
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
-    [HttpGet("{id:guid}/details")]
+    [HttpGet("{id:guid}")]
     public IActionResult GetProductTypeDetails(Guid id)
     {
         try
