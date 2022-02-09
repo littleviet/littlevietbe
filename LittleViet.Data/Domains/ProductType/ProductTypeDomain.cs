@@ -170,12 +170,11 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
 
     public async Task<ResponseViewModel> GetProductTypeById(Guid id)
     {
-        try
-        {
+
             var productType = await _productTypeRepository.DbSet()
                                .Include(t => t.Products.Where(p => p.IsDeleted == false))
                                .AsNoTracking()
-                               .FirstOrDefaultAsync();
+                               .FirstOrDefaultAsync(x => x.Id == id);
             
             if (productType == null)
             {
@@ -201,11 +200,7 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
                   };
             
             return new ResponseViewModel { Success = true, Payload = result };
-        }
-        catch (Exception e)
-        {
-            throw;
-        }
+ 
     }
 }
 

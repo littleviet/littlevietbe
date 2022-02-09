@@ -93,11 +93,11 @@ public class ProductController : BaseController
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpGet("{id:guid}")]
-    public IActionResult GetProductDetails(Guid id)
+    public async Task<IActionResult> GetProductDetails(Guid id)
     {
         try
         {
-            var result = _productDomain.GetProductById(id);
+            var result = await _productDomain.GetProductById(id);
             return Ok(result);
         }
         catch (Exception e)

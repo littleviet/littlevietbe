@@ -273,12 +273,9 @@ internal class ProductDomain : BaseDomain, IProductDomain
         {
             var product = await _productRepository.GetById(id);
 
-            if (product == null)
-            {
-                return new ResponseViewModel { Success = false, Message = "This product does not exist" };
-            }
-
-            return new ResponseViewModel { Success = true, Payload = product };
+            return product == null 
+                ? new ResponseViewModel { Success = false, Message = "This product does not exist" } 
+                : new ResponseViewModel { Success = true, Payload = product };
         }
         catch (Exception e)
         {

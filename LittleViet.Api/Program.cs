@@ -42,10 +42,13 @@ try
         .AddMvc(options =>
         {
             options.Conventions.Add(new RouteTokenTransformerConvention(new SlugifyParameterTransformer()));
-            options.ModelBinderProviders.InsertBodyAndRouteBinding();
+            // options.ModelBinderProviders.InsertBodyAndRouteBinding();
         })
         .AddJsonOptions(options =>
-            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()))
+        {
+            options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        })
         .AddFluentValidation(fv
             => fv.RegisterValidatorsFromAssemblyContaining<BaseDomain>(lifetime: ServiceLifetime.Singleton));
 
