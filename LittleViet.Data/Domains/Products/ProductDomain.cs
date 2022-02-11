@@ -7,8 +7,8 @@ using LittleViet.Infrastructure.Stripe.Models;
 using Microsoft.EntityFrameworkCore;
 using Stripe;
 using LittleViet.Data.Models;
+using LittleViet.Infrastructure.EntityFramework;
 using static LittleViet.Infrastructure.Mvc.SqlHelper;
-using LittleViet.Infrastructure.Mvc;
 
 namespace LittleViet.Data.Domains.Products;
 public interface IProductDomain
@@ -212,6 +212,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
                     .Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
                     .Select(p => new GetListProductViewModel()
                     {
+                        Id = p.Id,
                         Description = p.Description,
                         Name = p.Name,
                         Status = p.Status,
@@ -224,8 +225,8 @@ internal class ProductDomain : BaseDomain, IProductDomain
                         },
                         Servings = p.Servings.Select(s => new ServingViewModel()
                         {
-                            Description = s.Description,
                             Id = s.Id,
+                            Description = s.Description,
                             Name = s.Name,
                             Price = s.Price,
                             NumberOfPeople = s.NumberOfPeople,

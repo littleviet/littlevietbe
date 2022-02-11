@@ -2,8 +2,7 @@
 using LittleViet.Data.Models;
 using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
-using LittleViet.Infrastructure.Mvc;
-using LittleViet.Infrastructure.Stripe;
+using LittleViet.Infrastructure.EntityFramework;
 using LittleViet.Infrastructure.Stripe.Interface;
 using LittleViet.Infrastructure.Stripe.Models;
 using Microsoft.EntityFrameworkCore;

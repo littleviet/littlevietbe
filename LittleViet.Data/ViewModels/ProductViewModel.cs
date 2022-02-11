@@ -44,6 +44,7 @@ public class ProductViewModel
 
 public class GetListProductViewModel
 {
+    public Guid Id { get; set; }
     public string Name { get; set; }
     public string EsName { get; set; }
     public string CaName { get; set; }
