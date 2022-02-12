@@ -7,6 +7,6 @@ public class Coupon : AuditableEntity
     public string PhoneNumber { get; set; }
     public CouponStatus Status { get; set; }
     public string CouponCode { get; set; }
-    public Guid? CouponTypeId { get; set; }
+    public Guid CouponTypeId { get; set; }
     public virtual CouponType CouponType { get; set; }
 }
