@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using LittleViet.Data.Domains;
 using LittleViet.Data.Domains.Account;
 using LittleViet.Data.Domains.Coupon;
 using LittleViet.Data.Domains.LandingPage;
@@ -21,6 +22,7 @@ using LittleViet.Infrastructure.Stripe.Models;
 using LittleViet.Infrastructure.Stripe.Service;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Scrutor;
 using Stripe;
 using Stripe.Checkout;
 using Account = LittleViet.Data.Models.Account;
@@ -38,7 +40,6 @@ public static partial class LegacyStartupConfiguration
 {
     private static IMapper Mapper { get; set; }
     private static readonly List<Action<IMapperConfigurationExpression>> MapperConfigs = new();
-
 
 
     private static void ConfigureAutomapper()
@@ -64,33 +65,23 @@ public static partial class LegacyStartupConfiguration
 
     private static IServiceCollection ConfigureIoC(this IServiceCollection services)
     {
-        services.AddScoped<UnitOfWork>()
+        services
             .AddScoped<IUnitOfWork, UnitOfWork>()
-            .AddScoped<DbContext, LittleVietContext>()
-            .AddScoped<IAccountRepository, AccountRepository>()
-            .AddScoped<ICouponRepository, CouponRepository>()
-            .AddScoped<IOrderDetailRepository, OrderDetailRepository>()
-            .AddScoped<IOrderRepository, OrderRepository>()
-            .AddScoped<IProductTypeRepository, ProductTypeRepository>()
-            .AddScoped<IProductImageRepository, ProductImageRepository>()
-            .AddScoped<IProductRepository, ProductRepository>()
-            .AddScoped<IServingRepository, ServingRepository>()
-            .AddScoped<IReservationRepository, ReservationRepository>();
+            .AddScoped<DbContext, LittleVietContext>();
 
-        services.AddScoped<IAccountDomain, AccountDomain>()
-            .AddScoped<ICouponDomain, CouponDomain>()
-            .AddScoped<IOrderDomain, OrderDomain>()
-            .AddScoped<IProductDomain, ProductDomain>()
-            .AddScoped<IProductTypeDomain, ProductTypeDomain>()
-            .AddScoped<ILandingPageDomain, LandingPageDomain>()
-            .AddScoped<IReservationDomain, ReservationDomain>()
-            .AddScoped<IServingDomain, ServingDomain>()
-            .AddScoped<IPaymentDomain, PaymentDomain>()
-            .AddScoped<ITakeAwayDomain, TakeAwayDomain>();
+        services.Scan(scan =>
+            scan.FromAssembliesOf(typeof(BaseDomain))
+                .AddClasses(x => x.Where(type => 
+                    type.Name.EndsWith("Repository") ||
+                    type.Name.EndsWith("Domain")
+                    ))
+                .UsingRegistrationStrategy(RegistrationStrategy.Skip)
+                .AsImplementedInterfaces()
+                .WithScopedLifetime());
 
-        services.AddScoped<ProductService>(s => new ProductService())
-            .AddScoped<PriceService>(s => new PriceService())
-            .AddScoped<SessionService>(s => new SessionService())
+        services.AddScoped(_ => new ProductService())
+            .AddScoped(_ => new PriceService())
+            .AddScoped(_ => new SessionService())
             .AddScoped<IStripePaymentService, StripePaymentService>()
             .AddScoped<IStripeProductService, StripeProductService>()
             .AddScoped<IStripePriceService, StripePriceService>()
@@ -130,7 +121,7 @@ public static partial class LegacyStartupConfiguration
             cfg.CreateMap<Reservation, ReservationDetailsViewModel>().ReverseMap();
             cfg.CreateMap<Reservation, UpdateReservationViewModel>().ReverseMap();
             cfg.CreateMap<Reservation, CreateReservationViewModel>().ReverseMap();
-            
+
             cfg.CreateMap<UpdateProductViewModel, UpdateProductDto>().ReverseMap();
             cfg.CreateMap<CreateProductViewModel, CreateProductDto>().ReverseMap();
             cfg.CreateMap<CreateServingViewModel, CreatePriceDto>().ReverseMap();
@@ -142,4 +133,3 @@ public static partial class LegacyStartupConfiguration
         return services;
     }
 }
-

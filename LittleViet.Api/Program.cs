@@ -16,6 +16,8 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using LittleViet.Infrastructure.Mvc.BodyAndRouteBinder;
 using Serilog;
 
+var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+
 try
 {
     Log.Logger = new LoggerConfiguration()
@@ -27,6 +29,9 @@ try
     var builder = WebApplication.CreateBuilder(args);
 
     builder.Host.AddConfigurations();
+    if (environment == Environments.Development)
+        builder.Configuration.AddUserSecrets<Program>();
+    
     builder.Services
         .AddConfigurationBinding(builder.Configuration)
         .AddAppLoggingAndTelemetry(builder.Configuration);
@@ -34,7 +39,7 @@ try
     builder.Host
         .UseAppSerilog();
 
-    builder.Services
+    builder.Services //TODO: move data to separate project
         .AddDbContext<LittleVietContext>(options =>
             options.UseLazyLoadingProxies()
                 .UseNpgsql(builder.Configuration.GetConnectionString("LittleVietContext"))

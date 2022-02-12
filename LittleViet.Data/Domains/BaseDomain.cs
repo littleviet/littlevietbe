@@ -4,7 +4,7 @@ namespace LittleViet.Data.Domains;
 
 public class BaseDomain
 {
-    protected IUnitOfWork _uow;
+    protected readonly IUnitOfWork _uow;
 
     protected BaseDomain(IUnitOfWork uow)
     {
