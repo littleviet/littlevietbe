@@ -20,7 +20,7 @@ public class StripePriceService : BaseStripeService, IStripePriceService
         var options = new PriceCreateOptions()
         {
             UnitAmount = dto.Price,
-            Currency = dto.Currency,
+            Currency = dto.Currency ?? _stripeSettings.Payment.Currency,
             Product = dto.StripeProductId,
             Metadata = dto.Metadata,
         };

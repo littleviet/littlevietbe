@@ -117,7 +117,8 @@ public static partial class LegacyStartupConfiguration
             cfg.CreateMap<Serving, CreateServingViewModel>().ReverseMap();
             cfg.CreateMap<Serving, UpdateServingViewModel>().ReverseMap();
             cfg.CreateMap<Serving, ServingViewDetailsModel>().ReverseMap();
-            cfg.CreateMap<Coupon, CouponDetailsViewModel>().ReverseMap();
+            cfg.CreateMap<Coupon, CouponDetailsViewModel>().ReverseMap();            
+            cfg.CreateMap<CouponType, CreateCouponTypeViewModel>().ReverseMap();
             cfg.CreateMap<Reservation, ReservationDetailsViewModel>().ReverseMap();
             cfg.CreateMap<Reservation, UpdateReservationViewModel>().ReverseMap();
             cfg.CreateMap<Reservation, CreateReservationViewModel>().ReverseMap();

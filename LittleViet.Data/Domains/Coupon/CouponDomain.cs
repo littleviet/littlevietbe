@@ -3,16 +3,21 @@ using LittleViet.Data.Models;
 using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.EntityFramework;
+using LittleViet.Infrastructure.Stripe;
+using LittleViet.Infrastructure.Stripe.Interface;
+using LittleViet.Infrastructure.Stripe.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Stripe;
 
 namespace LittleViet.Data.Domains.Coupon;
 
 public interface ICouponDomain
 {
-    Task<ResponseViewModel> Create(CreateCouponViewModel createCouponViewModel);
-    Task<ResponseViewModel> Update(UpdateCouponViewModel updateCouponViewModel);
+    Task<ResponseViewModel> CreateCoupon(CreateCouponViewModel createCouponViewModel);
+    Task<ResponseViewModel> UpdateCoupon(UpdateCouponViewModel updateCouponViewModel);
     Task<ResponseViewModel> UpdateStatus(UpdateCouponStatusViewModel updateCouponStatusViewModel);
-    Task<ResponseViewModel> Deactivate(Guid id);
+    Task<ResponseViewModel> DeactivateCoupon(Guid id);
     Task<BaseListResponseViewModel> GetListCoupons(BaseListQueryParameters parameters);
     Task<BaseListResponseViewModel> Search(BaseSearchParameters parameters);
     Task<ResponseViewModel> GetCouponById(Guid id);
@@ -20,14 +25,18 @@ public interface ICouponDomain
 internal class CouponDomain : BaseDomain, ICouponDomain
 {
     private readonly ICouponRepository _couponRepository;
+    private readonly IStripePriceService _stripePriceService;
     private readonly IMapper _mapper;
-    public CouponDomain(IUnitOfWork uow, ICouponRepository couponRepository, IMapper mapper) : base(uow)
+    private readonly StripeSettings _stripeSettings;
+    public CouponDomain(IOptions<StripeSettings> stripeSettings, IUnitOfWork uow, ICouponRepository couponRepository, IMapper mapper, IStripePriceService stripePriceService) : base(uow)
     {
         _couponRepository = couponRepository ?? throw new ArgumentNullException(nameof(couponRepository));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _stripePriceService = stripePriceService ?? throw new ArgumentNullException(nameof(stripePriceService));
+        _stripeSettings = stripeSettings.Value ?? throw new ArgumentNullException(nameof(stripeSettings));
     }
 
-    public async Task<ResponseViewModel> Create(CreateCouponViewModel createCouponViewModel)
+    public async Task<ResponseViewModel> CreateCoupon(CreateCouponViewModel createCouponViewModel)
     {
         try
         {
@@ -49,7 +58,7 @@ internal class CouponDomain : BaseDomain, ICouponDomain
         }
     }
 
-    public async Task<ResponseViewModel> Update(UpdateCouponViewModel updateCouponViewModel)
+    public async Task<ResponseViewModel> UpdateCoupon(UpdateCouponViewModel updateCouponViewModel)
     {
         try
         {
@@ -75,7 +84,7 @@ internal class CouponDomain : BaseDomain, ICouponDomain
         }
     }
 
-    public async Task<ResponseViewModel> Deactivate(Guid id)
+    public async Task<ResponseViewModel> DeactivateCoupon(Guid id)// TODO: should not exist
     {
         try
         {
@@ -136,7 +145,6 @@ internal class CouponDomain : BaseDomain, ICouponDomain
                     Email = q.Email,
                     PhoneNumber = q.PhoneNumber,
                     Status = q.Status,
-                    StatusName = q.Status.ToString()
                 })
                 .ToListAsync(),
                 Success = true,
@@ -171,7 +179,6 @@ internal class CouponDomain : BaseDomain, ICouponDomain
                         Email = q.Email,
                         PhoneNumber = q.PhoneNumber,
                         Status = q.Status,
-                        StatusName = q.Status.ToString()
                     })
                     .ToListAsync(),
                 Success = true,
@@ -202,7 +209,7 @@ internal class CouponDomain : BaseDomain, ICouponDomain
             throw;
         }
     }
-
+    
     private string GenerateCouponCode()
     {
         //TODO: fix this logic for collision

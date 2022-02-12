@@ -50,7 +50,6 @@ internal class ServingDomain : BaseDomain, IServingDomain
             var createStripePriceDto = new CreatePriceDto()
             {
                 Price = (long) serving.Price * 100,
-                Currency = "eur",
                 StripeProductId = entry.Entity.Product.StripeProductId,
                 Metadata = new() {{Infrastructure.Stripe.Payment.ServingPriceMetaDataKey, serving.Id.ToString()}},
             };
@@ -70,6 +69,7 @@ internal class ServingDomain : BaseDomain, IServingDomain
         }
         catch (Exception e)
         {
+            await transaction.RollbackAsync();
             return new ResponseViewModel {Success = false, Message = e.Message};
         }
     }

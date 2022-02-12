@@ -26,7 +26,7 @@ public class CouponController : BaseController
     {
         try
         {
-            var result = await _couponDomain.Create(createCouponViewModel);
+            var result = await _couponDomain.CreateCoupon(createCouponViewModel);
             return Ok(result);
         }
         catch (Exception e)
@@ -41,7 +41,7 @@ public class CouponController : BaseController
     {
         try
         {
-            var result = await _couponDomain.Update(updateCouponViewModel);
+            var result = await _couponDomain.UpdateCoupon(updateCouponViewModel);
             return Ok(result);
         }
         catch (Exception e)
@@ -72,7 +72,7 @@ public class CouponController : BaseController
     {
         try
         {
-            var result = await _couponDomain.Deactivate(id);
+            var result = await _couponDomain.DeactivateCoupon(id);
             return Ok(result);
         }
         catch (Exception e)
