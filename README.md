@@ -1,29 +1,20 @@
-# README #
+# LittleVietBE #
 
-This README would normally document whatever steps are necessary to get your application up and running.
 
 ### What is this repository for? ###
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+* Backend for littleviet.es
 
-### How do I get set up? ###
+### Setting Up Development Configurations ###
+1. Retrieve the secrets.json file for Development purpose from the project Credentials Page on Confluence
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+2. Run the script in \scripts\development\set-user-secrets.ps1 (make sure your working directory is ...\scripts\development)
 
-### Contribution guidelines ###
+**Notes**: The script is unsigned so you'll have to temporarily disable ScriptExecution policy on Windows machines using 
 
-* Writing tests
-* Code review
-* Other guidelines
+`Set-ExecutionPolicy Unrestricted -Scope Process -Force`
 
+The above code will disable ExecutionPolicy for your current Powershell process, you can then run the script in the same terminal (using command .\set-user-secrets.ps1)
 ### Who do I talk to? ###
 
 * Repo owner or admin
-* Other community or team contact
