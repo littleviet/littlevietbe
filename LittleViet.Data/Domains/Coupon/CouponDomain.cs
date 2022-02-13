@@ -34,7 +34,7 @@ internal class CouponDomain : BaseDomain, ICouponDomain
     private readonly IEmailService _emailService;
     private readonly ITemplateService _templateService;
 
-    public CouponDomain(IOptions<StripeSettings> stripeSettings, IUnitOfWork uow, ICouponRepository couponRepository,
+    public CouponDomain(IUnitOfWork uow, ICouponRepository couponRepository,
         IMapper mapper, IStripePaymentService stripePaymentService, IEmailService emailService,
         ITemplateService templateService) : base(uow)
     {
@@ -131,6 +131,7 @@ internal class CouponDomain : BaseDomain, ICouponDomain
             var body = template
                 .Replace("{name}", coupon.FirstName)
                 .Replace("{time}", coupon.CreatedDate.ToString("hh:mm:ss MM/dd/yyyy"))
+                .Replace("{coupon-name}", coupon.CouponType.Name)
                 .Replace("{usage-left}", coupon.CurrentQuantity.ToString())
                 .Replace("{phone-number}", coupon.PhoneNumber)
                 .Replace("{coupon-id}", coupon.Id.ToString())

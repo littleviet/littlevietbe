@@ -15,6 +15,8 @@ internal class CouponRepository : BaseRepository<Coupon>, ICouponRepository
 
     public Task<Coupon> GetById(Guid id)
     {
-        return DbSet().FirstOrDefaultAsync(q => q.Id == id);
+        return DbSet()
+            .Include(q => q.CouponType)
+            .FirstOrDefaultAsync(q => q.Id == id);
     }
 }
