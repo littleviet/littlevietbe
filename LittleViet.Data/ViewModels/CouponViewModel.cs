@@ -1,13 +1,30 @@
-﻿using LittleViet.Data.Models;
+﻿using System.Text.Json.Serialization;
+using LittleViet.Data.Models;
 
 namespace LittleViet.Data.ViewModels;
 
 public class CreateCouponViewModel
 {
-    public double Amount { get; set; }
+    public uint Quantity { get; set; }
     public string Email { get; set; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
     public string PhoneNumber { get; set; }
+    [JsonIgnore]
+    public Guid? AccountId { get; set; }
+    public Guid CouponTypeId { get; set; }
 }
+// \
+// public uint InitialQuantity { get; set; }
+// public uint CurrentQuantity { get; set; }
+// public string Email { get; set; }
+// public string PhoneNumber { get; set; }
+// public CouponStatus Status { get; set; }
+// public virtual Account Account { get; set; }
+// public Guid? AccountId { get; set; }
+// public string CouponCode { get; set; }
+// public Guid CouponTypeId { get; set; }
+// public virtual CouponType CouponType { get; set; }
 
 public class UpdateCouponViewModel
 {

@@ -96,6 +96,11 @@ internal class OrderDomain : BaseDomain, IOrderDomain
             await transaction.RollbackAsync();
             throw;
         }
+        catch (Exception e)
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
     }
 
     public async Task<ResponseViewModel> Update(UpdateOrderViewModel updateOrderViewModel)

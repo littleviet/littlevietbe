@@ -36,7 +36,7 @@ public enum OrderType
 public enum CouponStatus
 {
     Created = 1,
-    Expired = 2,
+    Paid = 2,
     Used = 3,
 }
 

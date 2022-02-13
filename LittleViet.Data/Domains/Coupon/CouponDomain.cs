@@ -2,6 +2,8 @@
 using LittleViet.Data.Models;
 using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
+using LittleViet.Infrastructure.Email.Interface;
+using LittleViet.Infrastructure.Email.Models;
 using LittleViet.Infrastructure.EntityFramework;
 using LittleViet.Infrastructure.Stripe;
 using LittleViet.Infrastructure.Stripe.Interface;
@@ -21,39 +23,131 @@ public interface ICouponDomain
     Task<BaseListResponseViewModel> GetListCoupons(BaseListQueryParameters parameters);
     Task<BaseListResponseViewModel> Search(BaseSearchParameters parameters);
     Task<ResponseViewModel> GetCouponById(Guid id);
+    Task<ResponseViewModel> HandleSuccessfulCouponPurchase(Guid couponId, string stripeSessionId);
 }
+
 internal class CouponDomain : BaseDomain, ICouponDomain
 {
     private readonly ICouponRepository _couponRepository;
-    private readonly IStripePriceService _stripePriceService;
+    private readonly IStripePaymentService _stripePaymentService;
     private readonly IMapper _mapper;
-    private readonly StripeSettings _stripeSettings;
-    public CouponDomain(IOptions<StripeSettings> stripeSettings, IUnitOfWork uow, ICouponRepository couponRepository, IMapper mapper, IStripePriceService stripePriceService) : base(uow)
+    private readonly IEmailService _emailService;
+    private readonly ITemplateService _templateService;
+
+    public CouponDomain(IOptions<StripeSettings> stripeSettings, IUnitOfWork uow, ICouponRepository couponRepository,
+        IMapper mapper, IStripePaymentService stripePaymentService, IEmailService emailService, ITemplateService templateService) : base(uow)
     {
         _couponRepository = couponRepository ?? throw new ArgumentNullException(nameof(couponRepository));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-        _stripePriceService = stripePriceService ?? throw new ArgumentNullException(nameof(stripePriceService));
-        _stripeSettings = stripeSettings.Value ?? throw new ArgumentNullException(nameof(stripeSettings));
+        _stripePaymentService = stripePaymentService ?? throw new ArgumentNullException(nameof(stripePaymentService));
+        _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
+        _templateService = templateService ?? throw new ArgumentNullException(nameof(templateService));
     }
 
     public async Task<ResponseViewModel> CreateCoupon(CreateCouponViewModel createCouponViewModel)
     {
+        var coupon = _mapper.Map<Models.Coupon>(createCouponViewModel);
+        var couponGuid = Guid.NewGuid();
+
+        coupon.Id = couponGuid;
+        coupon.Status = CouponStatus.Created;
+        coupon.CurrentQuantity = createCouponViewModel.Quantity;
+        coupon.InitialQuantity = createCouponViewModel.Quantity;
+
+        await using var transaction = _uow.BeginTransation();
+
         try
         {
-            var coupon = _mapper.Map<Models.Coupon>(createCouponViewModel);
-            var date = DateTime.UtcNow;
-
-            coupon.Id = Guid.NewGuid();
-            coupon.CouponCode = GenerateCouponCode();
-            coupon.Status = CouponStatus.Created;
-
-            _couponRepository.Add(coupon);
+            var entry = _couponRepository.Add(coupon);
             await _uow.SaveAsync();
 
-            return new ResponseViewModel { Success = true, Message = "Create successful", Payload = coupon.CouponCode };
+            await entry.Reference(e => e.CouponType).LoadAsync();
+
+            var stripeSessionDto = new CreateSessionDto()
+            {
+                Metadata = new() {{Infrastructure.Stripe.Payment.CouponCheckoutMetaDataKey, couponGuid.ToString()}},
+                SessionItems = new List<SessionItem>()
+                {
+                    new()
+                    {
+                        Quantity = entry.Entity.InitialQuantity,
+                        StripePriceId = entry.Entity.CouponType.StripePriceId,
+                    }
+                }
+            };
+
+            var checkoutSessionResult = await _stripePaymentService.CreateCouponCheckoutSession(stripeSessionDto);
+
+            coupon.LastStripeSessionId = checkoutSessionResult.Id;
+            
+            return new ResponseViewModel
+            {
+                Success = true,
+                Message = "Create successful",
+                Payload = new
+                {
+                    OrderId = couponGuid.ToString(),
+                    Url = checkoutSessionResult.Url,
+                    SessionId = checkoutSessionResult.Id,
+                },
+            };
+        }
+        catch (StripeException se)
+        {
+            await transaction.RollbackAsync();
+            throw;
         }
         catch (Exception e)
         {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
+    
+    public async Task<ResponseViewModel> HandleSuccessfulCouponPurchase(Guid couponId, string stripeSessionId)
+    {
+        
+        await using var transaction = _uow.BeginTransation();
+
+        try
+        {
+            var coupon = await _couponRepository.GetById(couponId);
+
+            if (coupon is null)
+            {
+                throw new Exception($"Cannot find coupon of Id {couponId}");
+            }
+
+            coupon.Status = CouponStatus.Paid;
+            coupon.LastStripeSessionId = stripeSessionId;
+
+            await _uow.SaveAsync();
+            
+            var template = await _templateService.GetTemplateEmail(EmailTemplates.CouponPurchaseSuccess);
+            
+            var body = template
+                .Replace("{name}", coupon.FirstName)
+                .Replace("{time}", coupon.CreatedDate.ToString("hh:mm:ss MM/dd/yyyy"))
+                .Replace("{usage-left}", coupon.CurrentQuantity.ToString())
+                .Replace("{phone-number}", coupon.PhoneNumber)
+                .Replace("{coupon-id}", coupon.Id.ToString())
+                .Replace("{email}", coupon.Email);
+            
+            await _emailService.SendEmailAsync(
+                body: body,
+                toName: coupon.FirstName,
+                toAddress: coupon.Email,
+                subject: EmailTemplates.CouponPurchaseSuccess.SubjectName
+            );
+
+            await _uow.SaveAsync();
+            await transaction.CommitAsync();
+
+            return new ResponseViewModel {Success = true};
+        }
+        catch (Exception e)
+        {
+            await transaction.RollbackAsync();
             throw;
         }
     }
@@ -68,15 +162,15 @@ internal class CouponDomain : BaseDomain, ICouponDomain
                 existedCoupon.Status = updateCouponViewModel.Status;
                 existedCoupon.PhoneNumber = updateCouponViewModel.PhoneNumber;
                 existedCoupon.Email = updateCouponViewModel.Email;
-                existedCoupon.Amount = updateCouponViewModel.Amount;
+                // existedCoupon.Amount = updateCouponViewModel.Amount;
 
                 _couponRepository.Modify(existedCoupon);
                 await _uow.SaveAsync();
 
-                return new ResponseViewModel { Success = true, Message = "Update successful" };
+                return new ResponseViewModel {Success = true, Message = "Update successful"};
             }
 
-            return new ResponseViewModel { Success = false, Message = "This coupon does not exist" };
+            return new ResponseViewModel {Success = false, Message = "This coupon does not exist"};
         }
         catch (Exception e)
         {
@@ -84,7 +178,7 @@ internal class CouponDomain : BaseDomain, ICouponDomain
         }
     }
 
-    public async Task<ResponseViewModel> DeactivateCoupon(Guid id)// TODO: should not exist
+    public async Task<ResponseViewModel> DeactivateCoupon(Guid id) // TODO: should not exist
     {
         try
         {
@@ -94,10 +188,10 @@ internal class CouponDomain : BaseDomain, ICouponDomain
                 _couponRepository.Deactivate(coupon);
                 await _uow.SaveAsync();
 
-                return new ResponseViewModel { Success = true, Message = "Delete successful" };
+                return new ResponseViewModel {Success = true, Message = "Delete successful"};
             }
 
-            return new ResponseViewModel { Success = false, Message = "This coupon does not exist" };
+            return new ResponseViewModel {Success = false, Message = "This coupon does not exist"};
         }
         catch (Exception e)
         {
@@ -117,10 +211,10 @@ internal class CouponDomain : BaseDomain, ICouponDomain
                 _couponRepository.Modify(existedCoupon);
                 await _uow.SaveAsync();
 
-                return new ResponseViewModel { Success = true, Message = "Update successful" };
+                return new ResponseViewModel {Success = true, Message = "Update successful"};
             }
 
-            return new ResponseViewModel { Success = false, Message = "This coupon does not exist" };
+            return new ResponseViewModel {Success = false, Message = "This coupon does not exist"};
         }
         catch (Exception e)
         {
@@ -137,16 +231,16 @@ internal class CouponDomain : BaseDomain, ICouponDomain
             return new BaseListResponseViewModel
             {
                 Payload = await coupons.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
-                .Select(q => new CouponViewModel()
-                {
-                    Id = q.Id,
-                    Amount = q.Amount,
-                    CouponCode = q.CouponCode,
-                    Email = q.Email,
-                    PhoneNumber = q.PhoneNumber,
-                    Status = q.Status,
-                })
-                .ToListAsync(),
+                    .Select(q => new CouponViewModel()
+                    {
+                        Id = q.Id,
+                        // Amount = q.Amount,
+                        CouponCode = q.CouponCode,
+                        Email = q.Email,
+                        PhoneNumber = q.PhoneNumber,
+                        Status = q.Status,
+                    })
+                    .ToListAsync(),
                 Success = true,
                 Total = await coupons.CountAsync(),
                 PageNumber = parameters.PageNumber,
@@ -165,7 +259,8 @@ internal class CouponDomain : BaseDomain, ICouponDomain
         {
             var keyword = parameters.Keyword.ToLower();
             var coupons = _couponRepository.DbSet().AsNoTracking()
-                .Where(p => p.CouponCode.ToLower().Contains(keyword) || p.Email.ToLower().Contains(keyword) || p.PhoneNumber.ToLower().Contains(keyword));
+                .Where(p => p.CouponCode.ToLower().Contains(keyword) || p.Email.ToLower().Contains(keyword) ||
+                            p.PhoneNumber.ToLower().Contains(keyword));
 
             return new BaseListResponseViewModel
             {
@@ -174,7 +269,7 @@ internal class CouponDomain : BaseDomain, ICouponDomain
                     .Select(q => new CouponViewModel()
                     {
                         Id = q.Id,
-                        Amount = q.Amount,
+                        // Amount = q.Amount,
                         CouponCode = q.CouponCode,
                         Email = q.Email,
                         PhoneNumber = q.PhoneNumber,
@@ -202,14 +297,14 @@ internal class CouponDomain : BaseDomain, ICouponDomain
 
             couponDetails.StatusName = coupon.Status.ToString();
 
-            return new ResponseViewModel { Success = true, Payload = couponDetails };
+            return new ResponseViewModel {Success = true, Payload = couponDetails};
         }
         catch (Exception e)
         {
             throw;
         }
     }
-    
+
     private string GenerateCouponCode()
     {
         //TODO: fix this logic for collision
@@ -217,10 +312,9 @@ internal class CouponDomain : BaseDomain, ICouponDomain
         var random = new Random();
         var result = new string(
             Enumerable.Repeat(chars, 10)
-                      .Select(s => s[random.Next(s.Length)])
-                      .ToArray());
+                .Select(s => s[random.Next(s.Length)])
+                .ToArray());
 
         return result;
     }
 }
-

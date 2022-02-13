@@ -1,4 +1,5 @@
-﻿using LittleViet.Api.Utilities;
+﻿using System.Security.Claims;
+using LittleViet.Api.Utilities;
 using LittleViet.Data.Domains;
 using LittleViet.Data.Domains.Coupon;
 using LittleViet.Data.Models;
@@ -26,6 +27,8 @@ public class CouponController : BaseController
     {
         try
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            createCouponViewModel.AccountId = Guid.TryParse(userId, out var parsedId) ? parsedId : null;
             var result = await _couponDomain.CreateCoupon(createCouponViewModel);
             return Ok(result);
         }

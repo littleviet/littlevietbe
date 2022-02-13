@@ -13,4 +13,10 @@ public static class EmailTemplates
         TemplateName = "reservation-success.html",
         SubjectName = "Reservation successful at Little Viet"
     };
+    
+    public static readonly EmailTemplate CouponPurchaseSuccess = new ()
+    {
+        TemplateName = "coupon-buying-success.html",
+        SubjectName = "Coupon purchase at Little Viet"
+    };
 }

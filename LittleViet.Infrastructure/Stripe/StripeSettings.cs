@@ -12,7 +12,8 @@ public class StripeSettings
 
 public class Payment
 {
-    public const string OrderCheckoutMetaDataKey = "orderId";
+    public const string OrderCheckoutMetaDataKey = "checkout_orderId";    
+    public const string CouponCheckoutMetaDataKey = "checkout_couponId";
     public const string ServingPriceMetaDataKey = "servingId";
     public const string CouponTypePriceMetaDataKey = "couponTypeId";
     public const string ProductMetaDataKey = "productId";
