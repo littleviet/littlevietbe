@@ -11,6 +11,7 @@ public class LittleVietContext : DbContext
 
     internal DbSet<Account> Account { get; set; }
     internal DbSet<Coupon> Coupon { get; set; }
+    internal DbSet<CouponType> CouponType { get; set; }
     internal DbSet<Order> Order { get; set; }
     internal DbSet<OrderDetail> OrderDetail { get; set; }
     internal DbSet<ProductImage> ProductImage { get; set; }
@@ -18,5 +19,12 @@ public class LittleVietContext : DbContext
     internal DbSet<Reservation> Reservation { get; set; }
     internal DbSet<Serving> Serving { get; set; }
     internal DbSet<ProductType> ProductType { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        builder.Entity<Coupon>()
+            .HasIndex(c => c.CouponCode)
+            .IsUnique();
+    }
 }
 

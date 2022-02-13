@@ -35,7 +35,8 @@ internal class CouponDomain : BaseDomain, ICouponDomain
     private readonly ITemplateService _templateService;
 
     public CouponDomain(IOptions<StripeSettings> stripeSettings, IUnitOfWork uow, ICouponRepository couponRepository,
-        IMapper mapper, IStripePaymentService stripePaymentService, IEmailService emailService, ITemplateService templateService) : base(uow)
+        IMapper mapper, IStripePaymentService stripePaymentService, IEmailService emailService,
+        ITemplateService templateService) : base(uow)
     {
         _couponRepository = couponRepository ?? throw new ArgumentNullException(nameof(couponRepository));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
@@ -77,9 +78,11 @@ internal class CouponDomain : BaseDomain, ICouponDomain
             };
 
             var checkoutSessionResult = await _stripePaymentService.CreateCouponCheckoutSession(stripeSessionDto);
-
             coupon.LastStripeSessionId = checkoutSessionResult.Id;
-            
+
+            await _uow.SaveAsync();
+            await transaction.CommitAsync();
+
             return new ResponseViewModel
             {
                 Success = true,
@@ -103,10 +106,9 @@ internal class CouponDomain : BaseDomain, ICouponDomain
             throw;
         }
     }
-    
+
     public async Task<ResponseViewModel> HandleSuccessfulCouponPurchase(Guid couponId, string stripeSessionId)
     {
-        
         await using var transaction = _uow.BeginTransation();
 
         try
@@ -120,19 +122,21 @@ internal class CouponDomain : BaseDomain, ICouponDomain
 
             coupon.Status = CouponStatus.Paid;
             coupon.LastStripeSessionId = stripeSessionId;
+            coupon.CouponCode = GenerateCouponCode(coupon.FirstName);
 
             await _uow.SaveAsync();
-            
+
             var template = await _templateService.GetTemplateEmail(EmailTemplates.CouponPurchaseSuccess);
-            
+
             var body = template
                 .Replace("{name}", coupon.FirstName)
                 .Replace("{time}", coupon.CreatedDate.ToString("hh:mm:ss MM/dd/yyyy"))
                 .Replace("{usage-left}", coupon.CurrentQuantity.ToString())
                 .Replace("{phone-number}", coupon.PhoneNumber)
                 .Replace("{coupon-id}", coupon.Id.ToString())
-                .Replace("{email}", coupon.Email);
-            
+                .Replace("{email}", coupon.Email)
+                .Replace("{coupon-code}", coupon.CouponCode);
+
             await _emailService.SendEmailAsync(
                 body: body,
                 toName: coupon.FirstName,
@@ -305,16 +309,20 @@ internal class CouponDomain : BaseDomain, ICouponDomain
         }
     }
 
-    private string GenerateCouponCode()
+    private string GenerateCouponCode(string firstName)
     {
-        //TODO: fix this logic for collision
         var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         var random = new Random();
-        var result = new string(
-            Enumerable.Repeat(chars, 10)
+
+        var head = firstName.Substring(0, 3).ToUpper();
+
+        var subHead = new string(
+            Enumerable.Repeat(chars, 4)
                 .Select(s => s[random.Next(s.Length)])
                 .ToArray());
 
-        return result;
+        var dateTimeBody = DateTime.UtcNow.ToString("yyMMdd-HHmmss");
+
+        return string.Join("-", head, subHead, dateTimeBody);
     }
 }
