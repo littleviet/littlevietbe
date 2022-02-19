@@ -5,6 +5,7 @@ using LittleViet.Data.Domains.Coupon;
 using LittleViet.Data.Models;
 using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.Mvc;
+using LittleViet.Infrastructure.Mvc.BodyAndRouteBinder;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -40,7 +41,7 @@ public class CouponController : BaseController
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(UpdateCouponViewModel updateCouponViewModel)
+    public async Task<IActionResult> Update([FromBodyAndRoute] UpdateCouponViewModel updateCouponViewModel)
     {
         try
         {

@@ -5,6 +5,7 @@ using LittleViet.Data.Domains.Account;
 using LittleViet.Data.Models;
 using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.Mvc;
+using LittleViet.Infrastructure.Mvc.BodyAndRouteBinder;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
 
@@ -82,7 +83,7 @@ public class AccountController : BaseController
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpPut("{id:guid}/reset-password")]
-    public async Task<IActionResult> UpdatePassword(UpdatePasswordViewModel updatePasswordViewModel)
+    public async Task<IActionResult> UpdatePassword([FromBodyAndRoute] UpdatePasswordViewModel updatePasswordViewModel)
     {
         try
         {

@@ -5,6 +5,7 @@ using LittleViet.Data.Domains.Reservations;
 using LittleViet.Data.Models;
 using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.Mvc;
+using LittleViet.Infrastructure.Mvc.BodyAndRouteBinder;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -37,13 +38,12 @@ public class ReservationController : Controller
 
     [AuthorizeRoles(Role.MANAGER, Role.ADMIN)]
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(Guid id, UpdateReservationViewModel reservationViewModel)
+    public async Task<IActionResult> Update([FromBodyAndRoute] UpdateReservationViewModel reservationViewModel)
     {
         try
         {
             Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out Guid userId);
-            reservationViewModel.AccountId = userId; // TODO: fix this now that we're using custom binder
-            reservationViewModel.Id = id;
+            reservationViewModel.AccountId = userId;
             var result = await _resevationDomain.Update(reservationViewModel);
             return Ok(result);
         }

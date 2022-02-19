@@ -40,7 +40,7 @@ public class OrderController : Controller
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpPut("{id:guid}")]
     [NonAction]
-    public async Task<IActionResult> Update(UpdateOrderViewModel updateOrderViewModel)
+    public async Task<IActionResult> Update(UpdateOrderViewModel updateOrderViewModel)//TODO: mark all update with BodyAndRoute binder
     {
         try
         {

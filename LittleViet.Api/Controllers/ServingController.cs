@@ -4,6 +4,7 @@ using LittleViet.Data.Domains.Serving;
 using LittleViet.Data.Models;
 using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.Mvc;
+using LittleViet.Infrastructure.Mvc.BodyAndRouteBinder;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LittleViet.Api.Controllers;
@@ -35,7 +36,7 @@ public class ServingController : Controller
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(UpdateServingViewModel updateServingViewModel)
+    public async Task<IActionResult> Update([FromBodyAndRoute] UpdateServingViewModel updateServingViewModel)
     {
         try
         {

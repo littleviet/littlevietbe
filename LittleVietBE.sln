@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LittleViet.Api", "LittleViet.Api\LittleViet.Api.csproj", "{928E19C6-08B6-46C0-8496-90DB8E7799A9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LittleViet.Data", "LittleViet.Data\LittleViet.Data.csproj", "{68F8E345-E6B6-4519-A1AD-AD03437A519F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LittleViet.Domain", "LittleViet.Domain\LittleViet.Domain.csproj", "{68F8E345-E6B6-4519-A1AD-AD03437A519F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LittleViet.Infrastructure", "LittleViet.Infrastructure\LittleViet.Infrastructure.csproj", "{E40859D2-06E0-4282-AF9C-965184B7E1F7}"
 EndProject
