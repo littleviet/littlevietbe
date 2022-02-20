@@ -3,6 +3,7 @@ using LittleViet.Data.Models;
 using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.EntityFramework;
+using static LittleViet.Infrastructure.EntityFramework.SqlHelper;
 using LittleViet.Infrastructure.Stripe.Interface;
 using LittleViet.Infrastructure.Stripe.Models;
 using Microsoft.EntityFrameworkCore;
@@ -165,6 +166,13 @@ internal class OrderDomain : BaseDomain, IOrderDomain
             var orders = _orderRepository.DbSet().AsNoTracking()
                 .ApplySort(parameters.OrderBy)
                 .Include(q => q.Account)
+                .WhereIf(parameters.AccountId is not null, o => o.AccountId == parameters.AccountId)                
+                .WhereIf(!string.IsNullOrEmpty(parameters.FullName), 
+                    ContainsIgnoreCase<Models.Order>(o => o.Account.Firstname + " " +  o.Account.Lastname,
+                    parameters.FullName))
+                .WhereIf(!string.IsNullOrEmpty(parameters.PhoneNumber), 
+                    ContainsIgnoreCase<Models.Order>(o => o.Account.PhoneNumber1 + " " +  o.Account.PhoneNumber2, //TODO: improve this somehow
+                    parameters.PhoneNumber))
                 .WhereIf(parameters.AccountId is not null, o => o.AccountId == parameters.AccountId)
                 .WhereIf(parameters.PickupTimeTo is not null, o => o.PickupTime <= parameters.PickupTimeTo)
                 .WhereIf(parameters.PickupTimeFrom is not null, o => o.PickupTime >= parameters.PickupTimeFrom)

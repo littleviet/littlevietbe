@@ -8,7 +8,7 @@ using LittleViet.Infrastructure.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using static LittleViet.Infrastructure.Mvc.SqlHelper;
+using static LittleViet.Infrastructure.EntityFramework.SqlHelper;
 using BCryptNet = BCrypt.Net.BCrypt;
 
 namespace LittleViet.Data.Domains.Account;

@@ -3,7 +3,7 @@ using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.EntityFramework;
 using LittleViet.Infrastructure.Mvc;
-using static LittleViet.Infrastructure.Mvc.SqlHelper;
+using static LittleViet.Infrastructure.EntityFramework.SqlHelper;
 using Microsoft.EntityFrameworkCore;
 
 namespace LittleViet.Data.Domains.ProductType;

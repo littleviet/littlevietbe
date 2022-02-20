@@ -5,7 +5,7 @@ using LittleViet.Infrastructure.EntityFramework;
 using LittleViet.Infrastructure.Stripe.Interface;
 using LittleViet.Infrastructure.Stripe.Models;
 using Microsoft.EntityFrameworkCore;
-using static LittleViet.Infrastructure.Mvc.SqlHelper;
+using static LittleViet.Infrastructure.EntityFramework.SqlHelper;
 using Stripe;
 
 namespace LittleViet.Data.Domains.Serving;

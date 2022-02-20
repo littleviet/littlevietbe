@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 
-namespace LittleViet.Infrastructure.Mvc;
+namespace LittleViet.Infrastructure.EntityFramework;
 
 public static class SqlHelper
 {
@@ -49,5 +49,24 @@ public static class SqlHelper
             ),
             parameter);
         //Final lambda looks like x => EF.Functions.ILike((x.prop1 + " ") + prop2 ..., $"%{pattern}%))
+    }
+    
+    public static Expression<Func<TEntity, bool>> ContainsIgnoreCase<TEntity>(Expression<Func<TEntity, string>> propertyOrStringGetterExpression,
+        string pattern, string separator = " ")
+    {
+
+        Expression leftComparison = propertyOrStringGetterExpression.Body;
+
+        var likeMethodInfo = typeof(NpgsqlDbFunctionsExtensions).GetMethod("ILike",
+            new[] {typeof(DbFunctions), typeof(string), typeof(string)});
+
+        return Expression.Lambda<Func<TEntity, bool>>(
+            Expression.Call(
+                likeMethodInfo!,
+                Expression.Constant(EF.Functions, typeof(DbFunctions)),
+                leftComparison,
+                Expression.Constant($"%{pattern}%", typeof(string))
+            ),
+            propertyOrStringGetterExpression.Parameters);
     }
 }

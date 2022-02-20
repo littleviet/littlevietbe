@@ -59,6 +59,8 @@ public class GetListOrderParameters : BaseListQueryParameters<Order>
     public IEnumerable<OrderType> OrderTypes { get; set; }
     public double? TotalPriceFrom { get; set; }
     public double? TotalPriceTo { get; set; }
+    public string PhoneNumber { get; set; }
+    public string FullName { get; set; }
     public IEnumerable<PaymentType> PaymentTypes { get; set; }
     public DateTime? PickupTimeTo { get; set; }
     public DateTime? PickupTimeFrom { get; set; }
