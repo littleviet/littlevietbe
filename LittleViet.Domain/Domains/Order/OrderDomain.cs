@@ -173,6 +173,8 @@ internal class OrderDomain : BaseDomain, IOrderDomain
                 .WhereIf(!string.IsNullOrEmpty(parameters.PhoneNumber), 
                     ContainsIgnoreCase<Models.Order>(o => o.Account.PhoneNumber1 + " " +  o.Account.PhoneNumber2, //TODO: improve this somehow
                     parameters.PhoneNumber))
+                .WhereIf(parameters.Statuses is not null && parameters.Statuses.Any(),
+                    o => parameters.Statuses.Contains(o.OrderStatus))
                 .WhereIf(parameters.AccountId is not null, o => o.AccountId == parameters.AccountId)
                 .WhereIf(parameters.PickupTimeTo is not null, o => o.PickupTime <= parameters.PickupTimeTo)
                 .WhereIf(parameters.PickupTimeFrom is not null, o => o.PickupTime >= parameters.PickupTimeFrom)
@@ -191,11 +193,10 @@ internal class OrderDomain : BaseDomain, IOrderDomain
                     {
                         Id = q.Id,
                         OrderType = q.OrderType,
-                        OrderTypeName = q.OrderType.ToString(),
                         PaymentType = q.PaymentType,
-                        PaymentTypeName = q.PaymentType.ToString(),
                         PickupTime = q.PickupTime,
                         TotalPrice = q.TotalPrice,
+                        Status = q.OrderStatus,
                         Account = new GenericAccountViewModel()
                         {
                             AccountType = q.Account.AccountType,
@@ -242,9 +243,7 @@ internal class OrderDomain : BaseDomain, IOrderDomain
                     {
                         Id = q.Id,
                         OrderType = q.OrderType,
-                        OrderTypeName = q.OrderType.ToString(),
                         PaymentType = q.PaymentType,
-                        PaymentTypeName = q.PaymentType.ToString(),
                         PickupTime = q.PickupTime,
                         TotalPrice = q.TotalPrice,
                         Account = new GenericAccountViewModel()

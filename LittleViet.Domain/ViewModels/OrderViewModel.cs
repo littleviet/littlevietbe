@@ -29,10 +29,9 @@ public class OrderViewModel
     public Guid Id { get; set; }
     public GenericAccountViewModel Account { get; set; }
     public OrderType OrderType { get; set; } = OrderType.TakeAway;
-    public string OrderTypeName { get; set; }
     public double TotalPrice { get; set; }
     public PaymentType PaymentType { get; set; }
-    public string PaymentTypeName { get; set; }
+    public OrderStatus Status { get; set; }
     public DateTime PickupTime { get; set; }
 }
 
@@ -60,7 +59,8 @@ public class GetListOrderParameters : BaseListQueryParameters<Order>
     public double? TotalPriceFrom { get; set; }
     public double? TotalPriceTo { get; set; }
     public string PhoneNumber { get; set; }
-    public string FullName { get; set; }
+    public string FullName { get; set; }    
+    public IEnumerable<OrderStatus> Statuses { get; set; }
     public IEnumerable<PaymentType> PaymentTypes { get; set; }
     public DateTime? PickupTimeTo { get; set; }
     public DateTime? PickupTimeFrom { get; set; }
