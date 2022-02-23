@@ -35,7 +35,6 @@ public class CouponTypeController : BaseController
         }
     }
     
-    [Authorize]
     [HttpGet]
     public async Task<IActionResult> GetCouponTypes()
     {
