@@ -9,6 +9,7 @@ namespace LittleViet.Api.Controllers;
 public class HealthcheckController : BaseController
 {
     private readonly LittleVietContext _context;
+
     public HealthcheckController(LittleVietContext context)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
@@ -32,19 +33,16 @@ public class HealthcheckController : BaseController
     {
         try
         {
-            if (_context.Database.CanConnect() == true)
+            if (_context.Database.CanConnect())
             {
                 return Ok("Database Working");
             }
-            else
-            {
-                return Ok(new ResponseViewModel
-                {
-                    Message = "Database not reachable",
-                    Success = false
-                });
 
-            }
+            return Ok(new ResponseViewModel
+            {
+                Message = "Database not reachable",
+                Success = false
+            });
         }
         catch
         {
@@ -52,4 +50,3 @@ public class HealthcheckController : BaseController
         }
     }
 }
-

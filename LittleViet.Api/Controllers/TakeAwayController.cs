@@ -1,5 +1,4 @@
-﻿using LittleViet.Data.Domains;
-using LittleViet.Data.Domains.TakeAway;
+﻿using LittleViet.Data.Domains.TakeAway;
 using LittleViet.Data.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 

@@ -1,7 +1,4 @@
-﻿using System.Security.Claims;
-using LittleViet.Data.Domains;
-using LittleViet.Data.Domains.Payment;
-using LittleViet.Data.ViewModels;
+﻿using LittleViet.Data.Domains.Payment;
 using LittleViet.Infrastructure.Stripe;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -48,4 +45,3 @@ public class PaymentController : Controller
         }
     }
 }
-

@@ -1,12 +1,9 @@
 ﻿using System.Security.Claims;
 using LittleViet.Api.Utilities;
-using LittleViet.Data.Domains;
 using LittleViet.Data.Domains.Reservations;
 using LittleViet.Data.Models;
 using LittleViet.Data.ViewModels;
-using LittleViet.Infrastructure.Mvc;
 using LittleViet.Infrastructure.Mvc.BodyAndRouteBinder;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LittleViet.Api.Controllers;
@@ -15,11 +12,11 @@ namespace LittleViet.Api.Controllers;
 [ApiController]
 public class ReservationController : Controller
 {
-    private IReservationDomain _resevationDomain;
+    private readonly IReservationDomain _reservationDomain;
 
     public ReservationController(IReservationDomain reservationDomain)
     {
-        _resevationDomain = reservationDomain;
+        _reservationDomain = reservationDomain;
     }
 
     [HttpPost("")]
@@ -27,7 +24,7 @@ public class ReservationController : Controller
     {
         try
         {
-            var result = await _resevationDomain.Create(reservationViewModel);
+            var result = await _reservationDomain.Create(reservationViewModel);
             return Ok(result);
         }
         catch (Exception e)
@@ -42,9 +39,9 @@ public class ReservationController : Controller
     {
         try
         {
-            Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out Guid userId);
-            reservationViewModel.AccountId = userId;
-            var result = await _resevationDomain.Update(reservationViewModel);
+            var parseSuccessful = Guid.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId);
+            reservationViewModel.AccountId = parseSuccessful ? userId : throw new Exception($"Id not parsable");
+            var result = await _reservationDomain.Update(reservationViewModel);
             return Ok(result);
         }
         catch (Exception e)
@@ -59,7 +56,7 @@ public class ReservationController : Controller
     {
         try
         {
-            var result = await _resevationDomain.Deactivate(id);
+            var result = await _reservationDomain.Deactivate(id);
             return Ok(result);
         }
         catch (Exception e)
@@ -74,7 +71,7 @@ public class ReservationController : Controller
     {
         try
         {
-            var result = await _resevationDomain.GetListReservations(parameters);
+            var result = await _reservationDomain.GetListReservations(parameters);
             return Ok(result);
         }
         catch (Exception e)
@@ -89,7 +86,7 @@ public class ReservationController : Controller
     {
         try
         {
-            var result = await _resevationDomain.GetReservationById(id);
+            var result = await _reservationDomain.GetReservationById(id);
             return Ok(result);
         }
         catch (Exception e)
