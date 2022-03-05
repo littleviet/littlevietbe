@@ -83,5 +83,9 @@ public class ProductDetailsViewModel
     public string StripeProductId { get; set; }
     public virtual ICollection<GenericProductImageViewModel> ProductImages { get; set; }
     public virtual ICollection<GenericServingViewModel> Servings { get; set; }
+    public DateTime? CreatedDate { get; set; }
+    public Guid CreatedBy { get; set; }
+    public DateTime? UpdatedDate { get; set; }
+    public Guid UpdatedBy { get; set; }
 }
 
