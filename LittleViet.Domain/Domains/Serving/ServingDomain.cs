@@ -166,7 +166,7 @@ internal class ServingDomain : BaseDomain, IServingDomain
             return new BaseListResponseViewModel
             {
                 Payload = await servings.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
-                    .Select(q => new ServingViewModel()
+                    .Select(q => new GenericServingViewModel()
                     {
                         Description = q.Description,
                         Id = q.Id,
@@ -201,7 +201,7 @@ internal class ServingDomain : BaseDomain, IServingDomain
                 Payload = await servings
                     .Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
                     .ApplySort(parameters.OrderBy)
-                    .Select(q => new ServingViewModel()
+                    .Select(q => new GenericServingViewModel()
                     {
                         Description = q.Description,
                         Id = q.Id,

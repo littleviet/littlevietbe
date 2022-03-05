@@ -223,7 +223,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
                             Id = p.ProductType.Id,
                             Name = p.ProductType.Name,
                         },
-                        Servings = p.Servings.Select(s => new ServingViewModel()
+                        Servings = p.Servings.Select(s => new GenericServingViewModel()
                         {
                             Id = s.Id,
                             Description = s.Description,
@@ -274,9 +274,14 @@ internal class ProductDomain : BaseDomain, IProductDomain
         {
             var product = await _productRepository.GetById(id);
 
-            return product == null 
-                ? new ResponseViewModel { Success = false, Message = "This product does not exist" } 
-                : new ResponseViewModel { Success = true, Payload = product };
+            if (product == null)
+                throw new Exception($"No product of Id {id} found");
+
+            return new ResponseViewModel<ProductDetailsViewModel>()
+            {
+                Success = true,
+                Payload = _mapper.Map<ProductDetailsViewModel>(product)
+            };
         }
         catch (Exception e)
         {

@@ -21,7 +21,7 @@ public class UpdateServingViewModel
     public Guid ProductId { get; set; }
 }
 
-public class ServingViewModel
+public class GenericServingViewModel
 {
     public Guid Id { get; set; }
     public string Name { get; set; }

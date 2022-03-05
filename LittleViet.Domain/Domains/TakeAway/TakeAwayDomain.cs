@@ -43,7 +43,7 @@ internal class TakeAwayDomain : BaseDomain, ITakeAwayDomain
                             Id = p.ProductType.Id,
                             Name = p.ProductType.Name,
                         },
-                        Servings = p.Servings.Select(s => new ServingViewModel()
+                        Servings = p.Servings.Select(s => new GenericServingViewModel()
                         {
                             Description = s.Description,
                             Id = s.Id,
