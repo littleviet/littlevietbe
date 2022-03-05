@@ -15,7 +15,11 @@ internal class ProductRepository : BaseRepository<Product>, IProductRepository
 
     public Task<Product> GetById(Guid id)
     {
-        return DbSet().FirstOrDefaultAsync(q => q.Id == id);
+        return DbSet()
+            .Include(p => p.ProductType)
+            .Include(p => p.ProductImages.Where(pi => pi.IsDeleted == false))
+            .Include(p => p.Servings.Where(s => s.IsDeleted == false))
+            .FirstOrDefaultAsync(q => q.Id == id);
     }
 }
 

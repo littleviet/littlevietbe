@@ -26,9 +26,6 @@ public class UpdateProductViewModel
     public string Description { get; set; }
     public ProductStatus Status { get; set; }
     public Guid ProductTypeId { get; set; }
-    public bool ImageChange { get; set; }
-    public int MainImage { get; set; }
-    public List<IFormFile> ProductImages { get; set; }
 }
 
 public class ProductViewModel

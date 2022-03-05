@@ -1,5 +1,6 @@
 ﻿using LittleViet.Infrastructure.Stripe.Interface;
 using LittleViet.Infrastructure.Stripe.Models;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Options;
 using Stripe;
 
@@ -17,6 +18,8 @@ public class StripeProductService : BaseStripeService, IStripeProductService
 
     public Task<Product> CreateProduct(CreateProductDto dto)
     {
+        if (dto == null) throw new ArgumentNullException(nameof(dto));
+        
         var options = new ProductCreateOptions
         {
             Name = dto.Name,
@@ -31,6 +34,8 @@ public class StripeProductService : BaseStripeService, IStripeProductService
 
     public Task<Product> UpdateProduct(UpdateProductDto dto)
     {
+        if (dto == null) throw new ArgumentNullException(nameof(dto));
+
         var options = new ProductUpdateOptions
         {
             Name = dto.Name,
@@ -42,7 +47,7 @@ public class StripeProductService : BaseStripeService, IStripeProductService
 
         return _productService.UpdateAsync(dto.Id, options);
     }
-
+    
     public Task<Product> DeactivateProduct(string id)
     {
         var options = new ProductUpdateOptions

@@ -29,9 +29,7 @@ public class UpdateProductViewModelValidator : AbstractValidator<UpdateProductVi
         RuleFor(x => x.Status).IsInEnum();
         RuleFor(x => x.CaName).Length(2, 100);
         RuleFor(x => x.EsName).Length(2, 100);
-        RuleFor(x => x.MainImage).GreaterThanOrEqualTo(0);
         RuleFor(x => x.ProductTypeId).NotEmpty();
-        RuleForEach(x => x.ProductImages).NotEmpty();
     }
 }
 

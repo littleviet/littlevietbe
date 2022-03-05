@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using LittleViet.Api.Utilities;
 using LittleViet.Data.Domains.Products;
 using LittleViet.Data.Models;
+using LittleViet.Infrastructure.Mvc.BodyAndRouteBinder;
 
 namespace LittleViet.Api.Controllers;
 
@@ -98,6 +99,55 @@ public class ProductController : BaseController
         try
         {
             var result = await _productDomain.GetProductById(id);
+            return Ok(result);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseViewModel { Message = e.Message, Success = false });
+        }
+    }
+    
+    [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
+    [HttpPost("{productId:guid}/image")]
+    public async Task<IActionResult> AddProductImages([FromForm] AddProductImagesViewModel addProductImagesViewModel)
+    {
+        try
+        {
+            var result = await _productDomain.AddProductImages(addProductImagesViewModel);
+            return Ok(result);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseViewModel { Message = e.Message, Success = false });
+        }
+    }
+    
+    [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
+    [HttpDelete("{id:guid}/image/{imageId:guid}")]
+    public async Task<IActionResult> RemoveProductImageById(Guid id, Guid imageId)
+    {
+        try
+        {
+            var result = await _productDomain.DeactivateProductImage(id, imageId);
+            return Ok(result);
+        }
+        catch (InvalidOperationException e)
+        {
+            return StatusCode(StatusCodes.Status400BadRequest, new ResponseViewModel { Message = e.Message, Success = false });
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseViewModel { Message = e.Message, Success = false });
+        }
+    }
+    
+    [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
+    [HttpGet("{id:guid}/image/{imageId:guid}/make-main")]
+    public async Task<IActionResult> MakeMainProductImage(Guid id, Guid imageId)
+    {
+        try
+        {
+            var result = await _productDomain.MakeMainProductImage(id, imageId);
             return Ok(result);
         }
         catch (Exception e)

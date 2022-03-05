@@ -9,15 +9,17 @@ public class ProductMappers : Profile
 {
     public ProductMappers()
     {
-            CreateMap<Product, CreateProductViewModel>().ReverseMap();
+            CreateMap<CreateProductViewModel, Product>()
+                .ForMember(x => x.ProductImages, y => y.Ignore())
+                .ReverseMap();
             CreateMap<Product, UpdateProductViewModel>().ReverseMap();
             CreateMap<Product, ProductsLandingPageViewModel>().ReverseMap();
             CreateMap<Product, ProductDetailsViewModel>().ReverseMap();
             
-            CreateMap<ProductImage, CreateProductImageViewModel>().ReverseMap();
             CreateMap<ProductImage, GenericProductImageViewModel>().ReverseMap();
 
             CreateMap<UpdateProductViewModel, UpdateProductDto>().ReverseMap();
+            CreateMap<Product, UpdateProductDto>().ReverseMap();
             CreateMap<CreateProductViewModel, CreateProductDto>().ReverseMap();
     }
 }
