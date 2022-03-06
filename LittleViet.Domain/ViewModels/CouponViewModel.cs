@@ -54,7 +54,7 @@ public class CouponViewModel
 public class CouponDetailsViewModel
 {
     public Guid Id { get; set; }
-     public double Amount { get; set; }
+    public double Amount { get; set; }
     public string Email { get; set; }
     public string PhoneNumber { get; set; }
     public CouponStatus Status { get; set; }
@@ -65,4 +65,10 @@ public class CouponDetailsViewModel
     public Guid CreatedBy { get; set; }
     public DateTime? UpdatedDate { get; set; }
     public Guid UpdatedBy { get; set; }
+}
+
+public class UseCouponViewModel
+{
+    public string couponCode { get; set; }
+    public uint usage { get; set; }
 }

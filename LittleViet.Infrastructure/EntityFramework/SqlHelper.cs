@@ -52,9 +52,9 @@ public static class SqlHelper
     }
     
     public static Expression<Func<TEntity, bool>> ContainsIgnoreCase<TEntity>(Expression<Func<TEntity, string>> propertyOrStringGetterExpression,
-        string pattern, string separator = " ")
+        string pattern, bool useWildCard = true)
     {
-
+        var wildcardIfUsed = useWildCard ? "%" : "";
         Expression leftComparison = propertyOrStringGetterExpression.Body;
 
         var likeMethodInfo = typeof(NpgsqlDbFunctionsExtensions).GetMethod("ILike",
@@ -65,8 +65,14 @@ public static class SqlHelper
                 likeMethodInfo!,
                 Expression.Constant(EF.Functions, typeof(DbFunctions)),
                 leftComparison,
-                Expression.Constant($"%{pattern}%", typeof(string))
+                Expression.Constant($"{wildcardIfUsed}{pattern}{wildcardIfUsed}", typeof(string))
             ),
             propertyOrStringGetterExpression.Parameters);
+    }
+    
+    public static Expression<Func<TEntity, bool>> EqualsIgnoreCase<TEntity>(Expression<Func<TEntity, string>> propertyOrStringGetterExpression,
+        string pattern)
+    {
+        return ContainsIgnoreCase(propertyOrStringGetterExpression, pattern, useWildCard: false);
     }
 }

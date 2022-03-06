@@ -1,15 +1,15 @@
-﻿using AutoMapper;
+﻿using System.Globalization;
+using AutoMapper;
 using LittleViet.Data.Models;
 using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.Email.Interface;
 using LittleViet.Infrastructure.Email.Models;
 using LittleViet.Infrastructure.EntityFramework;
-using LittleViet.Infrastructure.Stripe;
+using static LittleViet.Infrastructure.EntityFramework.SqlHelper;
 using LittleViet.Infrastructure.Stripe.Interface;
 using LittleViet.Infrastructure.Stripe.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Stripe;
 
 namespace LittleViet.Data.Domains.Coupon;
@@ -23,6 +23,7 @@ public interface ICouponDomain
     Task<BaseListResponseViewModel> GetListCoupons(BaseListQueryParameters parameters);
     Task<BaseListResponseViewModel> Search(BaseSearchParameters parameters);
     Task<ResponseViewModel> GetCouponById(Guid id);
+    Task<ResponseViewModel> RedeemCoupon(string couponCode, uint usage);
     Task<ResponseViewModel> HandleSuccessfulCouponPurchase(Guid couponId, string stripeSessionId);
 }
 
@@ -44,7 +45,7 @@ internal class CouponDomain : BaseDomain, ICouponDomain
         _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
         _templateService = templateService ?? throw new ArgumentNullException(nameof(templateService));
     }
-
+    
     public async Task<ResponseViewModel> CreateCoupon(CreateCouponViewModel createCouponViewModel)
     {
         var coupon = _mapper.Map<Models.Coupon>(createCouponViewModel);
@@ -106,7 +107,7 @@ internal class CouponDomain : BaseDomain, ICouponDomain
             throw;
         }
     }
-
+    
     public async Task<ResponseViewModel> HandleSuccessfulCouponPurchase(Guid couponId, string stripeSessionId)
     {
         await using var transaction = _uow.BeginTransation();
@@ -137,6 +138,69 @@ internal class CouponDomain : BaseDomain, ICouponDomain
                 .Replace("{coupon-id}", coupon.Id.ToString())
                 .Replace("{email}", coupon.Email)
                 .Replace("{coupon-code}", coupon.CouponCode);
+
+            await _emailService.SendEmailAsync(
+                body: body,
+                toName: coupon.FirstName,
+                toAddress: coupon.Email,
+                subject: EmailTemplates.CouponPurchaseSuccess.SubjectName
+            );
+
+            await _uow.SaveAsync();
+            await transaction.CommitAsync();
+
+            return new ResponseViewModel {Success = true};
+        }
+        catch (Exception e)
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
+
+    public async Task<ResponseViewModel> RedeemCoupon(string couponCode, uint usage)
+    {
+        await using var transaction = _uow.BeginTransation();
+
+        try
+        {
+            var coupon = await _couponRepository.DbSet().Where(EqualsIgnoreCase<Models.Coupon>(c => c.CouponCode, couponCode)).SingleOrDefaultAsync();
+
+            if (coupon is null)
+                throw new InvalidOperationException($"Cannot find coupon of Code: {couponCode}");
+
+            var usageLeft = (int)coupon.CurrentQuantity - (int)usage;
+            
+            switch (usageLeft)
+            {
+                case > 0:
+                    coupon.CurrentQuantity = (uint)usageLeft;
+                    break;
+                case 0:
+                    coupon.Status = CouponStatus.Used;
+                    coupon.CurrentQuantity = 0;
+                    break;
+                case < 0:
+                    throw new InvalidOperationException("Coupon usage exceeds current amount available");
+            }
+
+            var valueRedeemed = coupon.CouponType.Value * usage;
+            
+            await _uow.SaveAsync();
+
+            var body = await _templateService.FillTemplate(EmailTemplates.CouponRedemptionSuccess, new Dictionary<string, string>()
+            {
+                {"name", coupon.FirstName},
+                {"usage", usage.ToString(CultureInfo.InvariantCulture)},
+                {"total-value", valueRedeemed.ToString("€00.00")},
+                {"time", coupon.CreatedDate.ToString("hh:mm:ss MM/dd/yyyy", CultureInfo.InvariantCulture)},
+                {"coupon-name", coupon.CouponType.Name},
+                {"usage-left", coupon.CurrentQuantity.ToString(CultureInfo.InvariantCulture)},
+                {"phone-number", coupon.PhoneNumber},
+                {"coupon-id", coupon.Id.ToString()},
+                {"email", coupon.Email},
+                {"coupon-code", coupon.CouponCode},
+            });
 
             await _emailService.SendEmailAsync(
                 body: body,

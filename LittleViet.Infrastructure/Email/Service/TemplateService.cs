@@ -16,9 +16,15 @@ public class TemplateService : ITemplateService
             template.TemplateName));
     }
 
-    public async Task<string> FillTemplate(EmailTemplates.EmailTemplate template)
+    public async Task<string> FillTemplate(EmailTemplates.EmailTemplate template, Dictionary<string, string> values)
     {
-        return await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, "Email", "Templates",
-            template.TemplateName));
+        if (template.Keys.Except(values.Keys) is var except && except.Any())
+            throw new InvalidOperationException(
+                $"The following values are missing for the template {template.TemplateName}: {except}");
+
+        var templateString = await GetTemplateEmail(template);
+
+        return template.Keys.Aggregate(templateString, 
+            (current, key) => current.Replace($"{{{key}}}", values.GetValueOrDefault(key), StringComparison.InvariantCulture));
     }
 }

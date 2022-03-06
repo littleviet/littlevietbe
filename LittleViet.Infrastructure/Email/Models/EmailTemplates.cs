@@ -4,19 +4,58 @@ public static class EmailTemplates
 {
     public class EmailTemplate
     {
-        public string TemplateName { get; set; }
-        public string SubjectName { get; set; }
+        public string TemplateName { get; init; }
+        public string SubjectName { get; init; }
+        public IEnumerable<string> Keys { get; init; }
     }
     
     public static readonly EmailTemplate ReservationSuccess = new ()
     {
         TemplateName = "reservation-success.html",
-        SubjectName = "Reservation successful at Little Viet"
+        SubjectName = "Reservation successful at Little Viet",
+        Keys = new HashSet<string>()
+        {
+            "name",
+            "time",
+            "no-of-people",
+            "phone-number",
+            "reservation-id",
+        }
     };
     
     public static readonly EmailTemplate CouponPurchaseSuccess = new ()
     {
         TemplateName = "coupon-buying-success.html",
-        SubjectName = "Coupon purchase at Little Viet"
+        SubjectName = "Coupon purchase at Little Viet",
+        Keys = new HashSet<string>()
+        {
+            "name",
+            "time",
+            "coupon-name",
+            "phone-number",
+            "usage-left",
+            "coupon-id",
+            "email",
+            "coupon-code",
+        }
+    };
+    
+    public static readonly EmailTemplate CouponRedemptionSuccess = new ()
+    {
+        TemplateName = "coupon-usage-success.html",
+        SubjectName = "Coupon redeemed at Little Viet",
+        Keys = new HashSet<string>()
+        {
+            "name",
+            "usage",
+            "total-value",
+            "time",
+            "coupon-name",
+            "phone-number",
+            "usage-left",
+            "coupon-id",
+            "email",
+            "coupon-code",
+        }
     };
 }
