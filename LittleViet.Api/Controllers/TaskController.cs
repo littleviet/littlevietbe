@@ -1,5 +1,7 @@
 ﻿using LittleViet.Api.Utilities;
 using LittleViet.Data.Domains.Coupon;
+using LittleViet.Data.Domains.Order;
+using LittleViet.Data.Domains.Reservations;
 using LittleViet.Data.Models;
 using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.Mvc.BodyAndRouteBinder;
@@ -11,10 +13,15 @@ namespace LittleViet.Api.Controllers;
 [ApiController]
 public class TaskController : Controller
 {
-    private readonly ICouponDomain _couponDomain;
-    public TaskController(ICouponDomain couponDomain)
+    private readonly ICouponDomain _couponDomain;    
+    private readonly IOrderDomain _orderDomain;
+    private readonly IReservationDomain _reservationDomain;
+
+    public TaskController(ICouponDomain couponDomain, IOrderDomain orderDomain, IReservationDomain reservationDomain)
     {
         _couponDomain = couponDomain ?? throw new ArgumentNullException(nameof(couponDomain));
+        _orderDomain = orderDomain ?? throw new ArgumentNullException(nameof(orderDomain));
+        _reservationDomain = reservationDomain ?? throw new ArgumentNullException(nameof(reservationDomain));
     }
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
@@ -24,6 +31,36 @@ public class TaskController : Controller
         try
         {
             var result = await _couponDomain.RedeemCoupon(useCouponViewModel.couponCode, useCouponViewModel.usage);
+            return Ok(result);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseViewModel { Message = e.Message, Success = false });
+        }
+    }
+    
+    [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
+    [HttpPost("pickup-takeaway")]
+    public async Task<IActionResult> PickUpTakeAwayOrder(Guid orderId)
+    {
+        try
+        {
+            var result = await _orderDomain.PickupTakeAwayOrder(orderId);
+            return Ok(result);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseViewModel { Message = e.Message, Success = false });
+        }
+    }
+    
+    [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
+    [HttpPost("check-in-reservation")]
+    public async Task<IActionResult> CheckinReservation(Guid reservationId)
+    {
+        try
+        {
+            var result = await _reservationDomain.CheckInReservation(reservationId);
             return Ok(result);
         }
         catch (Exception e)

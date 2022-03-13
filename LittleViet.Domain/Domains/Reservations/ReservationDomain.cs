@@ -16,6 +16,8 @@ public interface IReservationDomain
     Task<ResponseViewModel> Update(UpdateReservationViewModel reservationVm);
     Task<ResponseViewModel> Deactivate(Guid id);
     Task<BaseListResponseViewModel> GetListReservations(GetListReservationParameters parameters);
+    Task<ResponseViewModel> CheckInReservation(Guid reservationId);
+
     Task<ResponseViewModel> GetReservationById(Guid id);
 }
 
@@ -142,12 +144,14 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
                 .WhereIf(!string.IsNullOrEmpty(parameters.Email),
                     ContainsIgnoreCase<Reservation>(nameof(Reservation.Email), parameters.Email))
                 .WhereIf(!string.IsNullOrEmpty(parameters.FullName),
-                    ContainsIgnoreCase<Reservation>(new[]{nameof(Reservation.Firstname), nameof(Reservation.Lastname)}, parameters.FullName))
+                    ContainsIgnoreCase<Reservation>(new[] {nameof(Reservation.Firstname), nameof(Reservation.Lastname)},
+                        parameters.FullName))
                 .WhereIf(!string.IsNullOrEmpty(parameters.FurtherRequest),
                     ContainsIgnoreCase<Reservation>(nameof(Reservation.FurtherRequest), parameters.FurtherRequest))
                 .WhereIf(!string.IsNullOrEmpty(parameters.PhoneNumber),
                     r => r.PhoneNumber.Contains(parameters.PhoneNumber))
-                .WhereIf(parameters.Statuses is not null && parameters.Statuses.Any(), r => parameters.Statuses.Contains(r.Status))
+                .WhereIf(parameters.Statuses is not null && parameters.Statuses.Any(),
+                    r => parameters.Statuses.Contains(r.Status))
                 .WhereIf(parameters.BookingDateFrom is not null, r => r.BookingDate >= parameters.BookingDateFrom)
                 .WhereIf(parameters.BookingDateTo is not null, r => r.BookingDate <= parameters.BookingDateTo)
                 .WhereIf(parameters.NoOfPeople is not null, r => r.NoOfPeople == parameters.NoOfPeople);
@@ -179,6 +183,25 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
         catch (Exception e)
         {
             return new BaseListResponseViewModel {Success = false, Message = e.Message};
+        }
+    }
+
+    public async Task<ResponseViewModel> CheckInReservation(Guid reservationId)
+    {
+        try
+        {
+            var reservation = await _reservationRepository.GetById(reservationId);
+
+            reservation.Status = ReservationStatus.Completed;
+            await _uow.SaveAsync();
+            
+            return reservation == null
+                ? new ResponseViewModel {Success = false, Message = "This reservation does not exist"}
+                : new ResponseViewModel {Success = true};
+        }
+        catch (Exception e)
+        {
+            return new ResponseViewModel {Success = false, Message = e.Message};
         }
     }
 

@@ -14,6 +14,7 @@ public class CreateProductViewModel
     public Guid ProductTypeId { get; set; }
     public int MainImage { get; set; }
     public List<IFormFile> ProductImages { get; set; }
+    public List<GenericServingViewModel> Servings { get; set; }
 }
 
 public class UpdateProductViewModel

@@ -300,10 +300,11 @@ internal class CouponDomain : BaseDomain, ICouponDomain
             return new BaseListResponseViewModel
             {
                 Payload = await coupons.Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
-                    .Select(q => new CouponViewModel()
+                    .Select(q => new GenericCouponViewModel()
                     {
                         Id = q.Id,
-                        // Amount = q.Amount,
+                        InitialQuantity = q.InitialQuantity,
+                        CurrentQuantity = q.CurrentQuantity,
                         CouponCode = q.CouponCode,
                         Email = q.Email,
                         PhoneNumber = q.PhoneNumber,
@@ -335,10 +336,11 @@ internal class CouponDomain : BaseDomain, ICouponDomain
             {
                 Payload = await coupons
                     .Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
-                    .Select(q => new CouponViewModel()
+                    .Select(q => new GenericCouponViewModel()
                     {
                         Id = q.Id,
-                        // Amount = q.Amount,
+                        InitialQuantity = q.InitialQuantity,
+                        CurrentQuantity = q.CurrentQuantity,
                         CouponCode = q.CouponCode,
                         Email = q.Email,
                         PhoneNumber = q.PhoneNumber,

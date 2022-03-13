@@ -20,6 +20,7 @@ public interface IOrderDomain
     Task<ResponseViewModel> GetOrderById(Guid id);
     Task<ResponseViewModel> HandleSuccessfulOrder(Guid orderId, string stripeSessionId);
     Task<ResponseViewModel> HandleExpiredOrder(Guid orderId, string stripeSessionId);
+    Task<ResponseViewModel> PickupTakeAwayOrder(Guid orderId);
     Task<BaseListResponseViewModel> Search(BaseSearchParameters parameters);
 }
 
@@ -216,6 +217,28 @@ internal class OrderDomain : BaseDomain, IOrderDomain
                 PageNumber = parameters.PageNumber,
                 PageSize = parameters.PageSize,
             };
+        }
+        catch (Exception e)
+        {
+            throw;
+        }
+    }
+
+    public async Task<ResponseViewModel> PickupTakeAwayOrder(Guid orderId)
+    {
+        try
+        {
+            var order = await _orderRepository.GetById(orderId);
+
+            if (order == null)
+                throw new Exception($"Cannot find order of Id {order.Id}");
+            
+            if (order.OrderType != OrderType.TakeAway)
+                throw new Exception($"Order of Id {order.Id} is not a Take Away Order");
+
+            order.OrderStatus = OrderStatus.PickedUp;
+            await _uow.SaveAsync();
+            return new ResponseViewModel {Success = true};
         }
         catch (Exception e)
         {

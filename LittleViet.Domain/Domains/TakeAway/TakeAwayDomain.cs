@@ -24,13 +24,14 @@ internal class TakeAwayDomain : BaseDomain, ITakeAwayDomain
         {
             var products = _productRepository.DbSet()
                 .Include(p => p.ProductType)
-                .Include(p => p.Servings)
+                .Include(p => p.Servings.Where(s => !s.IsDeleted))
                 .Include(p => p.ProductImages.Where(pm => pm.IsMain))
+                .Where(p => p.Servings.Any())
                 .AsNoTracking();
 
             return new BaseListResponseViewModel<GetListProductViewModel>
             {
-                Payload = await products.Paginate(pageSize: 50, pageNum: 0)
+                Payload = (await products.Paginate(pageSize: 50, pageNum: 0)
                     .Select(p => new GetListProductViewModel()
                     {
                         Description = p.Description,
@@ -52,7 +53,7 @@ internal class TakeAwayDomain : BaseDomain, ITakeAwayDomain
                             NumberOfPeople = s.NumberOfPeople,
                         }).ToList(),
                         ImageUrl = p.ProductImages.Select(pm => pm.Url).FirstOrDefault(),
-                    }).ToListAsync(),
+                    }).ToListAsync()),
                 Success = true,
                 Total = await products.CountAsync(),
                 PageNumber = 0,

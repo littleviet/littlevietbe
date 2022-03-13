@@ -51,6 +51,7 @@ public enum OrderStatus
     Paid = 2,
     Cancelled = 3,
     Expired = 4,
+    PickedUp = 5,
 }
 
 public class Role
