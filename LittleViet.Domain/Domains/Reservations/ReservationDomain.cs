@@ -12,7 +12,7 @@ namespace LittleViet.Data.Domains.Reservations;
 
 public interface IReservationDomain
 {
-    Task<ResponseViewModel> Create(CreateReservationViewModel reservationVm);
+    Task<ResponseViewModel<Guid>> Create(CreateReservationViewModel reservationVm);
     Task<ResponseViewModel> Update(UpdateReservationViewModel reservationVm);
     Task<ResponseViewModel> Deactivate(Guid id);
     Task<BaseListResponseViewModel> GetListReservations(GetListReservationParameters parameters);
@@ -38,7 +38,7 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
         _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
     }
 
-    public async Task<ResponseViewModel> Create(CreateReservationViewModel createReservationViewModel)
+    public async Task<ResponseViewModel<Guid>> Create(CreateReservationViewModel createReservationViewModel)
     {
         try
         {
@@ -47,7 +47,7 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
             reservation.Id = Guid.NewGuid();
             reservation.Status = ReservationStatus.Reserved;
 
-            await using var transaction = _uow.BeginTransation();
+            await using var transaction = _uow.BeginTransaction();
 
             try
             {
@@ -78,11 +78,12 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
                 throw;
             }
 
-            return new ResponseViewModel {Success = true, Message = "Create successful"};
+            return new ResponseViewModel<Guid>
+                {Success = true, Message = "Create successful", Payload = reservation.Id};
         }
         catch (Exception e)
         {
-            return new ResponseViewModel {Success = false, Message = e.Message};
+            return new ResponseViewModel<Guid> {Success = false, Message = e.Message};
         }
     }
 
@@ -194,7 +195,7 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
 
             reservation.Status = ReservationStatus.Completed;
             await _uow.SaveAsync();
-            
+
             return reservation == null
                 ? new ResponseViewModel {Success = false, Message = "This reservation does not exist"}
                 : new ResponseViewModel {Success = true};

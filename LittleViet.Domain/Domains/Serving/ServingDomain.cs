@@ -12,7 +12,7 @@ namespace LittleViet.Data.Domains.Serving;
 
 public interface IServingDomain
 {
-    Task<ResponseViewModel> Create(CreateServingViewModel createServingViewModel);
+    Task<ResponseViewModel<Guid>> Create(CreateServingViewModel createServingViewModel);
     Task<ResponseViewModel> Update(UpdateServingViewModel updateServingViewModel);
     Task<ResponseViewModel> Deactivate(Guid id);
     Task<BaseListResponseViewModel> GetListServing(GetListServingParameters parameters);
@@ -34,12 +34,12 @@ internal class ServingDomain : BaseDomain, IServingDomain
         _stripePriceService = stripePriceService ?? throw new ArgumentNullException(nameof(stripePriceService));
     }
 
-    public async Task<ResponseViewModel> Create(CreateServingViewModel createServingViewModel)
+    public async Task<ResponseViewModel<Guid>> Create(CreateServingViewModel createServingViewModel)
     {
         var serving = _mapper.Map<Models.Serving>(createServingViewModel);
         serving.Id = Guid.NewGuid();
 
-        await using var transaction = _uow.BeginTransation();
+        await using var transaction = _uow.BeginTransaction();
         try
         {
             var entry = _servingRepository.Add(serving);
@@ -60,7 +60,7 @@ internal class ServingDomain : BaseDomain, IServingDomain
             await _uow.SaveAsync();
             await transaction.CommitAsync();
 
-            return new ResponseViewModel {Success = true, Message = "Create successful"};
+            return new ResponseViewModel<Guid> {Success = true, Message = "Create successful", Payload = serving.Id};
         }
         catch (StripeException se)
         {
@@ -70,14 +70,14 @@ internal class ServingDomain : BaseDomain, IServingDomain
         catch (Exception e)
         {
             await transaction.RollbackAsync();
-            return new ResponseViewModel {Success = false, Message = e.Message};
+            return new ResponseViewModel<Guid> {Success = false, Message = e.Message};
         }
     }
 
     public async Task<ResponseViewModel> Deactivate(Guid id)
     {
         var serving = await _servingRepository.GetById(id);
-        await using var transaction = _uow.BeginTransation();
+        await using var transaction = _uow.BeginTransaction();
 
         try
         {
@@ -103,7 +103,7 @@ internal class ServingDomain : BaseDomain, IServingDomain
         if (existedServing == null)
             return new ResponseViewModel {Success = false, Message = "This serving does not exist"};
 
-        await using var transaction = _uow.BeginTransation();
+        await using var transaction = _uow.BeginTransaction();
 
         try
         {

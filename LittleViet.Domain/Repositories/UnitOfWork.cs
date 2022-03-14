@@ -12,7 +12,7 @@ public partial interface IUnitOfWork
     T GetService<T>();
     void Save();
     Task<int> SaveAsync();
-    IDbContextTransaction BeginTransation();
+    IDbContextTransaction BeginTransaction();
 }
 
 
@@ -45,7 +45,7 @@ public class UnitOfWork : IUnitOfWork
         return await _context.SaveChangesAsync();
     }
 
-    public IDbContextTransaction BeginTransation()
+    public IDbContextTransaction BeginTransaction()
     {
         return _context.Database.BeginTransaction();
     }

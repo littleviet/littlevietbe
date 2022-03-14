@@ -13,7 +13,7 @@ using static LittleViet.Infrastructure.EntityFramework.SqlHelper;
 namespace LittleViet.Data.Domains.Products;
 public interface IProductDomain
 {
-    Task<ResponseViewModel> Create(CreateProductViewModel createProductViewModel);
+    Task<ResponseViewModel<Guid>> Create(CreateProductViewModel createProductViewModel);
     Task<ResponseViewModel> Update(UpdateProductViewModel updateProductViewModel);
     Task<ResponseViewModel> Deactivate(Guid id);
     Task<BaseListResponseViewModel> GetListProducts(GetListProductParameters parameters);
@@ -41,14 +41,14 @@ internal class ProductDomain : BaseDomain, IProductDomain
         _blobProductImageService = blobProductImageService ?? throw new ArgumentNullException(nameof(blobProductImageService));
     }
 
-    public async Task<ResponseViewModel> Create(CreateProductViewModel createProductViewModel)
+    public async Task<ResponseViewModel<Guid>> Create(CreateProductViewModel createProductViewModel)
     {
         
         var product = _mapper.Map<Models.Product>(createProductViewModel);
         var productId = Guid.NewGuid();
         product.Id = productId;
 
-        await using var transaction = _uow.BeginTransation();
+        await using var transaction = _uow.BeginTransaction();
         
         try
         {
@@ -78,7 +78,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
 
             await transaction.CommitAsync();
             
-            return new ResponseViewModel { Success = true, Message = "Create successful" };
+            return new ResponseViewModel<Guid> { Success = true, Message = "Create successful", Payload = productId };
         }
         catch (StripeException se)
         {
@@ -94,7 +94,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
 
     public async Task<ResponseViewModel> Update(UpdateProductViewModel updateProductViewModel)
     {
-        await using var transaction = _uow.BeginTransation();
+        await using var transaction = _uow.BeginTransaction();
         
         try
         {
@@ -322,7 +322,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
 
     public async Task<ResponseViewModel> MakeMainProductImage(Guid productId, Guid imageId)
     {
-        await using var transaction = _uow.BeginTransation();
+        await using var transaction = _uow.BeginTransaction();
         
         try
         {

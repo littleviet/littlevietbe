@@ -55,7 +55,7 @@ internal class OrderDomain : BaseDomain, IOrderDomain
             orderDetail.OrderId = orderGuid;
         }
 
-        await using var transaction = _uow.BeginTransation();
+        await using var transaction = _uow.BeginTransaction();
 
         try
         {

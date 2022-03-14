@@ -10,7 +10,7 @@ namespace LittleViet.Data.Domains.ProductType;
 
 public interface IProductTypeDomain
 {
-    Task<ResponseViewModel> Create(CreateProductTypeViewModel createProductTypeViewModel);
+    Task<ResponseViewModel<Guid>> Create(CreateProductTypeViewModel createProductTypeViewModel);
     Task<ResponseViewModel> Update(UpdateProductTypeViewModel updateProductTypeViewModel);
     Task<ResponseViewModel> Deactivate(Guid id);
     Task<BaseListResponseViewModel<ProductTypeItemViewModel>> GetListProductTypes(GetListProductTypeParameters parameters);
@@ -27,7 +27,7 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
     }
 
-    public async Task<ResponseViewModel> Create(CreateProductTypeViewModel createProductTypeViewModel)
+    public async Task<ResponseViewModel<Guid>> Create(CreateProductTypeViewModel createProductTypeViewModel)
     {
         try
         {
@@ -38,7 +38,7 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
             _productTypeRepository.Add(productType);
             await _uow.SaveAsync();
 
-            return new ResponseViewModel { Success = true, Message = "Create successful" };
+            return new ResponseViewModel<Guid> { Success = true, Message = "Create successful", Payload = productType.Id};
         }
         catch (Exception e)
         {

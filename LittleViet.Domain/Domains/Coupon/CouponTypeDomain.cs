@@ -2,7 +2,6 @@
 using LittleViet.Data.Models;
 using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
-using LittleViet.Infrastructure.EntityFramework;
 using LittleViet.Infrastructure.Stripe;
 using LittleViet.Infrastructure.Stripe.Interface;
 using LittleViet.Infrastructure.Stripe.Models;
@@ -14,7 +13,7 @@ namespace LittleViet.Data.Domains.Coupon;
 
 public interface ICouponTypeDomain
 {
-    Task<ResponseViewModel> CreateCouponType(CreateCouponTypeViewModel createCouponTypeViewModel);
+    Task<ResponseViewModel<Guid>> CreateCouponType(CreateCouponTypeViewModel createCouponTypeViewModel);
     Task<ResponseViewModel> GetCouponTypes();
 }
 internal class CouponTypeDomain : BaseDomain, ICouponTypeDomain
@@ -31,12 +30,12 @@ internal class CouponTypeDomain : BaseDomain, ICouponTypeDomain
         _stripeSettings = stripeSettings.Value ?? throw new ArgumentNullException(nameof(stripeSettings));
     }
 
-    public async Task<ResponseViewModel> CreateCouponType(CreateCouponTypeViewModel createCouponTypeViewModel)
+    public async Task<ResponseViewModel<Guid>> CreateCouponType(CreateCouponTypeViewModel createCouponTypeViewModel)
     {
         var couponType = _mapper.Map<CouponType>(createCouponTypeViewModel);
         couponType.Id = Guid.NewGuid();
 
-        await using var transaction = _uow.BeginTransation();
+        await using var transaction = _uow.BeginTransaction();
         try
         {
             _ = _couponTypeRepository.Add(couponType);
@@ -55,7 +54,7 @@ internal class CouponTypeDomain : BaseDomain, ICouponTypeDomain
             await _uow.SaveAsync();
             await transaction.CommitAsync();
 
-            return new ResponseViewModel {Success = true, Message = "Create successful"};
+            return new ResponseViewModel<Guid> {Success = true, Message = "Create successful", Payload = couponType.Id};
         }
         catch (StripeException se)
         {

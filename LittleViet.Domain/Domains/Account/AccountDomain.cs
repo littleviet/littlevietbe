@@ -17,7 +17,7 @@ public interface IAccountDomain
 {
     ResponseViewModel Login(string email, string password);
     Task<ResponseViewModel> Deactivate(Guid id);
-    Task<ResponseViewModel> Create(Guid userId, CreateAccountViewModel createAccountViewModel);
+    Task<ResponseViewModel<Guid>> Create(Guid userId, CreateAccountViewModel createAccountViewModel);
     Task<ResponseViewModel> Register(CreateAccountViewModel createAccountViewModel);
     Task<ResponseViewModel> Update(UpdateAccountViewModel updateAccountViewModel);
     Task<ResponseViewModel> UpdatePassword(UpdatePasswordViewModel updatePasswordViewModel);
@@ -77,7 +77,7 @@ public class AccountDomain : BaseDomain, IAccountDomain
         }
     }
 
-    public async Task<ResponseViewModel> Create(Guid userId, CreateAccountViewModel createAccountViewModel)
+    public async Task<ResponseViewModel<Guid>> Create(Guid userId, CreateAccountViewModel createAccountViewModel)
     {
         try
         {
@@ -85,7 +85,7 @@ public class AccountDomain : BaseDomain, IAccountDomain
 
             if (existedAccount != null)
             {
-                return new ResponseViewModel {Success = false, Message = "This email already existed"};
+                return new ResponseViewModel<Guid> {Success = false, Message = "This email already existed"};
             }
 
             var account = _mapper.Map<Models.Account>(createAccountViewModel);
@@ -96,7 +96,7 @@ public class AccountDomain : BaseDomain, IAccountDomain
             _accountRepository.Add(account);
             await _uow.SaveAsync();
 
-            return new ResponseViewModel {Success = true, Message = "Create successful"};
+            return new ResponseViewModel<Guid> {Success = true, Message = "Create successful", Payload = account.Id};
         }
         catch (Exception e)
         {

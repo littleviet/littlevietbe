@@ -56,7 +56,7 @@ internal class CouponDomain : BaseDomain, ICouponDomain
         coupon.CurrentQuantity = createCouponViewModel.Quantity;
         coupon.InitialQuantity = createCouponViewModel.Quantity;
 
-        await using var transaction = _uow.BeginTransation();
+        await using var transaction = _uow.BeginTransaction();
 
         try
         {
@@ -110,7 +110,7 @@ internal class CouponDomain : BaseDomain, ICouponDomain
     
     public async Task<ResponseViewModel> HandleSuccessfulCouponPurchase(Guid couponId, string stripeSessionId)
     {
-        await using var transaction = _uow.BeginTransation();
+        await using var transaction = _uow.BeginTransaction();
 
         try
         {
@@ -160,7 +160,7 @@ internal class CouponDomain : BaseDomain, ICouponDomain
 
     public async Task<ResponseViewModel> RedeemCoupon(string couponCode, uint usage)
     {
-        await using var transaction = _uow.BeginTransation();
+        await using var transaction = _uow.BeginTransaction();
 
         try
         {
@@ -381,14 +381,14 @@ internal class CouponDomain : BaseDomain, ICouponDomain
         var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         var random = new Random();
 
-        var head = firstName.Substring(0, 3).ToUpper();
+        var head = firstName.Substring(0, 3).ToUpper(CultureInfo.InvariantCulture);
 
         var subHead = new string(
             Enumerable.Repeat(chars, 4)
                 .Select(s => s[random.Next(s.Length)])
                 .ToArray());
 
-        var dateTimeBody = DateTime.UtcNow.ToString("yyMMdd-HHmmss");
+        var dateTimeBody = DateTime.UtcNow.ToString("yyMMdd-HHmmss", CultureInfo.InvariantCulture);
 
         return string.Join("-", head, subHead, dateTimeBody);
     }
