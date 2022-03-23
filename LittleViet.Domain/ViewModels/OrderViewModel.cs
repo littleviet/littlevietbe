@@ -43,6 +43,7 @@ public class OrderDetailsViewModel
     public PaymentType PaymentType { get; set; }
     public string StripeSessionUrl { get; set; }
     public DateTime PickupTime { get; set; }
+    public OrderStatus OrderStatus { get; set; }
     public bool IsDeleted { get; set; }
     public DateTime? CreatedDate { get; set; }
     public Guid CreatedBy { get; set; }
