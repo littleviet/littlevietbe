@@ -5,16 +5,13 @@ using LittleViet.Infrastructure.Email.Models;
 
 namespace LittleViet.Infrastructure.Email.Service;
 
-public class TemplateService : ITemplateService
+internal class TemplateService : ITemplateService
 {
-    public async Task<string> GetTemplateEmail(EmailTemplates.EmailTemplate template)
-    {
-        var location = Assembly.GetExecutingAssembly().Location;
-        return await File.ReadAllTextAsync(Path.Combine(
+    public async Task<string> GetTemplateEmail(EmailTemplates.EmailTemplate template) =>
+        await File.ReadAllTextAsync(Path.Combine(
             Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
             EmailSettings.TemplateFolder,
             template.TemplateName));
-    }
 
     public async Task<string> FillTemplate(EmailTemplates.EmailTemplate template, Dictionary<string, string> values)
     {

@@ -1,23 +1,24 @@
 ﻿using LittleViet.Infrastructure.Azure.AzureBlobStorage.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace LittleViet.Infrastructure.Azure.AzureBlobStorage.Service;
 
-public class BlobProductImageService : BaseBlobService, IBlobProductImageService
+internal class BlobProductImageService : BaseBlobService, IBlobProductImageService
 {
+    private readonly AzureSettings _azureSettings;
     private string _connectionString;
-    private readonly IConfiguration _configuration;
-    public BlobProductImageService(IConfiguration configuration)
+    public BlobProductImageService(IConfiguration configuration, IOptions<AzureSettings> azureSettings)
     {
-        _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
-        _connectionString = _configuration["ConnectionStrings:LittleVietContainer"];
+        _azureSettings = azureSettings.Value;
+        _connectionString = configuration?.GetConnectionString("LittleVietContainer") ?? throw new ArgumentNullException(nameof(configuration));
     }
 
     public async Task<List<string>> CreateProductImages(List<IFormFile> productImages)
     {
 
-        var blobContainer = await GetBlobContainer(_connectionString, "products");
+        var blobContainer = await GetBlobContainer(_connectionString, _azureSettings.BlobStorageSettings.ProductImageContainer);
         var imageLinks = new List<string>();
 
         foreach (var image in productImages)

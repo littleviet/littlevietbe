@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 
 namespace LittleViet.Infrastructure.Stripe.Service;
 
-public class BaseStripeService : IBaseStripeService
+internal class BaseStripeService : IBaseStripeService
 {
     protected readonly StripeSettings _stripeSettings;
 

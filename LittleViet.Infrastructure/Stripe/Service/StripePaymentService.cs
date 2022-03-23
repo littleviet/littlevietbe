@@ -6,7 +6,7 @@ using Stripe.Checkout;
 
 namespace LittleViet.Infrastructure.Stripe.Service;
 
-public class StripePaymentService : BaseStripeService, IStripePaymentService
+internal class StripePaymentService : BaseStripeService, IStripePaymentService
 {
     private readonly SessionService _sessionService;
 

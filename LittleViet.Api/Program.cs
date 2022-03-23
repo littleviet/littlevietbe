@@ -62,7 +62,7 @@ try
         .AddApplicationSwagger()
         .AddHttpContextAccessor()
         .AddAppJwtAuthentication(builder.Configuration)
-        .ConfigureLegacy()
+        .AddLegacyDi()
         .ConfigureStripe(builder.Configuration);
 
     var app = builder.Build();

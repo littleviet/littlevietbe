@@ -10,7 +10,7 @@ using SmtpClient = MailKit.Net.Smtp.SmtpClient;
 
 namespace LittleViet.Infrastructure.Email.Service;
 
-public class EmailService : IEmailService
+internal class EmailService : IEmailService
 {
     private readonly EmailSettings _emailSettings;
     private readonly ITemplateService _templateService;

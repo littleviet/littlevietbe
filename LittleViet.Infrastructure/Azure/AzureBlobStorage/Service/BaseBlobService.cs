@@ -3,36 +3,23 @@ using LittleViet.Infrastructure.Azure.AzureBlobStorage.Interface;
 
 namespace LittleViet.Infrastructure.Azure.AzureBlobStorage.Service;
 
-public class BaseBlobService : IBaseBlobService
+internal class BaseBlobService : IBaseBlobService
 {
-    public BaseBlobService()
-    {
-    }
 
     public async Task<BlobContainerClient> GetBlobContainer(string connectionString, string containerName)
     {
-        BlobServiceClient blobServiceClient = new BlobServiceClient(connectionString);
+        var blobServiceClient = new BlobServiceClient(connectionString);
 
-        var blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName);
-
-        if(blobContainerClient == null)
-        {
-            blobContainerClient = await blobServiceClient.CreateBlobContainerAsync(containerName);
-        }
+        var blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName) ?? await blobServiceClient.CreateBlobContainerAsync(containerName);
 
         return blobContainerClient;
     }
 
     public async Task<bool> IsExist(BlobContainerClient blobContainerClient, string blobPath)
     {
-        BlobClient blobClient = blobContainerClient.GetBlobClient(blobPath);
+        var blobClient = blobContainerClient.GetBlobClient(blobPath);
 
-        if (!await blobClient.ExistsAsync())
-        {
-            return false;
-        }
-
-        return true;
+        return (await blobClient.ExistsAsync()).Value;
     }
 
     public async Task UploadFileToBlobAsync(BlobContainerClient blobContainerClient, string blobName, Stream filePath)

@@ -4,4 +4,11 @@ public class AzureSettings
 {
     public const string ConfigSection = "Azure";
     public string AppInsightsKey { get; set; }
+    
+    public AzureBlobStorageSettings BlobStorageSettings { get; set; }
+}
+
+public class AzureBlobStorageSettings
+{
+    public string ProductImageContainer { get; set; } = "products";
 }

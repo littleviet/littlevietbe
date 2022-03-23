@@ -6,7 +6,7 @@ using Stripe;
 
 namespace LittleViet.Infrastructure.Stripe.Service;
 
-public class StripeProductService : BaseStripeService, IStripeProductService
+internal class StripeProductService : BaseStripeService, IStripeProductService
 {
     private readonly ProductService _productService;
 

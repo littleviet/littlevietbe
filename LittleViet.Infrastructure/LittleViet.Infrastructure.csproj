@@ -30,10 +30,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="Email\Models\Templates\reservation-success.html" />
-    </ItemGroup>
-
-    <ItemGroup>
       <Content Include="Email\Templates\coupon-buying-success.html">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
