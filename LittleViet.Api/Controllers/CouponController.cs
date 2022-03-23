@@ -20,7 +20,6 @@ public class CouponController : BaseController
         _couponDomain = couponDomain ?? throw new ArgumentNullException(nameof(couponDomain));
     }
 
-    [Authorize]
     [HttpPost("")]
     public async Task<IActionResult> Create(CreateCouponViewModel createCouponViewModel)
     {
