@@ -4,22 +4,24 @@ using LittleViet.Data.ViewModels;
 
 namespace LittleViet.Data.Domains.Products;
 
-public class CreateProductViewModelValidator : AbstractValidator<CreateProductViewModel> 
+public class CreateProductViewModelValidator : AbstractValidator<CreateProductViewModel>
 {
-    public CreateProductViewModelValidator() 
+    public CreateProductViewModelValidator()
     {
         RuleFor(x => x.Description).NotEmpty();
         RuleFor(x => x.Name).Length(2, 100);
         RuleFor(x => x.Status).IsInEnum();
         RuleFor(x => x.CaName).Length(2, 100);
         RuleFor(x => x.EsName).Length(2, 100);
-        RuleFor(x => x.MainImage).GreaterThanOrEqualTo(0);
+        RuleFor(x => x.MainImage)
+            .LessThan(x => x.ProductImages.Count)
+            .GreaterThanOrEqualTo(0);
         RuleFor(x => x.ProductTypeId).NotEmpty();
         RuleForEach(x => x.ProductImages).NotEmpty();
     }
 }
 
-public class UpdateProductViewModelValidator : AbstractValidator<UpdateProductViewModel> 
+public class UpdateProductViewModelValidator : AbstractValidator<UpdateProductViewModel>
 {
     public UpdateProductViewModelValidator()
     {
@@ -33,7 +35,7 @@ public class UpdateProductViewModelValidator : AbstractValidator<UpdateProductVi
     }
 }
 
-public class GetListProductParametersValidator : AbstractValidator<GetListProductParameters> 
+public class GetListProductParametersValidator : AbstractValidator<GetListProductParameters>
 {
     public GetListProductParametersValidator()
     {

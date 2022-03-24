@@ -8,7 +8,7 @@ namespace LittleViet.Infrastructure.Azure.AzureBlobStorage.Service;
 internal class BlobProductImageService : BaseBlobService, IBlobProductImageService
 {
     private readonly AzureSettings _azureSettings;
-    private string _connectionString;
+    private readonly string _connectionString;
     public BlobProductImageService(IConfiguration configuration, IOptions<AzureSettings> azureSettings)
     {
         _azureSettings = azureSettings.Value;
@@ -25,8 +25,8 @@ internal class BlobProductImageService : BaseBlobService, IBlobProductImageServi
         {
             if (image.Length > 0)
             {
-                string file_Extension = Path.GetExtension(image.FileName);
-                string filename = Guid.NewGuid() + "" + (!string.IsNullOrEmpty(file_Extension) ? file_Extension : ".jpg");
+                var file_Extension = Path.GetExtension(image.FileName);
+                var filename = Guid.NewGuid() + (!string.IsNullOrEmpty(file_Extension) ? file_Extension : ".jpg");
 
                 await UploadFileToBlobAsync(blobContainer, filename, image.OpenReadStream());
 
