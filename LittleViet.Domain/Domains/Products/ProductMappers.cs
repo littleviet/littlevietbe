@@ -13,8 +13,10 @@ public class ProductMappers : Profile
                 .ForMember(x => x.ProductImages, y => y.Ignore())
                 .ReverseMap();
             CreateMap<Product, UpdateProductViewModel>().ReverseMap();
-            CreateMap<Product, ProductsLandingPageViewModel>().ReverseMap();
-            CreateMap<Product, ProductDetailsViewModel>().ReverseMap();
+            CreateMap<Product, MenuProductItemLandingPageViewModel>().ReverseMap();
+            CreateMap<Product, ProductDetailsViewModel>().ReverseMap();            
+            CreateMap<Product, PackagedProductViewModel>().ReverseMap();
+
             
             CreateMap<ProductImage, GenericProductImageViewModel>().ReverseMap();
 

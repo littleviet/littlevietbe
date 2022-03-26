@@ -4,15 +4,15 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LittleViet.Data.ViewModels;
 
-internal class ProductLandingPageViewModel
+public class MenuProductTypeLandingPageViewModel
 {
     public string Name { get; set; }
     public string CaName { get; set; }
     public string EsName { get; set; }
-    public List<ProductsLandingPageViewModel> Products { get; set; }
+    public List<MenuProductItemLandingPageViewModel> Products { get; set; }
 }
 
-internal class ProductsLandingPageViewModel
+public class MenuProductItemLandingPageViewModel
 {
     public string Name { get; set; }
     public string EsName { get; set; }

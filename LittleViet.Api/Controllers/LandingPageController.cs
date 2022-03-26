@@ -15,11 +15,11 @@ public class LandingPageController : BaseController
     }
 
     [HttpGet("products")]
-    public IActionResult GetProducts()
+    public async Task<IActionResult> GetProducts()
     {
         try
         {
-            var result = _landingPageDomain.GetCatalogForLandingPage();
+            var result = await _landingPageDomain.GetCatalogForLandingPage();
             return Ok(result);
         }
         catch (Exception e)

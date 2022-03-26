@@ -8,7 +8,7 @@ public class BaseDomain
 
     protected BaseDomain(IUnitOfWork uow)
     {
-        _uow = uow;
+        _uow = uow ?? throw new ArgumentNullException(nameof(uow));
     }
 }
 

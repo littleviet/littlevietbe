@@ -9,7 +9,7 @@ public class ProductTypeMappers : Profile
     {
             CreateMap<Models.ProductType, CreateProductTypeViewModel>().ReverseMap();
             CreateMap<Models.ProductType, UpdateProductTypeViewModel>().ReverseMap();
-            CreateMap<Models.ProductType, ProductLandingPageViewModel>().ReverseMap();
+            CreateMap<Models.ProductType, MenuProductTypeLandingPageViewModel>().ReverseMap();
             CreateMap<Models.ProductType, ProductTypeDetailsViewModel>().ReverseMap();
             CreateMap<Models.ProductType, GenericProductTypeViewModel>().ReverseMap();
     }

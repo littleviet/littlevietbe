@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using LittleViet.Data.Domains.ProductType;
 using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.Azure.AzureBlobStorage.Interface;

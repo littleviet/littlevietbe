@@ -86,3 +86,12 @@ public class ProductDetailsViewModel
     public Guid UpdatedBy { get; set; }
 }
 
+public class PackagedProductViewModel
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public string EsName { get; set; }
+    public string CaName { get; set; }
+    public string Description { get; set; }
+}
+
