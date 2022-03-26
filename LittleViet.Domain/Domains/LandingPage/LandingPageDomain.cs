@@ -30,11 +30,11 @@ internal class LandingPageDomain : BaseDomain, ILandingPageDomain
     {
         try
         {
-            var productTypes = await _productTypeRepository.DbSet()
-                    .Include(t => t.Products.Where(p => p.IsDeleted == false))
-                    .ThenInclude(p => p.Servings)
-                    .Where(pt => pt.Products.Any(p => p.Servings.Any()))
-                    .AsNoTracking().ToListAsync();
+            var productTypes = _productTypeRepository.DbSet()
+                .Include(t => t.Products.Where(p => p.IsDeleted == false))
+                .ThenInclude(p => p.Servings)
+                .Where(pt => pt.Products.Any(p => p.Servings.Any()) && pt.Id != Constants.PackagedProductTypeId)
+                .AsNoTracking();
 
             var packagedProducts = _productRepository.DbSet()
                 .Where(x => x.ProductTypeId == Constants.PackagedProductTypeId);
@@ -42,21 +42,21 @@ internal class LandingPageDomain : BaseDomain, ILandingPageDomain
             var result = new LandingPageViewModel()
             {
                 MenuProducts =
-                    productTypes
-                    .Select(pt => new MenuProductTypeLandingPageViewModel
-                    {
-                        CaName = pt.CaName,
-                        EsName = pt.EsName,
-                        Name = pt.Name,
-                        Products = pt.Products.Where(p => p.Servings.Any())
-                            .Select(p => new MenuProductItemLandingPageViewModel
-                            {
-                                CaName = p.CaName,
-                                EsName = p.EsName,
-                                Name = p.Name,
-                                Price = p.Servings.Min(s => s.Price),
-                            }).ToList()
-                    }).ToList(),
+                    await productTypes
+                        .Select(pt => new MenuProductTypeLandingPageViewModel
+                        {
+                            CaName = pt.CaName,
+                            EsName = pt.EsName,
+                            Name = pt.Name,
+                            Products = pt.Products.Where(p => p.Servings.Any())
+                                .Select(p => new MenuProductItemLandingPageViewModel
+                                {
+                                    CaName = p.CaName,
+                                    EsName = p.EsName,
+                                    Name = p.Name,
+                                    Price = p.Servings.Min(s => s.Price),
+                                }).ToList()
+                        }).ToListAsync(),
                 PackagedProducts =
                     _mapper.Map<List<PackagedProductViewModel>>((await packagedProducts.ToListAsync()))
             };
