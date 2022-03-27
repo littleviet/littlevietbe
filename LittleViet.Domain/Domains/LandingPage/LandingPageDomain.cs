@@ -36,7 +36,9 @@ internal class LandingPageDomain : BaseDomain, ILandingPageDomain
                 .Where(pt => pt.Products.Any(p => p.Servings.Any()) && pt.Id != Constants.PackagedProductTypeId)
                 .AsNoTracking();
 
-            var packagedProducts = _productRepository.DbSet()
+            var packagedProducts = _productRepository
+                .DbSet()
+                .Include(x => x.ProductImages.Where(i => i.IsMain))
                 .Where(x => x.ProductTypeId == Constants.PackagedProductTypeId);
 
             var result = new LandingPageViewModel()
@@ -58,7 +60,19 @@ internal class LandingPageDomain : BaseDomain, ILandingPageDomain
                                 }).ToList()
                         }).ToListAsync(),
                 PackagedProducts =
-                    _mapper.Map<List<PackagedProductViewModel>>((await packagedProducts.ToListAsync()))
+                    await packagedProducts
+                        .Select(x =>
+                            new PackagedProductViewModel()
+                            {
+                                Description = x.Description,
+                                Id = x.Id,
+                                Name = x.Name,
+                                CaName = x.CaName,
+                                EsName = x.EsName,
+                                ImageUrl =
+                                    x.ProductImages.Where(pm => pm.IsMain).Select(pm => pm.Url).SingleOrDefault(),
+                            }
+                        ).ToListAsync(),
             };
 
             return new ResponseViewModel<LandingPageViewModel>

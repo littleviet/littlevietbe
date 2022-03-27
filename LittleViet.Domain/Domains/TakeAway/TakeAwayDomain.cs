@@ -9,6 +9,7 @@ public interface ITakeAwayDomain
 {
     Task<ResponseViewModel<GetListProductViewModel>> GetMenuForTakeAway();
 }
+
 internal class TakeAwayDomain : BaseDomain, ITakeAwayDomain
 {
     private readonly IProductRepository _productRepository;
@@ -52,7 +53,7 @@ internal class TakeAwayDomain : BaseDomain, ITakeAwayDomain
                             Price = s.Price,
                             NumberOfPeople = s.NumberOfPeople,
                         }).ToList(),
-                        ImageUrl = p.ProductImages.Select(pm => pm.Url).FirstOrDefault(),
+                        ImageUrl = p.ProductImages.Where(pm => pm.IsMain).Select(pm => pm.Url).SingleOrDefault(),
                     }).ToListAsync()),
                 Success = true,
                 Total = await products.CountAsync(),
@@ -62,8 +63,7 @@ internal class TakeAwayDomain : BaseDomain, ITakeAwayDomain
         }
         catch (Exception e)
         {
-            return new BaseListResponseViewModel<GetListProductViewModel> { Success = false, Message = e.Message };
+            return new BaseListResponseViewModel<GetListProductViewModel> {Success = false, Message = e.Message};
         }
     }
 }
-
