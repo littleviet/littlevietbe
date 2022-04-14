@@ -8,12 +8,13 @@ public static class EmailTemplates
         public string SubjectName { get; init; }
         public IEnumerable<string> Keys { get; init; }
     }
-    
-    public static readonly EmailTemplate ReservationSuccess = new ()
-    {
-        TemplateName = "reservation-success.html",
-        SubjectName = "Reservation successful at Little Viet",
-        Keys = new HashSet<string>()
+
+    public static EmailTemplate ReservationSuccess =>
+        new()
+        {
+            TemplateName = "reservation-success.html",
+            SubjectName = "Reservation successful at Little Viet",
+            Keys = new HashSet<string>()
         {
             "name",
             "time",
@@ -21,13 +22,14 @@ public static class EmailTemplates
             "phone-number",
             "reservation-id",
         }
-    };
-    
-    public static readonly EmailTemplate CouponPurchaseSuccess = new ()
-    {
-        TemplateName = "coupon-buying-success.html",
-        SubjectName = "Coupon purchase at Little Viet",
-        Keys = new HashSet<string>()
+        };
+
+    public static EmailTemplate CouponPurchaseSuccess =>
+        new()
+        {
+            TemplateName = "coupon-buying-success.html",
+            SubjectName = "Coupon purchase at Little Viet",
+            Keys = new HashSet<string>()
         {
             "name",
             "time",
@@ -38,13 +40,14 @@ public static class EmailTemplates
             "email",
             "coupon-code",
         }
-    };
-    
-    public static readonly EmailTemplate CouponRedemptionSuccess = new ()
-    {
-        TemplateName = "coupon-usage-success.html",
-        SubjectName = "Coupon redeemed at Little Viet",
-        Keys = new HashSet<string>()
+        };
+
+    public static EmailTemplate CouponRedemptionSuccess =>
+        new()
+        {
+            TemplateName = "coupon-usage-success.html",
+            SubjectName = "Coupon redeemed at Little Viet",
+            Keys = new HashSet<string>()
         {
             "name",
             "usage",
@@ -57,5 +60,35 @@ public static class EmailTemplates
             "email",
             "coupon-code",
         }
-    };
+        };
+
+    public static EmailTemplate NewReservation =>
+        new()
+        {
+            TemplateName = "new-reservation.html",
+            SubjectName = "New reservation at Little Viet",
+            Keys = new HashSet<string>()
+        {
+            "name",
+            "time",
+            "no-of-people",
+            "phone-number",
+            "reservation-id",
+        }
+        };
+
+    public static EmailTemplate TakeAwaySuccess =>
+        new()
+        {
+            TemplateName = "reservation-success.html",
+            SubjectName = "Reservation successful at Little Viet",
+            Keys = new HashSet<string>()
+        {
+            "name",
+            "time",
+            "price",
+            "payment-type",
+            "phone-number",
+        }
+        };
 }

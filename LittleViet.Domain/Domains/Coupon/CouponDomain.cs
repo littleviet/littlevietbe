@@ -328,7 +328,7 @@ internal class CouponDomain : BaseDomain, ICouponDomain
         try
         {
             var keyword = parameters.Keyword.ToLower();
-            var coupons = _couponRepository.DbSet().AsNoTracking()
+            var coupons = _couponRepository.DbSet().AsNoTracking().Include(c => c.CouponType)
                 .Where(p => p.CouponCode.ToLower().Contains(keyword) || p.Email.ToLower().Contains(keyword) ||
                             p.PhoneNumber.ToLower().Contains(keyword));
 
@@ -345,6 +345,7 @@ internal class CouponDomain : BaseDomain, ICouponDomain
                         Email = q.Email,
                         PhoneNumber = q.PhoneNumber,
                         Status = q.Status,
+                        Amount = q.CouponType.Value
                     })
                     .ToListAsync(),
                 Success = true,

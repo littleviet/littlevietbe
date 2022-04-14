@@ -8,6 +8,11 @@ using LittleViet.Infrastructure.Stripe.Interface;
 using LittleViet.Infrastructure.Stripe.Models;
 using Microsoft.EntityFrameworkCore;
 using Stripe;
+using LittleViet.Infrastructure.Email.Models;
+using LittleViet.Infrastructure.Email.Interface;
+using LittleViet.Infrastructure.Email;
+using Microsoft.Extensions.Options;
+using System.Globalization;
 
 namespace LittleViet.Data.Domains.Order;
 
@@ -30,15 +35,22 @@ internal class OrderDomain : BaseDomain, IOrderDomain
     private readonly IOrderDetailRepository _orderDetailRepository;
     private readonly IStripePaymentService _stripePaymentService;
     private readonly IMapper _mapper;
+    private readonly IEmailService _emailService;
+    private readonly ITemplateService _templateService;
+    private readonly EmailSettings _emailSettings;
 
     public OrderDomain(IUnitOfWork uow, IOrderRepository orderRepository, IOrderDetailRepository orderDetailRepository,
-        IMapper mapper, IStripePaymentService stripePaymentService) : base(uow)
+        IMapper mapper, IStripePaymentService stripePaymentService, IEmailService emailService
+        , ITemplateService templateService, IOptions<EmailSettings> emailSettings) : base(uow)
     {
         _orderRepository = orderRepository ?? throw new ArgumentNullException(nameof(orderRepository));
         _orderDetailRepository =
             orderDetailRepository ?? throw new ArgumentNullException(nameof(orderDetailRepository));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _stripePaymentService = stripePaymentService ?? throw new ArgumentNullException(nameof(stripePaymentService));
+        _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
+        _templateService = templateService ?? throw new ArgumentNullException(nameof(templateService));
+        _emailSettings = emailSettings.Value ?? throw new ArgumentNullException(nameof(emailSettings));
     }
 
     public async Task<ResponseViewModel> Create(CreateOrderViewModel createOrderViewModel)
@@ -226,6 +238,7 @@ internal class OrderDomain : BaseDomain, IOrderDomain
 
     public async Task<ResponseViewModel> PickupTakeAwayOrder(Guid orderId)
     {
+        await using var transaction = _uow.BeginTransaction();
         try
         {
             var order = await _orderRepository.GetById(orderId);
@@ -237,11 +250,31 @@ internal class OrderDomain : BaseDomain, IOrderDomain
                 throw new Exception($"Order of Id {order.Id} is not a Take Away Order");
 
             order.OrderStatus = OrderStatus.PickedUp;
+
+            var body = await _templateService.FillTemplate(EmailTemplates.CouponRedemptionSuccess, new Dictionary<string, string>()
+            {
+                {"name", _emailSettings.AdminName},
+                {"time", DateTime.UtcNow.ToString("hh:mm:ss MM/dd/yyyy", CultureInfo.InvariantCulture)},
+                {"price", order.TotalPrice.ToString("€00.00")},
+                {"payment-type", order.PaymentType.ToString()},
+                {"phone-number", order.Account.PhoneNumber1 ?? order.Account.PhoneNumber2},
+
+            });
+
+            await _emailService.SendEmailAsync(
+                body: body,
+                toName: _emailSettings.AdminName,
+                toAddress: _emailSettings.AdminEmailAddress,
+                subject: EmailTemplates.CouponPurchaseSuccess.SubjectName
+            );
+
             await _uow.SaveAsync();
+            await transaction.CommitAsync();
             return new ResponseViewModel {Success = true};
         }
         catch (Exception e)
         {
+            await transaction.RollbackAsync();
             throw;
         }
     }

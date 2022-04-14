@@ -7,6 +7,8 @@ using LittleViet.Infrastructure.Email.Models;
 using LittleViet.Infrastructure.EntityFramework;
 using static LittleViet.Infrastructure.EntityFramework.SqlHelper;
 using Microsoft.EntityFrameworkCore;
+using LittleViet.Infrastructure.Email;
+using Microsoft.Extensions.Options;
 
 namespace LittleViet.Data.Domains.Reservations;
 
@@ -27,15 +29,17 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
     private readonly IMapper _mapper;
     private readonly IEmailService _emailService;
     private readonly ITemplateService _templateService;
+    private readonly EmailSettings _emailSettings;
 
     public ReservationDomain(IUnitOfWork uow, IReservationRepository reservationRepository, IMapper mapper,
-        ITemplateService templateService, IEmailService emailService) : base(uow)
+        ITemplateService templateService, IEmailService emailService, IOptions<EmailSettings> emailSettings) : base(uow)
     {
         _reservationRepository =
             reservationRepository ?? throw new ArgumentNullException(nameof(reservationRepository));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _templateService = templateService ?? throw new ArgumentNullException(nameof(templateService));
         _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
+        _emailSettings = emailSettings.Value ?? throw new ArgumentNullException(nameof(emailSettings));
     }
 
     public async Task<ResponseViewModel<Guid>> Create(CreateReservationViewModel createReservationViewModel)
@@ -54,19 +58,40 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
                 _reservationRepository.Add(reservation);
                 await _uow.SaveAsync();
 
-                var template = await _templateService.GetTemplateEmail(EmailTemplates.ReservationSuccess);
+                var reservationSuccessTemplate = await _templateService.GetTemplateEmail(EmailTemplates.ReservationSuccess);
 
-                var body = template
-                    .Replace("{name}", createReservationViewModel.FirstName)
-                    .Replace("{time}", createReservationViewModel.BookingDate.ToString("hh:mm:ss MM/dd/yyyy"))
-                    .Replace("{no-of-people}", createReservationViewModel.NoOfPeople.ToString())
-                    .Replace("{phone-number}", createReservationViewModel.PhoneNumber)
-                    .Replace("{reservation-id}", reservation.Id.ToString());
+
+                var reservationSuccessBody = await _templateService.FillTemplate(EmailTemplates.ReservationSuccess,
+                    new Dictionary<string, string>()
+                    {
+                        { "name", createReservationViewModel.FirstName},
+                        { "time", createReservationViewModel.BookingDate.ToString("hh:mm:ss MM/dd/yyyy") },
+                        { "no-of-people", createReservationViewModel.NoOfPeople.ToString()},
+                        { "phone-number", createReservationViewModel.PhoneNumber},
+                        { "reservation-id", reservation.Id.ToString()}
+                    });
 
                 await _emailService.SendEmailAsync(
-                    body: body,
+                    body: reservationSuccessBody,
                     toName: createReservationViewModel.FirstName,
                     toAddress: createReservationViewModel.Email,
+                    subject: EmailTemplates.ReservationSuccess.SubjectName
+                );
+
+                var newReservationBody = await _templateService.FillTemplate(EmailTemplates.ReservationSuccess,
+                    new Dictionary<string, string>()
+                    {
+                        { "name", _emailSettings.AdminName},
+                        { "time", createReservationViewModel.BookingDate.ToString("hh:mm:ss MM/dd/yyyy") },
+                        { "no-of-people", createReservationViewModel.NoOfPeople.ToString()},
+                        { "phone-number", createReservationViewModel.PhoneNumber},
+                        { "reservation-id", reservation.Id.ToString()}
+                    });
+
+                await _emailService.SendEmailAsync(
+                    body: newReservationBody,
+                    toName: _emailSettings.AdminName,
+                    toAddress: _emailSettings.AdminEmailAddress,
                     subject: EmailTemplates.ReservationSuccess.SubjectName
                 );
 
@@ -79,11 +104,11 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
             }
 
             return new ResponseViewModel<Guid>
-                {Success = true, Message = "Create successful", Payload = reservation.Id};
+            { Success = true, Message = "Create successful", Payload = reservation.Id };
         }
         catch (Exception e)
         {
-            return new ResponseViewModel<Guid> {Success = false, Message = e.Message};
+            return new ResponseViewModel<Guid> { Success = false, Message = e.Message };
         }
     }
 
@@ -94,7 +119,7 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
             var existedReservation = await _reservationRepository.GetById(updateReservationViewModel.Id);
 
             if (existedReservation == null)
-                return new ResponseViewModel {Success = false, Message = "This reservation does not exist"};
+                return new ResponseViewModel { Success = false, Message = "This reservation does not exist" };
 
             existedReservation.Firstname = updateReservationViewModel.FirstName;
             existedReservation.Lastname = updateReservationViewModel.LastName;
@@ -108,11 +133,11 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
 
             _reservationRepository.Modify(existedReservation);
             await _uow.SaveAsync();
-            return new ResponseViewModel {Success = true, Message = "Update successful"};
+            return new ResponseViewModel { Success = true, Message = "Update successful" };
         }
         catch (Exception e)
         {
-            return new ResponseViewModel {Success = false, Message = e.Message};
+            return new ResponseViewModel { Success = false, Message = e.Message };
         }
     }
 
@@ -123,16 +148,16 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
             var reservation = await _reservationRepository.GetById(id);
 
             if (reservation == null)
-                return new ResponseViewModel {Success = false, Message = "This reservation does not exist"};
+                return new ResponseViewModel { Success = false, Message = "This reservation does not exist" };
 
             _reservationRepository.Deactivate(reservation);
             await _uow.SaveAsync();
 
-            return new ResponseViewModel {Success = true, Message = "Deactivate successful"};
+            return new ResponseViewModel { Success = true, Message = "Deactivate successful" };
         }
         catch (Exception e)
         {
-            return new ResponseViewModel {Success = false, Message = e.Message};
+            return new ResponseViewModel { Success = false, Message = e.Message };
         }
     }
 
@@ -145,7 +170,7 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
                 .WhereIf(!string.IsNullOrEmpty(parameters.Email),
                     ContainsIgnoreCase<Reservation>(nameof(Reservation.Email), parameters.Email))
                 .WhereIf(!string.IsNullOrEmpty(parameters.FullName),
-                    ContainsIgnoreCase<Reservation>(new[] {nameof(Reservation.Firstname), nameof(Reservation.Lastname)},
+                    ContainsIgnoreCase<Reservation>(new[] { nameof(Reservation.Firstname), nameof(Reservation.Lastname) },
                         parameters.FullName))
                 .WhereIf(!string.IsNullOrEmpty(parameters.FurtherRequest),
                     ContainsIgnoreCase<Reservation>(nameof(Reservation.FurtherRequest), parameters.FurtherRequest))
@@ -183,7 +208,7 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
         }
         catch (Exception e)
         {
-            return new BaseListResponseViewModel {Success = false, Message = e.Message};
+            return new BaseListResponseViewModel { Success = false, Message = e.Message };
         }
     }
 
@@ -197,12 +222,12 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
             await _uow.SaveAsync();
 
             return reservation == null
-                ? new ResponseViewModel {Success = false, Message = "This reservation does not exist"}
-                : new ResponseViewModel {Success = true};
+                ? new ResponseViewModel { Success = false, Message = "This reservation does not exist" }
+                : new ResponseViewModel { Success = true };
         }
         catch (Exception e)
         {
-            return new ResponseViewModel {Success = false, Message = e.Message};
+            return new ResponseViewModel { Success = false, Message = e.Message };
         }
     }
 
@@ -214,12 +239,12 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
             var reservationDetails = _mapper.Map<ReservationDetailsViewModel>(reservation);
 
             return reservation == null
-                ? new ResponseViewModel {Success = false, Message = "This reservation does not exist"}
-                : new ResponseViewModel {Success = true, Payload = reservationDetails};
+                ? new ResponseViewModel { Success = false, Message = "This reservation does not exist" }
+                : new ResponseViewModel { Success = true, Payload = reservationDetails };
         }
         catch (Exception e)
         {
-            return new ResponseViewModel {Success = false, Message = e.Message};
+            return new ResponseViewModel { Success = false, Message = e.Message };
         }
     }
 }
