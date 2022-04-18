@@ -127,8 +127,6 @@ internal class CouponDomain : BaseDomain, ICouponDomain
 
             await _uow.SaveAsync();
 
-            var template = await _templateService.GetTemplateEmail(EmailTemplates.CouponPurchaseSuccess);
-
             var body = await _templateService.FillTemplate(EmailTemplates.CouponPurchaseSuccess, new Dictionary<string, string>()
             {
                 { "name", coupon.FirstName},
