@@ -78,7 +78,7 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
                     subject: EmailTemplates.ReservationSuccess.SubjectName
                 );
 
-                var newReservationBody = await _templateService.FillTemplate(EmailTemplates.ReservationSuccess,
+                var newReservationBody = await _templateService.FillTemplate(EmailTemplates.NewReservation,
                     new Dictionary<string, string>()
                     {
                         { "name", _emailSettings.AdminName},

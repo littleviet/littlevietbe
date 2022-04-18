@@ -8,6 +8,8 @@
     "FromAddress": "eslittleviet@gmail.com",
     "FromName": "Little Viet",
     "Password": "",
-    "Timeout": 20000
+    "Timeout": 20000,
+    "AdminEmailAddress": "",
+    "AdminName": ""
   }
 }

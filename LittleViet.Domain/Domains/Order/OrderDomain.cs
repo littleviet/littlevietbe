@@ -251,7 +251,7 @@ internal class OrderDomain : BaseDomain, IOrderDomain
 
             order.OrderStatus = OrderStatus.PickedUp;
 
-            var body = await _templateService.FillTemplate(EmailTemplates.CouponRedemptionSuccess, new Dictionary<string, string>()
+            var body = await _templateService.FillTemplate(EmailTemplates.TakeAwaySuccess, new Dictionary<string, string>()
             {
                 {"name", _emailSettings.AdminName},
                 {"time", DateTime.UtcNow.ToString("hh:mm:ss MM/dd/yyyy", CultureInfo.InvariantCulture)},

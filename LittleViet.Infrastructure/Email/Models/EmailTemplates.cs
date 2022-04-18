@@ -80,8 +80,8 @@ public static class EmailTemplates
     public static EmailTemplate TakeAwaySuccess =>
         new()
         {
-            TemplateName = "reservation-success.html",
-            SubjectName = "Reservation successful at Little Viet",
+            TemplateName = "take-away-success.html",
+            SubjectName = "Take away successful at Little Viet",
             Keys = new HashSet<string>()
         {
             "name",
