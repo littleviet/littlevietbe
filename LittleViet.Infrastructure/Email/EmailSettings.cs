@@ -17,4 +17,6 @@ public class EmailSettings
     public string FromName { get; set; }
     public string Password { get; set; }
     public int Timeout { get; set; } = 20000;
+    public string AdminEmailAddress { get; set; }
+    public string AdminName { get; set; }
 }

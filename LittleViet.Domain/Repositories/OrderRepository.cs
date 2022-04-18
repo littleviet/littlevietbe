@@ -18,6 +18,7 @@ internal class OrderRepository : BaseRepository<Order>, IOrderRepository
         return DbSet()
             .Include(o => o.OrderDetails)
                 .ThenInclude(od => od.Serving)
+                .Include(a => a.Account)
             .FirstOrDefaultAsync(q => q.Id == id);
     }
 }

@@ -45,7 +45,7 @@ internal class CouponDomain : BaseDomain, ICouponDomain
         _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
         _templateService = templateService ?? throw new ArgumentNullException(nameof(templateService));
     }
-    
+
     public async Task<ResponseViewModel> CreateCoupon(CreateCouponViewModel createCouponViewModel)
     {
         var coupon = _mapper.Map<Models.Coupon>(createCouponViewModel);
@@ -67,7 +67,7 @@ internal class CouponDomain : BaseDomain, ICouponDomain
 
             var stripeSessionDto = new CreateSessionDto()
             {
-                Metadata = new() {{Infrastructure.Stripe.Payment.CouponCheckoutMetaDataKey, couponGuid.ToString()}},
+                Metadata = new() { { Infrastructure.Stripe.Payment.CouponCheckoutMetaDataKey, couponGuid.ToString() } },
                 SessionItems = new List<SessionItem>()
                 {
                     new()
@@ -107,7 +107,7 @@ internal class CouponDomain : BaseDomain, ICouponDomain
             throw;
         }
     }
-    
+
     public async Task<ResponseViewModel> HandleSuccessfulCouponPurchase(Guid couponId, string stripeSessionId)
     {
         await using var transaction = _uow.BeginTransaction();
@@ -127,17 +127,17 @@ internal class CouponDomain : BaseDomain, ICouponDomain
 
             await _uow.SaveAsync();
 
-            var template = await _templateService.GetTemplateEmail(EmailTemplates.CouponPurchaseSuccess);
-
-            var body = template
-                .Replace("{name}", coupon.FirstName)
-                .Replace("{time}", coupon.CreatedDate.ToString("hh:mm:ss MM/dd/yyyy"))
-                .Replace("{coupon-name}", coupon.CouponType.Name)
-                .Replace("{usage-left}", coupon.CurrentQuantity.ToString())
-                .Replace("{phone-number}", coupon.PhoneNumber)
-                .Replace("{coupon-id}", coupon.Id.ToString())
-                .Replace("{email}", coupon.Email)
-                .Replace("{coupon-code}", coupon.CouponCode);
+            var body = await _templateService.FillTemplate(EmailTemplates.CouponPurchaseSuccess, new Dictionary<string, string>()
+            {
+                { "name", coupon.FirstName},
+                { "time", coupon.CreatedDate.ToString("hh:mm:ss MM/dd/yyyy")},
+                { "coupon-name", coupon.CouponType.Name},
+                { "usage-left", coupon.CurrentQuantity.ToString()},
+                { "phone-number", coupon.PhoneNumber},
+                { "coupon-id", coupon.Id.ToString()},
+                { "email", coupon.Email},
+                { "coupon-code", coupon.CouponCode},
+            });
 
             await _emailService.SendEmailAsync(
                 body: body,
@@ -149,7 +149,7 @@ internal class CouponDomain : BaseDomain, ICouponDomain
             await _uow.SaveAsync();
             await transaction.CommitAsync();
 
-            return new ResponseViewModel {Success = true};
+            return new ResponseViewModel { Success = true };
         }
         catch (Exception e)
         {
@@ -170,7 +170,7 @@ internal class CouponDomain : BaseDomain, ICouponDomain
                 throw new InvalidOperationException($"Cannot find coupon of Code: {couponCode}");
 
             var usageLeft = (int)coupon.CurrentQuantity - (int)usage;
-            
+
             switch (usageLeft)
             {
                 case > 0:
@@ -185,7 +185,7 @@ internal class CouponDomain : BaseDomain, ICouponDomain
             }
 
             var valueRedeemed = coupon.CouponType.Value * usage;
-            
+
             await _uow.SaveAsync();
 
             var body = await _templateService.FillTemplate(EmailTemplates.CouponRedemptionSuccess, new Dictionary<string, string>()
@@ -212,7 +212,7 @@ internal class CouponDomain : BaseDomain, ICouponDomain
             await _uow.SaveAsync();
             await transaction.CommitAsync();
 
-            return new ResponseViewModel {Success = true};
+            return new ResponseViewModel { Success = true };
         }
         catch (Exception e)
         {
@@ -236,10 +236,10 @@ internal class CouponDomain : BaseDomain, ICouponDomain
                 _couponRepository.Modify(existedCoupon);
                 await _uow.SaveAsync();
 
-                return new ResponseViewModel {Success = true, Message = "Update successful"};
+                return new ResponseViewModel { Success = true, Message = "Update successful" };
             }
 
-            return new ResponseViewModel {Success = false, Message = "This coupon does not exist"};
+            return new ResponseViewModel { Success = false, Message = "This coupon does not exist" };
         }
         catch (Exception e)
         {
@@ -257,10 +257,10 @@ internal class CouponDomain : BaseDomain, ICouponDomain
                 _couponRepository.Deactivate(coupon);
                 await _uow.SaveAsync();
 
-                return new ResponseViewModel {Success = true, Message = "Delete successful"};
+                return new ResponseViewModel { Success = true, Message = "Delete successful" };
             }
 
-            return new ResponseViewModel {Success = false, Message = "This coupon does not exist"};
+            return new ResponseViewModel { Success = false, Message = "This coupon does not exist" };
         }
         catch (Exception e)
         {
@@ -280,10 +280,10 @@ internal class CouponDomain : BaseDomain, ICouponDomain
                 _couponRepository.Modify(existedCoupon);
                 await _uow.SaveAsync();
 
-                return new ResponseViewModel {Success = true, Message = "Update successful"};
+                return new ResponseViewModel { Success = true, Message = "Update successful" };
             }
 
-            return new ResponseViewModel {Success = false, Message = "This coupon does not exist"};
+            return new ResponseViewModel { Success = false, Message = "This coupon does not exist" };
         }
         catch (Exception e)
         {
@@ -328,7 +328,7 @@ internal class CouponDomain : BaseDomain, ICouponDomain
         try
         {
             var keyword = parameters.Keyword.ToLower();
-            var coupons = _couponRepository.DbSet().AsNoTracking()
+            var coupons = _couponRepository.DbSet().AsNoTracking().Include(c => c.CouponType)
                 .Where(p => p.CouponCode.ToLower().Contains(keyword) || p.Email.ToLower().Contains(keyword) ||
                             p.PhoneNumber.ToLower().Contains(keyword));
 
@@ -345,6 +345,7 @@ internal class CouponDomain : BaseDomain, ICouponDomain
                         Email = q.Email,
                         PhoneNumber = q.PhoneNumber,
                         Status = q.Status,
+                        Amount = q.CouponType.Value
                     })
                     .ToListAsync(),
                 Success = true,
@@ -368,7 +369,7 @@ internal class CouponDomain : BaseDomain, ICouponDomain
 
             couponDetails.StatusName = coupon.Status.ToString();
 
-            return new ResponseViewModel {Success = true, Payload = couponDetails};
+            return new ResponseViewModel { Success = true, Payload = couponDetails };
         }
         catch (Exception e)
         {
