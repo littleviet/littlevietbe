@@ -17,7 +17,7 @@ public interface IReservationDomain
     Task<ResponseViewModel> Deactivate(Guid id);
     Task<BaseListResponseViewModel> GetListReservations(GetListReservationParameters parameters);
     Task<ResponseViewModel> CheckInReservation(Guid reservationId);
-
+    Task<int> GetUnhandledReservationsCount();
     Task<ResponseViewModel> GetReservationById(Guid id);
 }
 
@@ -204,6 +204,12 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
         {
             return new ResponseViewModel {Success = false, Message = e.Message};
         }
+    }
+
+    public Task<int> GetUnhandledReservationsCount()
+    {
+        return _reservationRepository.DbSet().AsNoTracking()
+            .CountAsync(r => r.Status == ReservationStatus.Reserved);
     }
 
     public async Task<ResponseViewModel> GetReservationById(Guid id)

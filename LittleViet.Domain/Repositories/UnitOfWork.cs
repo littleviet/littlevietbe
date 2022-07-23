@@ -16,7 +16,7 @@ public partial interface IUnitOfWork
 }
 
 
-public class UnitOfWork : IUnitOfWork
+internal class UnitOfWork : IUnitOfWork
 {
     public UnitOfWork(IServiceProvider service, LittleVietContext context, IHttpContextAccessor httpContextAccessor)
     {

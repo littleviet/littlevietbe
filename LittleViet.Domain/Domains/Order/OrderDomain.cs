@@ -20,6 +20,7 @@ public interface IOrderDomain
     Task<ResponseViewModel> GetOrderById(Guid id);
     Task<ResponseViewModel> HandleSuccessfulOrder(Guid orderId, string stripeSessionId);
     Task<ResponseViewModel> HandleExpiredOrder(Guid orderId, string stripeSessionId);
+    public Task<int> GetUnhandledOrdersCount();
     Task<ResponseViewModel> PickupTakeAwayOrder(Guid orderId);
     Task<BaseListResponseViewModel> Search(BaseSearchParameters parameters);
 }
@@ -350,6 +351,12 @@ internal class OrderDomain : BaseDomain, IOrderDomain
         {
             throw;
         }
+    }
+    
+    public Task<int> GetUnhandledOrdersCount()
+    {
+        return _orderRepository.DbSet().AsNoTracking()
+            .CountAsync(q => q.OrderStatus == OrderStatus.Ordered);
     }
 
     public async Task<ResponseViewModel> HandleExpiredOrder(Guid orderId, string stripeSessionId)

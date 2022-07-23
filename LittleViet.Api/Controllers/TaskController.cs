@@ -2,6 +2,7 @@
 using LittleViet.Data.Domains.Coupon;
 using LittleViet.Data.Domains.Order;
 using LittleViet.Data.Domains.Reservations;
+using LittleViet.Data.Domains.Task;
 using LittleViet.Data.Models;
 using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.Mvc.BodyAndRouteBinder;
@@ -16,12 +17,14 @@ public class TaskController : Controller
     private readonly ICouponDomain _couponDomain;    
     private readonly IOrderDomain _orderDomain;
     private readonly IReservationDomain _reservationDomain;
+    private readonly ITaskDomain _taskDomain;
 
-    public TaskController(ICouponDomain couponDomain, IOrderDomain orderDomain, IReservationDomain reservationDomain)
+    public TaskController(ICouponDomain couponDomain, IOrderDomain orderDomain, IReservationDomain reservationDomain, ITaskDomain taskDomain)
     {
         _couponDomain = couponDomain ?? throw new ArgumentNullException(nameof(couponDomain));
         _orderDomain = orderDomain ?? throw new ArgumentNullException(nameof(orderDomain));
         _reservationDomain = reservationDomain ?? throw new ArgumentNullException(nameof(reservationDomain));
+        _taskDomain = taskDomain;
     }
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
@@ -32,6 +35,20 @@ public class TaskController : Controller
         {
             var result = await _couponDomain.RedeemCoupon(useCouponViewModel.couponCode, useCouponViewModel.usage);
             return Ok(result);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseViewModel { Message = e.Message, Success = false });
+        }
+    }
+    
+    [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
+    [HttpGet("initialize")]
+    public async Task<IActionResult> Initialize()
+    {
+        try
+        {
+            return Ok(await _taskDomain.Initialize());
         }
         catch (Exception e)
         {
