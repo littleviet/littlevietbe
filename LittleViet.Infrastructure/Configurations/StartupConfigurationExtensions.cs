@@ -40,7 +40,8 @@ public static class StartupConfigurationExtensions
             .Configure<StripeSettings>(configurationManager.GetRequiredSection(StripeSettings.ConfigSection))
             .Configure<EmailSettings>(configurationManager.GetRequiredSection(EmailSettings.ConfigSection))
             .Configure<AppSettings>(configurationManager.GetRequiredSection(AppSettings.ConfigSection))
-            .Configure<AzureSettings>(configurationManager.GetRequiredSection(AzureSettings.ConfigSection));
+            .Configure<AzureSettings>(configurationManager.GetRequiredSection(AzureSettings.ConfigSection))
+            .ConfigureStripe(configurationManager);
         
         return serviceCollection;
     }

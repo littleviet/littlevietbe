@@ -23,6 +23,38 @@ public static class EmailTemplates
                 "reservation-id",
             }
         };
+    
+    
+    public static EmailTemplate TakeAwayOrderPaymentSuccess =>
+        new()
+        {
+            TemplateName = "order-paid.html",
+            SubjectName = "Order payment successful at Little Viet",
+            Keys = new HashSet<string>()
+            {
+                "name",
+                "takeaway-time",
+                "total-paid",
+                "items",
+                "order-id",
+            }
+        };
+    
+    public static EmailTemplate TakeAwayOrderPaymentSuccessAdmin =>
+        new()
+        {
+            TemplateName = "order-paid-admin.html",
+            SubjectName = "New order arrived",
+            Keys = new HashSet<string>()
+            {
+                "name",
+                "takeaway-time",
+                "total-paid",
+                "payment-time",
+                "items",
+                "order-id",
+            }
+        };
 
     public static EmailTemplate CouponPurchaseSuccess => new()
     {

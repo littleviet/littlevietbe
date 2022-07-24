@@ -1,7 +1,4 @@
-﻿using System.Net;
-using System.Net.Mail;
-using LittleViet.Infrastructure.Email.Interface;
-using LittleViet.Infrastructure.Email.Models;
+﻿using LittleViet.Infrastructure.Email.Interface;
 using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
@@ -13,11 +10,9 @@ namespace LittleViet.Infrastructure.Email.Service;
 internal class EmailService : IEmailService
 {
     private readonly EmailSettings _emailSettings;
-    private readonly ITemplateService _templateService;
 
-    public EmailService(IOptions<EmailSettings> emailSettings, ITemplateService templateService)
+    public EmailService(IOptions<EmailSettings> emailSettings)
     {
-        _templateService = templateService ?? throw new ArgumentNullException(nameof(templateService));
         _emailSettings = emailSettings.Value ?? throw new ArgumentNullException(nameof(emailSettings));
     }
 

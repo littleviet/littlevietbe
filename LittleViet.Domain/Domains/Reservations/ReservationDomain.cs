@@ -54,17 +54,15 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
                 _reservationRepository.Add(reservation);
                 await _uow.SaveAsync();
 
-                var template = await _templateService.GetTemplateEmail(EmailTemplates.ReservationSuccess);
-
-                var body = template
-                    .Replace("{name}", createReservationViewModel.FirstName)
-                    .Replace("{time}", createReservationViewModel.BookingDate.ToString("hh:mm:ss MM/dd/yyyy"))
-                    .Replace("{no-of-people}", createReservationViewModel.NoOfPeople.ToString())
-                    .Replace("{phone-number}", createReservationViewModel.PhoneNumber)
-                    .Replace("{reservation-id}", reservation.Id.ToString());
-
                 await _emailService.SendEmailAsync(
-                    body: body,
+                    body: await _templateService.FillTemplate(EmailTemplates.ReservationSuccess, new()
+                    {
+                        {"name", createReservationViewModel.FirstName},
+                        {"time", createReservationViewModel.BookingDate.ToString("hh:mm:ss MM/dd/yyyy")},
+                        {"no-of-people", createReservationViewModel.NoOfPeople.ToString()},
+                        {"phone-number", createReservationViewModel.PhoneNumber},
+                        {"reservation-id", reservation.Id.ToString()},
+                    }),
                     toName: createReservationViewModel.FirstName,
                     toAddress: createReservationViewModel.Email,
                     subject: EmailTemplates.ReservationSuccess.SubjectName

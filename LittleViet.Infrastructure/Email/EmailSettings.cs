@@ -13,7 +13,7 @@ public class EmailSettings
     public SmtpDeliveryMethod DeliveryMethod { get; set; }
     public string Email { get; set; }
     public string FromAddress { get; set; }
-    public System.Text.Encoding Encoding { get; set; } = Encoding.UTF8;
+    public Encoding Encoding { get; set; } = Encoding.UTF8;
     public string FromName { get; set; }
     public string Password { get; set; }
     public int Timeout { get; set; } = 20000;

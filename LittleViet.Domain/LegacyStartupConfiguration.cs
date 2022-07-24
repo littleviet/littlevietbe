@@ -2,6 +2,7 @@
 using LittleViet.Data.Models;
 using LittleViet.Data.Repositories;
 using LittleViet.Infrastructure.Azure.AzureBlobStorage;
+using LittleViet.Infrastructure.DateTime;
 using LittleViet.Infrastructure.Email;
 using LittleViet.Infrastructure.Email.Interface;
 using LittleViet.Infrastructure.Email.Service;
@@ -26,7 +27,8 @@ public static class LegacyStartupConfiguration
             .AddDomainsAndRepositories()
             .AddAppStripeServices()
             .AddAppAzureBlobStorage()
-            .AddAppEmailServices();
+            .AddAppEmailServices()
+            .AddAppDateTimeServices();
 
     private static IServiceCollection AddDomainsAndRepositories(this IServiceCollection services) =>
         services.Scan(

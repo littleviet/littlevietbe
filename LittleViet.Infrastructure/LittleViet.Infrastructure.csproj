@@ -36,6 +36,12 @@
       <Content Include="Email\Templates\coupon-usage-success.html">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
+      <Content Include="Email\Templates\order-paid-admin.html">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <Content Include="Email\Templates\order-paid.html">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
       <Content Include="Email\Templates\reservation-success.html">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>

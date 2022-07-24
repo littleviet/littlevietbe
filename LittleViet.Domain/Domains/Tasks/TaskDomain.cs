@@ -1,9 +1,8 @@
 ﻿using LittleViet.Data.Domains.Order;
 using LittleViet.Data.Domains.Reservations;
-using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
 
-namespace LittleViet.Data.Domains.Task;
+namespace LittleViet.Data.Domains.Tasks;
 
 public interface ITaskDomain
 {
@@ -25,8 +24,8 @@ internal class TaskDomain : ITaskDomain
     {
         return new TaskInitializeViewModel
         {
-            NewReservationCount = await _orderDomain.GetUnhandledOrdersCount(),
-            NewPickupOrderCount = await _reservationDomain.GetUnhandledReservationsCount()
+            NewReservationCount = await _reservationDomain.GetUnhandledReservationsCount(),
+            NewPickupOrderCount = await _orderDomain.GetUnhandledOrdersCount()
         };
     }
 }

@@ -2,7 +2,7 @@
 using LittleViet.Data.Domains.Coupon;
 using LittleViet.Data.Domains.Order;
 using LittleViet.Data.Domains.Reservations;
-using LittleViet.Data.Domains.Task;
+using LittleViet.Data.Domains.Tasks;
 using LittleViet.Data.Models;
 using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.Mvc.BodyAndRouteBinder;
