@@ -421,7 +421,7 @@ internal class OrderDomain : BaseDomain, IOrderDomain
     public Task<int> GetUnhandledOrdersCount()
     {
         return _orderRepository.DbSet().AsNoTracking()
-            .CountAsync(q => q.OrderStatus == OrderStatus.Paid);
+            .CountAsync(q => q.OrderStatus == OrderStatus.Paid && q.OrderType == OrderType.TakeAway);
     }
 
     public async Task<ResponseViewModel> HandleExpiredOrder(Guid orderId, string stripeSessionId)
