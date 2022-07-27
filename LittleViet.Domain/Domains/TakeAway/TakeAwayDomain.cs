@@ -13,15 +13,10 @@ public interface ITakeAwayDomain
 internal class TakeAwayDomain : BaseDomain, ITakeAwayDomain
 {
     private readonly IProductRepository _productRepository;
-    private readonly IServingRepository _servingRepository;
-    private readonly IProductTypeRepository _productTypeRepository;
 
-
-    public TakeAwayDomain(IUnitOfWork uow, IProductRepository productRepository, IServingRepository servingRepository, IProductTypeRepository productTypeRepository) : base(uow)
+    public TakeAwayDomain(IUnitOfWork uow, IProductRepository productRepository) : base(uow)
     {
         _productRepository = productRepository;
-        _servingRepository = servingRepository;
-        _productTypeRepository = productTypeRepository;
     }
 
     public async Task<ResponseViewModel<GetListProductViewModel>> GetMenuForTakeAway()

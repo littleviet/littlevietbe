@@ -1,4 +1,5 @@
 ﻿using LittleViet.Infrastructure.Email.Models;
+using LittleViet.Infrastructure.Email.Templates;
 
 namespace LittleViet.Infrastructure.Email.Interface;
 

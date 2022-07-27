@@ -6,7 +6,7 @@ using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.DateTime;
 using LittleViet.Infrastructure.Email;
 using LittleViet.Infrastructure.Email.Interface;
-using LittleViet.Infrastructure.Email.Models;
+using LittleViet.Infrastructure.Email.Templates;
 using LittleViet.Infrastructure.EntityFramework;
 using static LittleViet.Infrastructure.EntityFramework.SqlHelper;
 using LittleViet.Infrastructure.Stripe.Interface;
@@ -398,7 +398,7 @@ internal class OrderDomain : BaseDomain, IOrderDomain
                         {"pickup-time", _dateTimeService.ConvertToTimeZone(order.PickupTime, null).ToString("hh:mm MM/dd/yyyy", CultureInfo.InvariantCulture)},
                         {"total-paid", order.TotalPrice.ToString("€00.00")},
                         {"payment-time", _dateTimeService.ConvertToTimeZone(default, null).ToString("hh:mm MM/dd/yyyy", CultureInfo.InvariantCulture)},
-                        {"items", string.Join( "<br>", order.OrderDetails.Select(od => $"{od.Serving.Product}: {od.Serving.Name} - {od.Quantity} pc(s)").ToList())},
+                        {"items", string.Join( "<br>", order.OrderDetails.Select(od => $"{od.Serving.Product.Name}: {od.Serving.Name} - {od.Quantity} pc(s)").ToList())},
                         {"order-id", order.Id.ToString()},
                     }),
                     toName: _emailSettings.FromName,

@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
-using System.IO;
 using LittleViet.Infrastructure.Email.Interface;
-using LittleViet.Infrastructure.Email.Models;
+using LittleViet.Infrastructure.Email.Templates;
 
 namespace LittleViet.Infrastructure.Email.Service;
 
@@ -17,7 +16,7 @@ internal class TemplateService : ITemplateService
     {
         if (template.Keys.Except(values.Keys) is var except && except.Any())
             throw new InvalidOperationException(
-                $"The following values are missing for the template {template.TemplateName}: {except}");
+                $"The following values are missing for the template {template.TemplateName}: {string.Join(", ", except)}");
 
         var templateString = await GetTemplateEmail(template);
 

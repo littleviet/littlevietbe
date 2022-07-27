@@ -1,4 +1,4 @@
-﻿namespace LittleViet.Infrastructure.Email.Models;
+﻿namespace LittleViet.Infrastructure.Email.Templates;
 
 public static class EmailTemplates
 {
@@ -48,7 +48,7 @@ public static class EmailTemplates
             Keys = new HashSet<string>()
             {
                 "name",
-                "takeaway-time",
+                "pickup-time",
                 "total-paid",
                 "payment-time",
                 "items",

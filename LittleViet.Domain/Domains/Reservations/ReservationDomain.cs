@@ -4,6 +4,7 @@ using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.Email.Interface;
 using LittleViet.Infrastructure.Email.Models;
+using LittleViet.Infrastructure.Email.Templates;
 using LittleViet.Infrastructure.EntityFramework;
 using static LittleViet.Infrastructure.EntityFramework.SqlHelper;
 using Microsoft.EntityFrameworkCore;
