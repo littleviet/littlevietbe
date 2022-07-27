@@ -384,7 +384,7 @@ internal class OrderDomain : BaseDomain, IOrderDomain
                         {"name", order.Account?.Firstname},
                         {"takeaway-time", _dateTimeService.ConvertToTimeZone(order.PickupTime, null).ToString("hh:mm MM/dd/yyyy", CultureInfo.InvariantCulture)},
                         {"total-paid", order.TotalPrice.ToString("€00.00")},
-                        {"items", string.Join( "<br>", order.OrderDetails.Select(od => $"{od.Serving.Product}: {od.Serving.Name} - {od.Quantity} pc(s)").ToList())},
+                        {"items", string.Join( "<br>", order.OrderDetails.Select(od => $"{od.Serving.Product.Name}: {od.Serving.Name} - {od.Quantity} pc(s)").ToList())},
                         {"order-id", order.Id.ToString()},
                     }),
                     toName: order.Account?.Firstname,
@@ -401,7 +401,7 @@ internal class OrderDomain : BaseDomain, IOrderDomain
                         {"items", string.Join( "<br>", order.OrderDetails.Select(od => $"{od.Serving.Product}: {od.Serving.Name} - {od.Quantity} pc(s)").ToList())},
                         {"order-id", order.Id.ToString()},
                     }),
-                    toName: "Little Viet Admin",
+                    toName: _emailSettings.FromName,
                     toAddress: _emailSettings.FromAddress,
                     subject: EmailTemplates.TakeAwayOrderPaymentSuccessAdmin.SubjectName
                 ),

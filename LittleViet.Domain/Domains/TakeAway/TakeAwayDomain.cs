@@ -13,10 +13,15 @@ public interface ITakeAwayDomain
 internal class TakeAwayDomain : BaseDomain, ITakeAwayDomain
 {
     private readonly IProductRepository _productRepository;
+    private readonly IServingRepository _servingRepository;
+    private readonly IProductTypeRepository _productTypeRepository;
 
-    public TakeAwayDomain(IUnitOfWork uow, IProductRepository productRepository) : base(uow)
+
+    public TakeAwayDomain(IUnitOfWork uow, IProductRepository productRepository, IServingRepository servingRepository, IProductTypeRepository productTypeRepository) : base(uow)
     {
         _productRepository = productRepository;
+        _servingRepository = servingRepository;
+        _productTypeRepository = productTypeRepository;
     }
 
     public async Task<ResponseViewModel<GetListProductViewModel>> GetMenuForTakeAway()
@@ -29,12 +34,13 @@ internal class TakeAwayDomain : BaseDomain, ITakeAwayDomain
                 .Include(p => p.ProductImages.Where(pm => pm.IsMain))
                 .Where(p => p.Servings.Any())
                 .AsNoTracking();
-
+            
             return new BaseListResponseViewModel<GetListProductViewModel>
             {
                 Payload = (await products.Paginate(pageSize: 50, pageNum: 0)
                     .Select(p => new GetListProductViewModel()
                     {
+                        Id = p.Id,
                         Description = p.Description,
                         Name = p.Name,
                         Status = p.Status,
@@ -45,7 +51,7 @@ internal class TakeAwayDomain : BaseDomain, ITakeAwayDomain
                             Id = p.ProductType.Id,
                             Name = p.ProductType.Name,
                         },
-                        Servings = p.Servings.Select(s => new GenericServingViewModel()
+                        Servings = p.Servings.Where(s => !s.IsDeleted).Select(s => new GenericServingViewModel()
                         {
                             Description = s.Description,
                             Id = s.Id,
