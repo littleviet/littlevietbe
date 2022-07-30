@@ -12,19 +12,19 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LittleViet.Data.Migrations
 {
     [DbContext(typeof(LittleVietContext))]
-    [Migration("20220212102005_Added_CouponTypeTbl_StripePriceId")]
-    partial class Added_CouponTypeTbl_StripePriceId
+    [Migration("20220730114827_ResetMigrations")]
+    partial class ResetMigrations
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.1")
+                .HasAnnotation("ProductVersion", "6.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("LittleViet.Domain.Models.Account", b =>
+            modelBuilder.Entity("LittleViet.Data.Models.Account", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -39,7 +39,7 @@ namespace LittleViet.Data.Migrations
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime?>("CreatedDate")
+                    b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("DeletedBy")
@@ -83,14 +83,14 @@ namespace LittleViet.Data.Migrations
                     b.ToTable("Account");
                 });
 
-            modelBuilder.Entity("LittleViet.Domain.Models.Coupon", b =>
+            modelBuilder.Entity("LittleViet.Data.Models.Coupon", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<double>("Amount")
-                        .HasColumnType("double precision");
+                    b.Property<Guid?>("AccountId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("CouponCode")
                         .HasColumnType("text");
@@ -101,8 +101,11 @@ namespace LittleViet.Data.Migrations
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime?>("CreatedDate")
+                    b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("CurrentQuantity")
+                        .HasColumnType("bigint");
 
                     b.Property<Guid?>("DeletedBy")
                         .HasColumnType("uuid");
@@ -113,8 +116,20 @@ namespace LittleViet.Data.Migrations
                     b.Property<string>("Email")
                         .HasColumnType("text");
 
+                    b.Property<string>("FirstName")
+                        .HasColumnType("text");
+
+                    b.Property<long>("InitialQuantity")
+                        .HasColumnType("bigint");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("LastStripeSessionId")
+                        .HasColumnType("text");
 
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("text");
@@ -130,12 +145,17 @@ namespace LittleViet.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AccountId");
+
+                    b.HasIndex("CouponCode")
+                        .IsUnique();
+
                     b.HasIndex("CouponTypeId");
 
                     b.ToTable("Coupon");
                 });
 
-            modelBuilder.Entity("LittleViet.Domain.Models.CouponType", b =>
+            modelBuilder.Entity("LittleViet.Data.Models.CouponType", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -144,7 +164,7 @@ namespace LittleViet.Data.Migrations
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime?>("CreatedDate")
+                    b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("DeletedBy")
@@ -176,7 +196,7 @@ namespace LittleViet.Data.Migrations
                     b.ToTable("CouponType");
                 });
 
-            modelBuilder.Entity("LittleViet.Domain.Models.Order", b =>
+            modelBuilder.Entity("LittleViet.Data.Models.Order", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -188,7 +208,7 @@ namespace LittleViet.Data.Migrations
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime?>("CreatedDate")
+                    b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("DeletedBy")
@@ -231,7 +251,7 @@ namespace LittleViet.Data.Migrations
                     b.ToTable("Order");
                 });
 
-            modelBuilder.Entity("LittleViet.Domain.Models.OrderDetail", b =>
+            modelBuilder.Entity("LittleViet.Data.Models.OrderDetail", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -240,7 +260,7 @@ namespace LittleViet.Data.Migrations
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime?>("CreatedDate")
+                    b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("DeletedBy")
@@ -276,7 +296,7 @@ namespace LittleViet.Data.Migrations
                     b.ToTable("OrderDetail");
                 });
 
-            modelBuilder.Entity("LittleViet.Domain.Models.Product", b =>
+            modelBuilder.Entity("LittleViet.Data.Models.Product", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -288,7 +308,7 @@ namespace LittleViet.Data.Migrations
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime?>("CreatedDate")
+                    b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("DeletedBy")
@@ -331,7 +351,7 @@ namespace LittleViet.Data.Migrations
                     b.ToTable("Product");
                 });
 
-            modelBuilder.Entity("LittleViet.Domain.Models.ProductImage", b =>
+            modelBuilder.Entity("LittleViet.Data.Models.ProductImage", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -340,7 +360,7 @@ namespace LittleViet.Data.Migrations
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime?>("CreatedDate")
+                    b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("DeletedBy")
@@ -374,7 +394,7 @@ namespace LittleViet.Data.Migrations
                     b.ToTable("ProductImage");
                 });
 
-            modelBuilder.Entity("LittleViet.Domain.Models.ProductType", b =>
+            modelBuilder.Entity("LittleViet.Data.Models.ProductType", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -386,7 +406,7 @@ namespace LittleViet.Data.Migrations
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime?>("CreatedDate")
+                    b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("DeletedBy")
@@ -416,9 +436,22 @@ namespace LittleViet.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ProductType");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("96c9d97c-1207-46a6-bb25-8773b622d205"),
+                            CaName = "Productes envasats",
+                            CreatedDate = new DateTime(2022, 7, 30, 11, 48, 26, 633, DateTimeKind.Utc).AddTicks(3340),
+                            Description = "Packaged products",
+                            EsName = "Productos Empaquetados",
+                            IsDeleted = false,
+                            Name = "Packaged Products",
+                            UpdatedDate = new DateTime(2022, 7, 30, 11, 48, 26, 633, DateTimeKind.Utc).AddTicks(3342)
+                        });
                 });
 
-            modelBuilder.Entity("LittleViet.Domain.Models.Reservation", b =>
+            modelBuilder.Entity("LittleViet.Data.Models.Reservation", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -433,7 +466,7 @@ namespace LittleViet.Data.Migrations
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime?>("CreatedDate")
+                    b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("DeletedBy")
@@ -479,7 +512,7 @@ namespace LittleViet.Data.Migrations
                     b.ToTable("Reservation");
                 });
 
-            modelBuilder.Entity("LittleViet.Domain.Models.Serving", b =>
+            modelBuilder.Entity("LittleViet.Data.Models.Serving", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -488,7 +521,7 @@ namespace LittleViet.Data.Migrations
                     b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime?>("CreatedDate")
+                    b.Property<DateTime>("CreatedDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("DeletedBy")
@@ -531,20 +564,26 @@ namespace LittleViet.Data.Migrations
                     b.ToTable("Serving");
                 });
 
-            modelBuilder.Entity("LittleViet.Domain.Models.Coupon", b =>
+            modelBuilder.Entity("LittleViet.Data.Models.Coupon", b =>
                 {
-                    b.HasOne("LittleViet.Domain.Models.CouponType", "CouponType")
+                    b.HasOne("LittleViet.Data.Models.Account", "Account")
+                        .WithMany()
+                        .HasForeignKey("AccountId");
+
+                    b.HasOne("LittleViet.Data.Models.CouponType", "CouponType")
                         .WithMany()
                         .HasForeignKey("CouponTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Account");
+
                     b.Navigation("CouponType");
                 });
 
-            modelBuilder.Entity("LittleViet.Domain.Models.Order", b =>
+            modelBuilder.Entity("LittleViet.Data.Models.Order", b =>
                 {
-                    b.HasOne("LittleViet.Domain.Models.Account", "Account")
+                    b.HasOne("LittleViet.Data.Models.Account", "Account")
                         .WithMany()
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -553,15 +592,15 @@ namespace LittleViet.Data.Migrations
                     b.Navigation("Account");
                 });
 
-            modelBuilder.Entity("LittleViet.Domain.Models.OrderDetail", b =>
+            modelBuilder.Entity("LittleViet.Data.Models.OrderDetail", b =>
                 {
-                    b.HasOne("LittleViet.Domain.Models.Order", "Order")
+                    b.HasOne("LittleViet.Data.Models.Order", "Order")
                         .WithMany("OrderDetails")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("LittleViet.Domain.Models.Serving", "Serving")
+                    b.HasOne("LittleViet.Data.Models.Serving", "Serving")
                         .WithMany()
                         .HasForeignKey("ServingId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -572,9 +611,9 @@ namespace LittleViet.Data.Migrations
                     b.Navigation("Serving");
                 });
 
-            modelBuilder.Entity("LittleViet.Domain.Models.Product", b =>
+            modelBuilder.Entity("LittleViet.Data.Models.Product", b =>
                 {
-                    b.HasOne("LittleViet.Domain.Models.ProductType", "ProductType")
+                    b.HasOne("LittleViet.Data.Models.ProductType", "ProductType")
                         .WithMany("Products")
                         .HasForeignKey("ProductTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -583,9 +622,9 @@ namespace LittleViet.Data.Migrations
                     b.Navigation("ProductType");
                 });
 
-            modelBuilder.Entity("LittleViet.Domain.Models.ProductImage", b =>
+            modelBuilder.Entity("LittleViet.Data.Models.ProductImage", b =>
                 {
-                    b.HasOne("LittleViet.Domain.Models.Product", "Product")
+                    b.HasOne("LittleViet.Data.Models.Product", "Product")
                         .WithMany("ProductImages")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -594,18 +633,18 @@ namespace LittleViet.Data.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("LittleViet.Domain.Models.Reservation", b =>
+            modelBuilder.Entity("LittleViet.Data.Models.Reservation", b =>
                 {
-                    b.HasOne("LittleViet.Domain.Models.Account", "Account")
+                    b.HasOne("LittleViet.Data.Models.Account", "Account")
                         .WithMany()
                         .HasForeignKey("AccountId");
 
                     b.Navigation("Account");
                 });
 
-            modelBuilder.Entity("LittleViet.Domain.Models.Serving", b =>
+            modelBuilder.Entity("LittleViet.Data.Models.Serving", b =>
                 {
-                    b.HasOne("LittleViet.Domain.Models.Product", "Product")
+                    b.HasOne("LittleViet.Data.Models.Product", "Product")
                         .WithMany("Servings")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -614,19 +653,19 @@ namespace LittleViet.Data.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("LittleViet.Domain.Models.Order", b =>
+            modelBuilder.Entity("LittleViet.Data.Models.Order", b =>
                 {
                     b.Navigation("OrderDetails");
                 });
 
-            modelBuilder.Entity("LittleViet.Domain.Models.Product", b =>
+            modelBuilder.Entity("LittleViet.Data.Models.Product", b =>
                 {
                     b.Navigation("ProductImages");
 
                     b.Navigation("Servings");
                 });
 
-            modelBuilder.Entity("LittleViet.Domain.Models.ProductType", b =>
+            modelBuilder.Entity("LittleViet.Data.Models.ProductType", b =>
                 {
                     b.Navigation("Products");
                 });
