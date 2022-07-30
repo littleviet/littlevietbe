@@ -17,7 +17,7 @@ namespace LittleViet.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.1")
+                .HasAnnotation("ProductVersion", "6.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -440,12 +440,12 @@ namespace LittleViet.Data.Migrations
                         {
                             Id = new Guid("96c9d97c-1207-46a6-bb25-8773b622d205"),
                             CaName = "Productes envasats",
-                            CreatedDate = new DateTime(2022, 3, 26, 13, 26, 36, 814, DateTimeKind.Utc).AddTicks(4455),
+                            CreatedDate = new DateTime(2022, 7, 30, 11, 48, 26, 633, DateTimeKind.Utc).AddTicks(3340),
                             Description = "Packaged products",
                             EsName = "Productos Empaquetados",
                             IsDeleted = false,
                             Name = "Packaged Products",
-                            UpdatedDate = new DateTime(2022, 3, 26, 13, 26, 36, 814, DateTimeKind.Utc).AddTicks(4458)
+                            UpdatedDate = new DateTime(2022, 7, 30, 11, 48, 26, 633, DateTimeKind.Utc).AddTicks(3342)
                         });
                 });
 
