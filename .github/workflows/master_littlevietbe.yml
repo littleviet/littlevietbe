@@ -7,9 +7,13 @@ on:
   push:
     branches:
       - master
+      - develop
   pull_request:
     types: [ opened, synchronize ]
   workflow_dispatch:
+
+env:
+  IS_PROD: "${{ github.ref == 'refs/heads/master' && 'true' || 'false' }}"
 
 jobs:
   build:
@@ -37,7 +41,7 @@ jobs:
           path: ${{env.DOTNET_ROOT}}/myapp
 
   deploy:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     needs: build
     environment:
@@ -54,7 +58,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
-          app-name: 'littlevietbe'
+          app-name: ${{ env.IS_PROD == 'true' && 'littlevietbe' || 'littleviet-dev' }} 
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_7A25671CAB5C4065AD70CFFA18FE8349 }}
+          publish-profile: ${{ env.IS_PROD == 'true' && secrets.AZURE_PUBLISH_PROFILE_PROD || secrets.AZURE_PUBLISH_PROFILE_DEV }}
           package: .
