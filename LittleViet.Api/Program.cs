@@ -66,6 +66,12 @@ try
 
     var app = builder.Build();
 
+    using (var scope = app.Services.CreateScope())
+    {
+        using (var context = scope.ServiceProvider.GetService<LittleVietContext>())
+        context.Database.Migrate();
+    }
+
     app.UseAppMiddlewares();
 
     app.Run();
