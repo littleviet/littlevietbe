@@ -60,5 +60,5 @@ jobs:
         with:
           app-name: 'littlevietbe'
           slot-name: 'Production'
-          publish-profile: ${{ $IS_PROD == 'true' && secrets.AZUREAPPSERVICE_PUBLISHPROFILE_7A25671CAB5C4065AD70CFFA18FE8349 || secrets.AZUREAPPSERVICE_PUBLISHPROFILE_8BB607FD6B6E48FCBBF232D14AB77E0F }}
+          publish-profile: ${{ env.IS_PROD == 'true' && secrets.AZUREAPPSERVICE_PUBLISHPROFILE_7A25671CAB5C4065AD70CFFA18FE8349 || secrets.AZUREAPPSERVICE_PUBLISHPROFILE_8BB607FD6B6E48FCBBF232D14AB77E0F }}
           package: .
