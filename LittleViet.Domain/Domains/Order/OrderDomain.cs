@@ -116,11 +116,13 @@ internal class OrderDomain : BaseDomain, IOrderDomain
         catch (StripeException se)
         {
             await transaction.RollbackAsync();
+            Log.Warning("Stripe error when creating {orderId} with {exception}", orderGuid, se.ToString());
             throw;
         }
         catch (Exception e)
         {
             await transaction.RollbackAsync();
+            Log.Warning("Error when creating {orderId} with {exception}", orderGuid, e.ToString());
             throw;
         }
     }
@@ -194,16 +196,16 @@ internal class OrderDomain : BaseDomain, IOrderDomain
                 .WhereIf(!string.IsNullOrEmpty(parameters.PhoneNumber), 
                     ContainsIgnoreCase<Models.Order>(o => o.Account.PhoneNumber1 + " " +  o.Account.PhoneNumber2, //TODO: improve this somehow
                     parameters.PhoneNumber))
-                .WhereIf(parameters.Statuses is not null && parameters.Statuses.Any(),
+                .WhereIf(parameters.Statuses?.Any(),
                     o => parameters.Statuses.Contains(o.OrderStatus))
                 .WhereIf(parameters.AccountId is not null, o => o.AccountId == parameters.AccountId)
                 .WhereIf(parameters.PickupTimeTo is not null, o => o.PickupTime <= parameters.PickupTimeTo)
                 .WhereIf(parameters.PickupTimeFrom is not null, o => o.PickupTime >= parameters.PickupTimeFrom)
                 .WhereIf(parameters.TotalPriceTo is not null, o => o.TotalPrice <= parameters.TotalPriceTo)
                 .WhereIf(parameters.TotalPriceFrom is not null, o => o.TotalPrice >= parameters.TotalPriceFrom)
-                .WhereIf(parameters.OrderTypes is not null && parameters.OrderTypes.Any(),
+                .WhereIf(parameters.OrderTypes?.Any(),
                     o => parameters.OrderTypes.Contains(o.OrderType))
-                .WhereIf(parameters.PaymentTypes is not null && parameters.PaymentTypes.Any(),
+                .WhereIf(parameters.PaymentTypes?.Any(),
                     o => parameters.PaymentTypes.Contains(o.PaymentType));
 
             return new BaseListResponseViewModel

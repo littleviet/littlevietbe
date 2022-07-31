@@ -7,7 +7,7 @@ namespace LittleViet.Data.Domains.TakeAway;
 
 public interface ITakeAwayDomain
 {
-    Task<ResponseViewModel<GetListProductViewModel>> GetMenuForTakeAway();
+    Task<ResponseViewModel<List<GetListProductViewModel>>> GetMenuForTakeAway();
 }
 
 internal class TakeAwayDomain : BaseDomain, ITakeAwayDomain
@@ -19,7 +19,7 @@ internal class TakeAwayDomain : BaseDomain, ITakeAwayDomain
         _productRepository = productRepository;
     }
 
-    public async Task<ResponseViewModel<GetListProductViewModel>> GetMenuForTakeAway()
+    public async Task<ResponseViewModel<List<GetListProductViewModel>>> GetMenuForTakeAway()
     {
         try
         {
@@ -30,9 +30,9 @@ internal class TakeAwayDomain : BaseDomain, ITakeAwayDomain
                 .Where(p => p.Servings.Any())
                 .AsNoTracking();
             
-            return new BaseListResponseViewModel<GetListProductViewModel>
+            return new()
             {
-                Payload = (await products.Paginate(pageSize: 50, pageNum: 0)
+                Payload = (await products.Paginate(pageSize: 150, pageNum: 0)
                     .Select(p => new GetListProductViewModel()
                     {
                         Id = p.Id,
@@ -53,18 +53,17 @@ internal class TakeAwayDomain : BaseDomain, ITakeAwayDomain
                             Name = s.Name,
                             Price = s.Price,
                             NumberOfPeople = s.NumberOfPeople,
+                            ProductId = p.Id
                         }).ToList(),
                         ImageUrl = p.ProductImages.Where(pm => pm.IsMain).Select(pm => pm.Url).SingleOrDefault(),
-                    }).ToListAsync()),
+                    }).OrderByDescending(p => p.ProductType.Name).ToListAsync()),
                 Success = true,
-                Total = await products.CountAsync(),
-                PageNumber = 0,
-                PageSize = 50,
+                Message = $"Up to 100 products of total {await products.CountAsync()}",
             };
         }
         catch (Exception e)
         {
-            return new BaseListResponseViewModel<GetListProductViewModel> {Success = false, Message = e.Message};
+            return new() {Success = false, Message = e.Message};
         }
     }
 }

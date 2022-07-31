@@ -6,6 +6,7 @@ namespace LittleViet.Infrastructure.EntityFramework;
 public static class SqlHelper
 {
     //Wrapper around database CaseInsensitiveContains, currently using Pgsql Ilike function
+    private static readonly string postgresIlike = "ILike";
     public static Expression<Func<TEntity, bool>> ContainsIgnoreCase<TEntity>(string propertyName,
         string pattern)
     {
@@ -57,7 +58,7 @@ public static class SqlHelper
         var wildcardIfUsed = useWildCard ? "%" : "";
         Expression leftComparison = propertyOrStringGetterExpression.Body;
 
-        var likeMethodInfo = typeof(NpgsqlDbFunctionsExtensions).GetMethod("ILike",
+        var likeMethodInfo = typeof(NpgsqlDbFunctionsExtensions).GetMethod(postgresIlike,
             new[] {typeof(DbFunctions), typeof(string), typeof(string)});
 
         return Expression.Lambda<Func<TEntity, bool>>(

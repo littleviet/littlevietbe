@@ -60,9 +60,12 @@ public class GetListProductViewModel
 
 public class GetListProductParameters : BaseListQueryParameters<Product>
 {
+    public GetListProductParameters()
+    {
+        ExcludedProperties = new[] {nameof(Product.CaName), nameof(Product.EsName)};
+    }
+    
     public string Name { get; set; }
-    public string EsName { get; set; }
-    public string CaName { get; set; }
     public string Description { get; set; }
     public IEnumerable<ProductStatus> Statuses { get; set; }
     public Guid? ProductTypeId { get; set; }

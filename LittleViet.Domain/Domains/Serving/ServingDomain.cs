@@ -5,6 +5,7 @@ using LittleViet.Infrastructure.EntityFramework;
 using LittleViet.Infrastructure.Stripe.Interface;
 using LittleViet.Infrastructure.Stripe.Models;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 using static LittleViet.Infrastructure.EntityFramework.SqlHelper;
 using Stripe;
 
@@ -65,11 +66,13 @@ internal class ServingDomain : BaseDomain, IServingDomain
         catch (StripeException se)
         {
             await transaction.RollbackAsync();
+            Log.Warning("Stripe error when creating {servingId} with {exception}", serving.Id, se.ToString());
             throw;
         }
         catch (Exception e)
         {
             await transaction.RollbackAsync();
+            Log.Warning("Error when creating {servingId} with {exception}", serving.Id, e.ToString());
             return new ResponseViewModel<Guid> {Success = false, Message = e.Message};
         }
     }
