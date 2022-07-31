@@ -110,12 +110,12 @@ internal class ServingDomain : BaseDomain, IServingDomain
 
         try
         {
-            // if (IsPriceDifferent(existedServing, updateServingViewModel))
+            // if (IsPriceDifferent(existedServing, updateServingViewModel)) TODO: reenable when all prices on stripe updated
             {
                 var newPrice = await _stripePriceService.UpdatePrice(
                     new UpdatePriceDto
                     {
-                        Amount = (long) (existedServing.Price * 100d),
+                        Amount = (long) (updateServingViewModel.Price * 100d),
                         Currency = "eur",
                         Id = existedServing.StripePriceId,
                         ProductId = existedServing.Product.StripeProductId,
