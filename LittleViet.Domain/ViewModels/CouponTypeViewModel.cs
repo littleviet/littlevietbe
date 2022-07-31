@@ -11,7 +11,7 @@ public class CreateCouponTypeViewModel
 public class GetCouponTypeViewModel
 {
     public Guid Id { get; set; }
-    public double Value { get; set; }
+    public decimal Value { get; set; }
     public string Name { get; set; }
     public string Currency { get; set; }
 }

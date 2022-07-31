@@ -115,7 +115,7 @@ internal class ServingDomain : BaseDomain, IServingDomain
                 var newPrice = await _stripePriceService.UpdatePrice(
                     new UpdatePriceDto
                     {
-                        Amount = (long) (updateServingViewModel.Price * 100d),
+                        Amount = (long) (updateServingViewModel.Price * 100m),
                         Currency = "eur",
                         Id = existedServing.StripePriceId,
                         ProductId = existedServing.Product.StripeProductId,
@@ -158,7 +158,7 @@ internal class ServingDomain : BaseDomain, IServingDomain
     private bool IsPriceDifferent(Models.Serving existedServing, UpdateServingViewModel updateServingViewModel)
     {
         return Math.Abs(existedServing.Price - updateServingViewModel.Price) >
-               .00001f; //TODO: figure this float out later, also do full checks
+               .00001m; //TODO: figure this float out later, also do full checks
     }
 
     public async Task<BaseListResponseViewModel> GetListServing(GetListServingParameters parameters)
