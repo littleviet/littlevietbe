@@ -26,6 +26,18 @@ public class BaseListQueryParameters
 public class BaseListQueryParameters<T> : BaseListQueryParameters where T : class
 {
     public IEnumerable<string> Properties = typeof(T).GetProperties().Select(p => p.Name);
+
+    private IEnumerable<string> _excludedProperties;
+    
+    protected IEnumerable<string> ExcludedProperties
+    {
+        get => _excludedProperties;
+        init
+        {
+            Properties = Properties.Except(value);
+            _excludedProperties = value;
+        }
+    }
 }
 
 public class BaseListResponseViewModel : ResponseViewModel

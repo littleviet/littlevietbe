@@ -178,14 +178,10 @@ internal class ProductDomain : BaseDomain, IProductDomain
                 .Include(p => p.Servings)
                 .Include(p => p.ProductImages.Where(pm => pm.IsMain))
                 .WhereIf(!string.IsNullOrEmpty(parameters.Name),
-                    ContainsIgnoreCase<Models.Product>(nameof(Models.Product.Name), parameters.Name))
-                .WhereIf(!string.IsNullOrEmpty(parameters.CaName),
-                    ContainsIgnoreCase<Models.Product>(nameof(Models.Product.CaName), parameters.CaName))
-                .WhereIf(!string.IsNullOrEmpty(parameters.EsName),
-                    ContainsIgnoreCase<Models.Product>(nameof(Models.Product.EsName), parameters.EsName))
+                    ContainsIgnoreCase<Models.Product>(new[] {nameof(Models.Product.Name), nameof(Models.Product.CaName), nameof(Models.Product.EsName)}, parameters.Name))
                 .WhereIf(!string.IsNullOrEmpty(parameters.Description),
                     ContainsIgnoreCase<Models.Product>(nameof(Models.Product.Description), parameters.Description))
-                .WhereIf(parameters.Statuses is not null && parameters.Statuses.Any(), p => parameters.Statuses.Contains(p.Status))
+                .WhereIf(parameters.Statuses?.Any(), p => parameters.Statuses.Contains(p.Status))
                 .WhereIf(parameters.ProductTypeId is not null, p => p.ProductTypeId == parameters.ProductTypeId);
 
             return new BaseListResponseViewModel
@@ -212,6 +208,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
                             Name = s.Name,
                             Price = s.Price,
                             NumberOfPeople = s.NumberOfPeople,
+                            ProductId = p.Id,
                         }).ToList(),
                         ImageUrl = p.ProductImages.Select(pm => pm.Url).FirstOrDefault(),
                     }).ToListAsync(),
