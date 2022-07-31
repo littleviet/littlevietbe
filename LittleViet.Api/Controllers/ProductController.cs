@@ -64,10 +64,8 @@ public class ProductController : BaseController
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpGet]
-    public async Task<BaseListResponseViewModel<GetListProductViewModel>> GetListProducts([FromQuery] GetListProductParameters parameters)
-    {
-            return await _productDomain.GetListProducts(parameters);
-    }
+    public async Task<BaseListResponseViewModel<GetListProductViewModel>> GetListProducts([FromQuery] GetListProductParameters parameters) => 
+        await _productDomain.GetListProducts(parameters);
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpGet("search")]

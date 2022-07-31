@@ -53,9 +53,10 @@ internal class TakeAwayDomain : BaseDomain, ITakeAwayDomain
                             Name = s.Name,
                             Price = s.Price,
                             NumberOfPeople = s.NumberOfPeople,
+                            ProductId = p.Id
                         }).ToList(),
                         ImageUrl = p.ProductImages.Where(pm => pm.IsMain).Select(pm => pm.Url).SingleOrDefault(),
-                    }).ToListAsync()),
+                    }).OrderByDescending(p => p.ProductType.Name).ToListAsync()),
                 Success = true,
                 Message = $"Up to 100 products of total {await products.CountAsync()}",
             };
