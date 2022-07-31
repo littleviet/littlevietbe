@@ -17,7 +17,7 @@ public class MenuProductItemLandingPageViewModel
     public string Name { get; set; }
     public string EsName { get; set; }
     public string CaName { get; set; }
-    public double? Price { get; set; }
+    public decimal? Price { get; set; }
 }
 
 public class CreateProductTypeViewModel

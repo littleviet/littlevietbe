@@ -17,7 +17,7 @@ public class UpdateServingViewModel
     public string Name { get; set; }
     public int NumberOfPeople { get; set; }
     public string Description { get; set; }
-    public double Price { get; set; }
+    public decimal Price { get; set; }
     public Guid ProductId { get; set; }
 }
 
@@ -27,7 +27,7 @@ public class GenericServingViewModel
     public string Name { get; set; }
     public int NumberOfPeople { get; set; }
     public string Description { get; set; }
-    public double Price { get; set; }
+    public decimal Price { get; set; }
     public Guid ProductId { get; set; }
 }
 
@@ -51,7 +51,7 @@ public class GetListServingParameters : BaseListQueryParameters<Serving>
     public string Name { get; set; }
     public int? NumberOfPeople { get; set; }
     public string Description { get; set; }
-    public double? PriceFrom { get; set; }
-    public double? PriceTo { get; set; }
+    public decimal? PriceFrom { get; set; }
+    public decimal? PriceTo { get; set; }
     public Guid? ProductId { get; set; }
 }

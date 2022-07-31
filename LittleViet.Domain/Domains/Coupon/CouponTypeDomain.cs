@@ -43,7 +43,7 @@ internal class CouponTypeDomain : BaseDomain, ICouponTypeDomain
 
             var createStripePriceDto = new CreatePriceDto()
             {
-                Price = (long) couponType.Value * 100,
+                Price = (long) (couponType.Value * 100m),
                 StripeProductId = _stripeSettings.CouponProductId,
                 Metadata = new() {{Infrastructure.Stripe.Payment.CouponTypePriceMetaDataKey, couponType.Id.ToString()}},
             };
