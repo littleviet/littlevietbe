@@ -110,12 +110,12 @@ internal class ServingDomain : BaseDomain, IServingDomain
 
         try
         {
-            if (IsPriceDifferent(existedServing, updateServingViewModel))
+            // if (IsPriceDifferent(existedServing, updateServingViewModel)) TODO: reenable when all prices on stripe updated
             {
                 var newPrice = await _stripePriceService.UpdatePrice(
                     new UpdatePriceDto
                     {
-                        Amount = (long) existedServing.Price * 100,
+                        Amount = (long) (updateServingViewModel.Price * 100d),
                         Currency = "eur",
                         Id = existedServing.StripePriceId,
                         ProductId = existedServing.Product.StripeProductId,
@@ -138,9 +138,19 @@ internal class ServingDomain : BaseDomain, IServingDomain
 
             return new ResponseViewModel {Success = true, Message = "Update successful"};
         }
+        catch (StripeException se)
+        {
+            await transaction.RollbackAsync();
+            Log.Warning("Stripe error when updating {servingId} with {exception}", existedServing.Id, se.ToString());
+            var message = se.Message.Contains("default price")
+                ? "The only price cannot be changed, unless you create another price then change this one."
+                : se.Message;
+            return new ResponseViewModel {Success = false, Message = message};
+        }
         catch (Exception e)
         {
             await transaction.RollbackAsync();
+            Log.Warning("Error when updating {servingId} with {exception}", existedServing.Id, e.ToString());
             return new ResponseViewModel {Success = false, Message = e.Message};
         }
     }
