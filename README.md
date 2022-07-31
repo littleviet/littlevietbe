@@ -4,6 +4,7 @@
 ### What is this repository for? ###
 
 * Backend for littleviet.es
+Dev url: https://littleviet-dev.azurewebsites.net/swagger/index.html
 
 ### Setting Up Development Configurations ###
 1. Retrieve the secrets.json file for Development purpose from the project Credentials Page on Confluence
