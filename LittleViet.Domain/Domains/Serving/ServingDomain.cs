@@ -110,7 +110,7 @@ internal class ServingDomain : BaseDomain, IServingDomain
 
         try
         {
-            if (IsPriceDifferent(existedServing, updateServingViewModel))
+            // if (IsPriceDifferent(existedServing, updateServingViewModel))
             {
                 var newPrice = await _stripePriceService.UpdatePrice(
                     new UpdatePriceDto
