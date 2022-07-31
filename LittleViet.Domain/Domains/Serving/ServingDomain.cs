@@ -115,7 +115,7 @@ internal class ServingDomain : BaseDomain, IServingDomain
                 var newPrice = await _stripePriceService.UpdatePrice(
                     new UpdatePriceDto
                     {
-                        Amount = (long) existedServing.Price * 100,
+                        Amount = (long) (existedServing.Price * 100),
                         Currency = "eur",
                         Id = existedServing.StripePriceId,
                         ProductId = existedServing.Product.StripeProductId,
