@@ -64,17 +64,9 @@ public class ProductController : BaseController
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]
     [HttpGet]
-    public async Task<IActionResult> GetListProducts([FromQuery] GetListProductParameters parameters)
+    public async Task<BaseListResponseViewModel<GetListProductViewModel>> GetListProducts([FromQuery] GetListProductParameters parameters)
     {
-        try
-        {
-            var result = await _productDomain.GetListProducts(parameters);
-            return Ok(result);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseViewModel { Message = e.Message, Success = false });
-        }
+            return await _productDomain.GetListProducts(parameters);
     }
 
     [AuthorizeRoles(Role.ADMIN, Role.MANAGER)]

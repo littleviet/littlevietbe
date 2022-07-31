@@ -105,6 +105,7 @@ internal class CouponDomain : BaseDomain, ICouponDomain
         catch (StripeException se)
         {
             await transaction.RollbackAsync();
+            Log.Warning("Stripe error when creating {couponId} with {exception}", couponGuid, se.ToString());
             throw;
         }
         catch (Exception e)
@@ -160,7 +161,7 @@ internal class CouponDomain : BaseDomain, ICouponDomain
         catch (Exception e)
         {
             await transaction.RollbackAsync();
-            Log.Information("Failed to handle {couponId} purchase of {stripeSessionId} with {e}", couponId, stripeSessionId, e);
+            Log.Information("Failed to handle {couponId} purchase of {stripeSessionId} with {exception}", couponId, stripeSessionId, e.ToString());
             throw;
         }
     }

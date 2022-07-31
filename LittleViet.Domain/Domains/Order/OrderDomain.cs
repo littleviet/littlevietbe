@@ -116,11 +116,13 @@ internal class OrderDomain : BaseDomain, IOrderDomain
         catch (StripeException se)
         {
             await transaction.RollbackAsync();
+            Log.Warning("Stripe error when creating {orderId} with {exception}", orderGuid, se.ToString());
             throw;
         }
         catch (Exception e)
         {
             await transaction.RollbackAsync();
+            Log.Warning("Error when creating {orderId} with {exception}", orderGuid, e.ToString());
             throw;
         }
     }

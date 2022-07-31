@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Stripe;
 using LittleViet.Data.Models;
 using LittleViet.Infrastructure.EntityFramework;
+using Serilog;
 using static LittleViet.Infrastructure.EntityFramework.SqlHelper;
 
 namespace LittleViet.Data.Domains.Products;
@@ -17,7 +18,7 @@ public interface IProductDomain
     Task<ResponseViewModel<Guid>> Create(CreateProductViewModel createProductViewModel);
     Task<ResponseViewModel> Update(UpdateProductViewModel updateProductViewModel);
     Task<ResponseViewModel> Deactivate(Guid id);
-    Task<BaseListResponseViewModel> GetListProducts(GetListProductParameters parameters);
+    Task<BaseListResponseViewModel<GetListProductViewModel>> GetListProducts(GetListProductParameters parameters);
     Task<BaseListResponseViewModel> Search(BaseSearchParameters parameters);
     Task<ResponseViewModel<ProductDetailsViewModel>> GetProductById(Guid id);
     Task<ResponseViewModel> AddProductImages(AddProductImagesViewModel addProductImagesViewModel);
@@ -84,11 +85,13 @@ internal class ProductDomain : BaseDomain, IProductDomain
         catch (StripeException se)
         {
             await transaction.RollbackAsync();
+            Log.Warning("Stripe error when creating {productId} with {exception}", productId, se.ToString());
             throw;
         }
         catch (Exception e)
         {
             await transaction.RollbackAsync();
+            Log.Warning("Error when creating {productId} with {exception}", productId, e.ToString());
             throw;
         }
     }
@@ -132,11 +135,13 @@ internal class ProductDomain : BaseDomain, IProductDomain
         catch (StripeException es)
         {
             await transaction.RollbackAsync();
+            Log.Warning("Stripe error when updating {productId} with {exception}", updateProductViewModel.Id, es.ToString());
             throw;
         }
         catch (Exception e)
         {            
             await transaction.RollbackAsync();
+            Log.Warning("Error when updating {productId} with {exception}", updateProductViewModel.Id, e.ToString());
             return new ResponseViewModel { Success = false, Message = e.Message };
         }
     }
@@ -168,7 +173,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
         }
     }
 
-    public async Task<BaseListResponseViewModel> GetListProducts(GetListProductParameters parameters)
+    public async Task<BaseListResponseViewModel<GetListProductViewModel>> GetListProducts(GetListProductParameters parameters)
     {
         try
         {
@@ -184,7 +189,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
                 .WhereIf(parameters.Statuses?.Any(), p => parameters.Statuses.Contains(p.Status))
                 .WhereIf(parameters.ProductTypeId is not null, p => p.ProductTypeId == parameters.ProductTypeId);
 
-            return new BaseListResponseViewModel
+            return new()
             {
                 Payload = await products
                     .Paginate(pageSize: parameters.PageSize, pageNum: parameters.PageNumber)
@@ -220,7 +225,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
         }
         catch (Exception e)
         {
-            return new BaseListResponseViewModel { Success = false, Message = e.Message };
+            return new() { Success = false, Message = e.Message };
         }
     }
 

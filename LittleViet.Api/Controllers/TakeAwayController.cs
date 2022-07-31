@@ -15,17 +15,5 @@ public class TakeAwayController : BaseController
     }
 
     [HttpGet("menu")]
-    public async Task<IActionResult> GetProductsForTakeAway()
-    {
-        try
-        {
-            var result = await _landingPageDomain.GetMenuForTakeAway();
-            return Ok(result);
-        }
-        catch (Exception e)
-        {
-            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseViewModel { Message = e.Message, Success = false });
-        }
-    }
-
+    public async Task<ResponseViewModel<List<GetListProductViewModel>>> GetProductsForTakeAway() => await _landingPageDomain.GetMenuForTakeAway();
 }
