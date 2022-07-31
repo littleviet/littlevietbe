@@ -6,7 +6,7 @@
       "SuccessUrl": "checkout/order-successful",
       "Currency": "eur"
     },
-    "CouponProductId": "prod_L8ZYfrQCQextXX",
+    "CouponProductId": "",
     "WebhookSecret": "",
     "SecretKey": "",
     "PublishableKey": ""
