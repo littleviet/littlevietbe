@@ -138,9 +138,19 @@ internal class ServingDomain : BaseDomain, IServingDomain
 
             return new ResponseViewModel {Success = true, Message = "Update successful"};
         }
+        catch (StripeException se)
+        {
+            await transaction.RollbackAsync();
+            Log.Warning("Stripe error when updating {servingId} with {exception}", existedServing.Id, se.ToString());
+            var message = se.Message.Contains("default price")
+                ? "The only price cannot be changed, unless you create another price then change this one."
+                : se.Message;
+            return new ResponseViewModel {Success = false, Message = message};
+        }
         catch (Exception e)
         {
             await transaction.RollbackAsync();
+            Log.Warning("Error when updating {servingId} with {exception}", existedServing.Id, e.ToString());
             return new ResponseViewModel {Success = false, Message = e.Message};
         }
     }
