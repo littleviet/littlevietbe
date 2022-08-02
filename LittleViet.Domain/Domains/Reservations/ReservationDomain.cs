@@ -87,7 +87,7 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
                             { "reservation-id", reservation.Id.ToString() },
                         }),
                         toName: _emailSettings.FromName,
-                        toAddress: _emailSettings.FromName,
+                        toAddress: _emailSettings.FromAddress,
                         subject: EmailTemplates.ReservationSuccessAdmin.SubjectName
                     ),
                 });
