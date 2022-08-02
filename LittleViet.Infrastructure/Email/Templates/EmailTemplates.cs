@@ -24,6 +24,21 @@ public static class EmailTemplates
             }
         };
     
+    public static EmailTemplate ReservationSuccessAdmin =>
+        new()
+        {
+            TemplateName = "reservation-success-admin.html",
+            SubjectName = "New table reservation",
+            Keys = new HashSet<string>()
+            {
+                "name",
+                "time",
+                "no-of-people",
+                "phone-number",
+                "reservation-id",
+            }
+        };
+    
     
     public static EmailTemplate TakeAwayOrderPaymentSuccess =>
         new()

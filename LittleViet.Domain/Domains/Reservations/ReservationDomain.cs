@@ -2,12 +2,15 @@
 using LittleViet.Data.Models;
 using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
+using LittleViet.Infrastructure.DateTime;
+using LittleViet.Infrastructure.Email;
 using LittleViet.Infrastructure.Email.Interface;
 using LittleViet.Infrastructure.Email.Models;
 using LittleViet.Infrastructure.Email.Templates;
 using LittleViet.Infrastructure.EntityFramework;
 using static LittleViet.Infrastructure.EntityFramework.SqlHelper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace LittleViet.Data.Domains.Reservations;
 
@@ -26,17 +29,21 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
 {
     private readonly IReservationRepository _reservationRepository;
     private readonly IMapper _mapper;
+    private readonly IDateTimeService _dateTimeService;
     private readonly IEmailService _emailService;
     private readonly ITemplateService _templateService;
+    private readonly EmailSettings _emailSettings;
 
     public ReservationDomain(IUnitOfWork uow, IReservationRepository reservationRepository, IMapper mapper,
-        ITemplateService templateService, IEmailService emailService) : base(uow)
+        ITemplateService templateService, IEmailService emailService, IOptions<EmailSettings> emailSettings, IDateTimeService dateTimeService) : base(uow)
     {
         _reservationRepository =
             reservationRepository ?? throw new ArgumentNullException(nameof(reservationRepository));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _templateService = templateService ?? throw new ArgumentNullException(nameof(templateService));
         _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
+        _dateTimeService = dateTimeService ?? throw new ArgumentNullException(nameof(dateTimeService));
+        _emailSettings = emailSettings.Value ?? throw new ArgumentNullException(nameof(emailSettings));
     }
 
     public async Task<ResponseViewModel<Guid>> Create(CreateReservationViewModel createReservationViewModel)
@@ -55,19 +62,35 @@ internal class ReservationDomain : BaseDomain, IReservationDomain
                 _reservationRepository.Add(reservation);
                 await _uow.SaveAsync();
 
-                await _emailService.SendEmailAsync(
-                    body: await _templateService.FillTemplate(EmailTemplates.ReservationSuccess, new()
-                    {
-                        {"name", createReservationViewModel.FirstName},
-                        {"time", createReservationViewModel.BookingDate.ToString("hh:mm:ss MM/dd/yyyy")},
-                        {"no-of-people", createReservationViewModel.NoOfPeople.ToString()},
-                        {"phone-number", createReservationViewModel.PhoneNumber},
-                        {"reservation-id", reservation.Id.ToString()},
-                    }),
-                    toName: createReservationViewModel.FirstName,
-                    toAddress: createReservationViewModel.Email,
-                    subject: EmailTemplates.ReservationSuccess.SubjectName
-                );
+                await Task.WhenAll(new[]
+                {
+                    _emailService.SendEmailAsync(
+                        body: await _templateService.FillTemplate(EmailTemplates.ReservationSuccess, new()
+                        {
+                            { "name", createReservationViewModel.FirstName },
+                            { "time", _dateTimeService.ConvertToTimeZone(createReservationViewModel.BookingDate).ToString("hh:mm MM/dd/yyyy") },
+                            { "no-of-people", createReservationViewModel.NoOfPeople.ToString() },
+                            { "phone-number", createReservationViewModel.PhoneNumber },
+                            { "reservation-id", reservation.Id.ToString() },
+                        }),
+                        toName: createReservationViewModel.FirstName,
+                        toAddress: createReservationViewModel.Email,
+                        subject: EmailTemplates.ReservationSuccess.SubjectName
+                    ),
+                    _emailService.SendEmailAsync(
+                        body: await _templateService.FillTemplate(EmailTemplates.ReservationSuccessAdmin, new()
+                        {
+                            { "name", createReservationViewModel.FirstName },
+                            { "time", _dateTimeService.ConvertToTimeZone(createReservationViewModel.BookingDate).ToString("hh:mm MM/dd/yyyy") },
+                            { "no-of-people", createReservationViewModel.NoOfPeople.ToString() },
+                            { "phone-number", createReservationViewModel.PhoneNumber },
+                            { "reservation-id", reservation.Id.ToString() },
+                        }),
+                        toName: _emailSettings.FromName,
+                        toAddress: _emailSettings.FromName,
+                        subject: EmailTemplates.ReservationSuccessAdmin.SubjectName
+                    ),
+                });
 
                 await transaction.CommitAsync();
             }

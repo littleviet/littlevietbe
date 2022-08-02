@@ -30,6 +30,9 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Content Include="Email\Templates\reservation-success-admin.html.html">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
       <Content Include="Email\Templates\coupon-buying-success.html">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
