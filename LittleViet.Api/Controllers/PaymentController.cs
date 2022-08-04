@@ -2,6 +2,7 @@
 using LittleViet.Infrastructure.Stripe;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Serilog;
 using Stripe;
 
 namespace LittleViet.Api.Controllers;
@@ -41,6 +42,7 @@ public class PaymentController : Controller
         }
         catch (Exception e)
         {
+            Log.Warning("Unable top process Stripe event with {exception} and {body}", e.ToString(), json);
             return BadRequest("Bad request from Stripe");
         }
     }
