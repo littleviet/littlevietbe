@@ -33,13 +33,13 @@ internal class LandingPageDomain : BaseDomain, ILandingPageDomain
             var productTypes = _productTypeRepository.DbSet()
                 .Include(t => t.Products.Where(p => p.IsDeleted == false))
                 .ThenInclude(p => p.Servings)
-                .Where(pt => pt.Products.Any(p => p.Servings.Any()) && pt.Id != Constants.PackagedProductTypeId)
+                .Where(pt => pt.Products.Any(p => p.Servings.Any()) && pt.Id != LittleViet.Data.Domains.ProductType.Constants.PackagedProductTypeId)
                 .AsNoTracking();
 
             var packagedProducts = _productRepository
                 .DbSet()
                 .Include(x => x.ProductImages.Where(i => i.IsMain))
-                .Where(x => x.ProductTypeId == Constants.PackagedProductTypeId);
+                .Where(x => x.ProductTypeId == LittleViet.Data.Domains.ProductType.Constants.PackagedProductTypeId);
 
             var result = new LandingPageViewModel()
             {
@@ -58,7 +58,7 @@ internal class LandingPageDomain : BaseDomain, ILandingPageDomain
                                     Name = p.Name,
                                     Price = p.Servings.Min(s => s.Price),
                                 }).ToList()
-                        }).ToListAsync(),
+                        }).OrderByDescending(p => p.Name).ToListAsync(),
                 PackagedProducts =
                     await packagedProducts
                         .Select(x =>

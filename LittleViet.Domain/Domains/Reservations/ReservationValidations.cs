@@ -1,15 +1,21 @@
 ﻿using FluentValidation;
 using LittleViet.Data.Models;
 using LittleViet.Data.ViewModels;
+using LittleViet.Infrastructure.DateTime;
 
 namespace LittleViet.Data.Domains.Reservations;
 
 public class CreateReservationViewModelValidator : AbstractValidator<CreateReservationViewModel>
 {
-    public CreateReservationViewModelValidator()
+    public CreateReservationViewModelValidator(IDateTimeService dateTimeService)
     {
         RuleFor(x => x.Email).EmailAddress();
-        RuleFor(x => x.BookingDate).NotEmpty().GreaterThan(DateTime.UtcNow);
+        RuleFor(x => x.BookingDate)
+            .Cascade(CascadeMode.Stop)
+            .NotEmpty()
+            .Must(x => Constants.WorkingWeekDays.Contains(dateTimeService.ConvertToTimeZone(x).DayOfWeek))
+            .WithMessage("We are closed on Tue")
+            .GreaterThan(DateTime.UtcNow);
         RuleFor(x => x.FirstName).NotEmpty();
         RuleFor(x => x.PhoneNumber).NotEmpty();
         RuleFor(x => x.NoOfPeople).GreaterThan(0);
