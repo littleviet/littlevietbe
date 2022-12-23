@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
-using LittleViet.Data.ViewModels;
+using LittleViet.Domain.ViewModels;
 
-namespace LittleViet.Data.Domains;
+namespace LittleViet.Domain.Domains;
 
 public class BaseListQueryParametersValidator : AbstractValidator<BaseListQueryParameters>
 {

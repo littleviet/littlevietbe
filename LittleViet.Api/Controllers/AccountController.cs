@@ -1,8 +1,8 @@
 ﻿using System.Security.Claims;
 using LittleViet.Api.Utilities;
-using LittleViet.Data.Domains.Account;
-using LittleViet.Data.Models;
-using LittleViet.Data.ViewModels;
+using LittleViet.Domain.Domains.Account;
+using LittleViet.Domain.Models;
+using LittleViet.Domain.ViewModels;
 using LittleViet.Infrastructure.Mvc.BodyAndRouteBinder;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;

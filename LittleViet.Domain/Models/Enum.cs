@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace LittleViet.Data.Models;
+namespace LittleViet.Domain.Models;
 
 public enum RoleEnum
 {

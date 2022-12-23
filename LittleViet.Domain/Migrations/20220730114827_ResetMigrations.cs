@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace LittleViet.Data.Migrations
+namespace LittleViet.Domain.Migrations
 {
     public partial class ResetMigrations : Migration
     {

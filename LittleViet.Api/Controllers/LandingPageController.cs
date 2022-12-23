@@ -1,5 +1,5 @@
-﻿using LittleViet.Data.Domains.LandingPage;
-using LittleViet.Data.ViewModels;
+﻿using LittleViet.Domain.Domains.LandingPage;
+using LittleViet.Domain.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LittleViet.Api.Controllers;

@@ -1,7 +1,7 @@
 ﻿using LittleViet.Api.Utilities;
-using LittleViet.Data.Domains.Serving;
-using LittleViet.Data.Models;
-using LittleViet.Data.ViewModels;
+using LittleViet.Domain.Domains.Serving;
+using LittleViet.Domain.Models;
+using LittleViet.Domain.ViewModels;
 using LittleViet.Infrastructure.Mvc.BodyAndRouteBinder;
 using Microsoft.AspNetCore.Mvc;
 

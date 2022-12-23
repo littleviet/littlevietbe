@@ -1,9 +1,9 @@
 ﻿using System.Linq.Expressions;
-using LittleViet.Data.Models;
+using LittleViet.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
-namespace LittleViet.Data.Repositories;
+namespace LittleViet.Domain.Repositories;
 public interface IRepository
 {
 }

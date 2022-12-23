@@ -1,4 +1,4 @@
-﻿namespace LittleViet.Data.ViewModels;
+﻿namespace LittleViet.Domain.ViewModels;
 
 public class TaskInitializeViewModel
 {

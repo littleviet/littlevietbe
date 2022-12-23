@@ -1,9 +1,9 @@
 ﻿using FluentValidation;
-using LittleViet.Data.Repositories;
-using LittleViet.Data.ViewModels;
+using LittleViet.Domain.Repositories;
+using LittleViet.Domain.ViewModels;
 using LittleViet.Infrastructure.DateTime;
 
-namespace LittleViet.Data.Domains.Order;
+namespace LittleViet.Domain.Domains.Order;
 
 public class CreateOrderViewModelValidator : AbstractValidator<CreateOrderViewModel>
 {

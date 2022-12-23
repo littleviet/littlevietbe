@@ -1,4 +1,4 @@
-﻿namespace LittleViet.Data.Models;
+﻿namespace LittleViet.Domain.Models;
 
 public class ProductType : AuditableEntity
 {
