@@ -1,8 +1,8 @@
-﻿using LittleViet.Data.Domains.Order;
-using LittleViet.Data.Domains.Reservations;
-using LittleViet.Data.ViewModels;
+﻿using LittleViet.Domain.Domains.Order;
+using LittleViet.Domain.Domains.Reservations;
+using LittleViet.Domain.ViewModels;
 
-namespace LittleViet.Data.Domains.Tasks;
+namespace LittleViet.Domain.Domains.Tasks;
 
 public interface ITaskDomain
 {

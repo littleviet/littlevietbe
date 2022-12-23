@@ -1,8 +1,8 @@
 ﻿using System.Globalization;
 using AutoMapper;
-using LittleViet.Data.Models;
-using LittleViet.Data.Repositories;
-using LittleViet.Data.ViewModels;
+using LittleViet.Domain.Models;
+using LittleViet.Domain.Repositories;
+using LittleViet.Domain.ViewModels;
 using LittleViet.Infrastructure.DateTime;
 using LittleViet.Infrastructure.Email;
 using LittleViet.Infrastructure.Email.Interface;
@@ -16,7 +16,7 @@ using Microsoft.Extensions.Options;
 using Serilog;
 using Stripe;
 
-namespace LittleViet.Data.Domains.Order;
+namespace LittleViet.Domain.Domains.Order;
 
 public interface IOrderDomain
 {

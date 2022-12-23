@@ -1,8 +1,8 @@
 using System.Text.Json.Serialization;
 using FluentValidation.AspNetCore;
-using LittleViet.Data;
-using LittleViet.Data.Domains;
-using LittleViet.Data.Models;
+using LittleViet.Domain;
+using LittleViet.Domain.Domains;
+using LittleViet.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using LittleViet.Infrastructure.Configurations;
 using LittleViet.Infrastructure.Logging;

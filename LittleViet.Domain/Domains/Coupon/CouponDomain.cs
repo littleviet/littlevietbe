@@ -1,8 +1,8 @@
 ﻿using System.Globalization;
 using AutoMapper;
-using LittleViet.Data.Models;
-using LittleViet.Data.Repositories;
-using LittleViet.Data.ViewModels;
+using LittleViet.Domain.Models;
+using LittleViet.Domain.Repositories;
+using LittleViet.Domain.ViewModels;
 using LittleViet.Infrastructure.Email.Interface;
 using LittleViet.Infrastructure.Email.Templates;
 using LittleViet.Infrastructure.EntityFramework;
@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Stripe;
 
-namespace LittleViet.Data.Domains.Coupon;
+namespace LittleViet.Domain.Domains.Coupon;
 
 public interface ICouponDomain
 {

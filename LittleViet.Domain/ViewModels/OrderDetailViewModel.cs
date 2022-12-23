@@ -1,3 +1,3 @@
-﻿namespace LittleViet.Data.ViewModels;
+﻿namespace LittleViet.Domain.ViewModels;
 
 

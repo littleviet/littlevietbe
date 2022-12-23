@@ -1,5 +1,5 @@
-﻿using LittleViet.Data.Domains.TakeAway;
-using LittleViet.Data.ViewModels;
+﻿using LittleViet.Domain.Domains.TakeAway;
+using LittleViet.Domain.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LittleViet.Api.Controllers;
