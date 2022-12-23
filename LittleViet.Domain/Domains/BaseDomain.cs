@@ -1,6 +1,6 @@
-﻿using LittleViet.Domain.Repositories;
+﻿using LittleViet.Data.Repositories;
 
-namespace LittleViet.Domain.Domains;
+namespace LittleViet.Data.Domains;
 
 public class BaseDomain
 {

@@ -1,10 +1,10 @@
-﻿using LittleViet.Domain.ViewModels;
+﻿using LittleViet.Data.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using LittleViet.Api.Utilities;
-using LittleViet.Domain.Domains.Order;
-using LittleViet.Domain.Models;
+using LittleViet.Data.Domains.Order;
+using LittleViet.Data.Models;
 
 namespace LittleViet.Api.Controllers;
 

@@ -1,11 +1,11 @@
-﻿using LittleViet.Domain.Domains.Coupon;
-using LittleViet.Domain.Domains.Order;
-using LittleViet.Domain.Repositories;
-using LittleViet.Domain.ViewModels;
+﻿using LittleViet.Data.Domains.Coupon;
+using LittleViet.Data.Domains.Order;
+using LittleViet.Data.Repositories;
+using LittleViet.Data.ViewModels;
 using Serilog;
 using Stripe.Checkout;
 
-namespace LittleViet.Domain.Domains.Payment;
+namespace LittleViet.Data.Domains.Payment;
 
 public interface IPaymentDomain
 {

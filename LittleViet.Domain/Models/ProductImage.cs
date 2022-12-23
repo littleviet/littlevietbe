@@ -1,4 +1,4 @@
-﻿namespace LittleViet.Domain.Models;
+﻿namespace LittleViet.Data.Models;
 
 public class ProductImage : AuditableEntity
 {

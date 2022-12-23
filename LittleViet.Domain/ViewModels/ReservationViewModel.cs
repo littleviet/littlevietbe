@@ -1,8 +1,8 @@
 ﻿using System.Text.Json.Serialization;
-using LittleViet.Domain.Models;
+using LittleViet.Data.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace LittleViet.Domain.ViewModels;
+namespace LittleViet.Data.ViewModels;
 
 public class CreateReservationViewModel
 {

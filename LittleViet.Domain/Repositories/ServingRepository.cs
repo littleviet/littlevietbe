@@ -1,7 +1,7 @@
-﻿using LittleViet.Domain.Models;
+﻿using LittleViet.Data.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace LittleViet.Domain.Repositories;
+namespace LittleViet.Data.Repositories;
 
 public interface IServingRepository : IBaseRepository<Serving>
 {

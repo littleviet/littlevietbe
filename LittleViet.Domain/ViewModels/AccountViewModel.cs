@@ -1,6 +1,6 @@
-﻿using LittleViet.Domain.Models;
+﻿using LittleViet.Data.Models;
 
-namespace LittleViet.Domain.ViewModels;
+namespace LittleViet.Data.ViewModels;
 
 public class GenericAccountViewModel
 {

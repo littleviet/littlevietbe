@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using LittleViet.Domain.Models;
-using LittleViet.Domain.ViewModels;
+using LittleViet.Data.Models;
+using LittleViet.Data.ViewModels;
 
-namespace LittleViet.Domain.Domains.Coupon;
+namespace LittleViet.Data.Domains.Coupon;
 
 public class CouponMappers : Profile
 {

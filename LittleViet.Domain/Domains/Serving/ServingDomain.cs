@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using LittleViet.Domain.Repositories;
-using LittleViet.Domain.ViewModels;
+using LittleViet.Data.Repositories;
+using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.EntityFramework;
 using LittleViet.Infrastructure.Stripe.Interface;
 using LittleViet.Infrastructure.Stripe.Models;
@@ -9,7 +9,7 @@ using Serilog;
 using static LittleViet.Infrastructure.EntityFramework.SqlHelper;
 using Stripe;
 
-namespace LittleViet.Domain.Domains.Serving;
+namespace LittleViet.Data.Domains.Serving;
 
 public interface IServingDomain
 {
