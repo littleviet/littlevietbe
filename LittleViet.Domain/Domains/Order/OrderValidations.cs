@@ -16,17 +16,9 @@ public class CreateOrderViewModelValidator : AbstractValidator<CreateOrderViewMo
             .GreaterThan(DateTime.UtcNow)
             .MustAsync(async (x, ct) =>
             {
-                var pickupTime = dateTimeService.ConvertToTimeZone(x);
-                var vacation = await vacationRepository.GetByDateAsync(pickupTime, ct);
-                if (vacation == null) return true;
-                
-                if (vacation.From == null && vacation.To == null)
-                    return false;
-
-                if (vacation?.From < pickupTime && vacation?.To > pickupTime)
-                    return false;
-
-                return true;
+                var bookingTime = dateTimeService.ConvertToTimeZone(x);
+                var vacation = await vacationRepository.GetByTimeAsync(bookingTime, ct);
+                return vacation == null;
             })
             .WithMessage(x => $"We are closed during your requested time of {dateTimeService.ConvertToTimeZone(x.PickupTime).ToString("f")}");;
         RuleFor(x => x.OrderType).IsInEnum();

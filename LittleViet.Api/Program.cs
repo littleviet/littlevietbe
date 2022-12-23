@@ -65,7 +65,8 @@ try
         .AddLegacyDi();
 
     var app = builder.Build();
-
+    
+    AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);//TODO: fix or workaround this
     using (var scope = app.Services.CreateScope())
     {
         using (var context = scope.ServiceProvider.GetService<LittleVietContext>())

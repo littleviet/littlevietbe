@@ -20,16 +20,8 @@ public class CreateReservationViewModelValidator : AbstractValidator<CreateReser
             .MustAsync(async (x, ct) =>
             {
                 var bookingTime = dateTimeService.ConvertToTimeZone(x);
-                var vacation = await vacationRepository.GetByDateAsync(bookingTime, ct);
-                if (vacation == null) return true;
-                
-                if (vacation.From == null && vacation.To == null)
-                    return false;
-
-                if (vacation?.From < bookingTime && vacation?.To > bookingTime)
-                    return false;
-
-                return true;
+                var vacation = await vacationRepository.GetByTimeAsync(bookingTime, ct);
+                return vacation == null;
             })
             .WithMessage(x => $"We are closed during your requested time of {dateTimeService.ConvertToTimeZone(x.BookingDate).ToString("f")}");
         RuleFor(x => x.FirstName).NotEmpty();
