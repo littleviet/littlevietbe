@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
-using LittleViet.Domain.ViewModels;
+using LittleViet.Data.ViewModels;
 
-namespace LittleViet.Domain.Domains.Account;
+namespace LittleViet.Data.Domains.Account;
 
 public class CreateAccountViewModelValidator : AbstractValidator<CreateAccountViewModel> 
 {

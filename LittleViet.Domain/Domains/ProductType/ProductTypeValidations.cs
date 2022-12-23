@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
-using LittleViet.Domain.ViewModels;
+using LittleViet.Data.ViewModels;
 
-namespace LittleViet.Domain.Domains.Order;
+namespace LittleViet.Data.Domains.Order;
 
 public class CreateProductTypeModelValidator : AbstractValidator<CreateProductTypeViewModel> 
 {

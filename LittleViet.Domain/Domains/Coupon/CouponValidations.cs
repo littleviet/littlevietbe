@@ -1,4 +1,4 @@
-﻿namespace LittleViet.Domain.Domains.Coupon;
+﻿namespace LittleViet.Data.Domains.Coupon;
 
 public class CouponValidations
 {

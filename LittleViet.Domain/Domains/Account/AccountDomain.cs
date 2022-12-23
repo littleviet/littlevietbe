@@ -2,8 +2,8 @@
 using System.Security.Claims;
 using System.Text;
 using AutoMapper;
-using LittleViet.Domain.Repositories;
-using LittleViet.Domain.ViewModels;
+using LittleViet.Data.Repositories;
+using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -11,7 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using static LittleViet.Infrastructure.EntityFramework.SqlHelper;
 using BCryptNet = BCrypt.Net.BCrypt;
 
-namespace LittleViet.Domain.Domains.Account;
+namespace LittleViet.Data.Domains.Account;
 
 public interface IAccountDomain
 {

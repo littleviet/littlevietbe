@@ -1,8 +1,8 @@
 ﻿using System.Security.Claims;
 using LittleViet.Api.Utilities;
-using LittleViet.Domain.Domains.Reservations;
-using LittleViet.Domain.Models;
-using LittleViet.Domain.ViewModels;
+using LittleViet.Data.Domains.Reservations;
+using LittleViet.Data.Models;
+using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.Mvc.BodyAndRouteBinder;
 using Microsoft.AspNetCore.Mvc;
 

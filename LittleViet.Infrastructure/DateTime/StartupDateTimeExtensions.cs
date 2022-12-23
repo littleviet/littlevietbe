@@ -8,5 +8,5 @@ public static class StartupDateTimeConfigurationExtensions
 {
     public static IServiceCollection AddAppDateTimeServices(this IServiceCollection serviceCollection) =>
         serviceCollection
-            .AddSingleton<IDateTimeService, DateTimeService>();
+            .AddScoped<IDateTimeService, DateTimeService>();
 }

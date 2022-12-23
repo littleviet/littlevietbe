@@ -1,6 +1,6 @@
-﻿using LittleViet.Domain.Models;
+﻿using LittleViet.Data.Models;
 
-namespace LittleViet.Domain.Repositories;
+namespace LittleViet.Data.Repositories;
 
 public interface IProductImageRepository : IBaseRepository<ProductImage>
 {

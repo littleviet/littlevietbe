@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using LittleViet.Domain.ViewModels;
+using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.Stripe.Models;
 
-namespace LittleViet.Domain.Domains.Serving;
+namespace LittleViet.Data.Domains.Serving;
 
 public class ServingMappers : Profile
 {

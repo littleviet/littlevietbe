@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using LittleViet.Domain.ViewModels;
+using LittleViet.Data.ViewModels;
 
-namespace LittleViet.Domain.Domains.ProductType;
+namespace LittleViet.Data.Domains.ProductType;
 
 public class ProductTypeMappers : Profile
 {

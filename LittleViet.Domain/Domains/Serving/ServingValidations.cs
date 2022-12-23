@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
-using LittleViet.Domain.ViewModels;
+using LittleViet.Data.ViewModels;
 
-namespace LittleViet.Domain.Domains.Serving;
+namespace LittleViet.Data.Domains.Serving;
 
 public class CreateServingViewModelValidator : AbstractValidator<CreateServingViewModel>
 {

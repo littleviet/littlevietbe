@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
-using LittleViet.Domain.Models;
-using LittleViet.Domain.ViewModels;
+using LittleViet.Data.Models;
+using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.Stripe.Models;
 
-namespace LittleViet.Domain.Domains.Products;
+namespace LittleViet.Data.Domains.Products;
 
 public class ProductMappers : Profile
 {

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace LittleViet.Domain.Models
+namespace LittleViet.Data.Models
 {
     public class AuditableEntity : IEntity
     {
