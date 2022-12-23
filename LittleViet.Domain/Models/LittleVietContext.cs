@@ -20,6 +20,7 @@ public class LittleVietContext : DbContext
     internal DbSet<Reservation> Reservation { get; set; }
     internal DbSet<Serving> Serving { get; set; }
     internal DbSet<ProductType> ProductType { get; set; }
+    internal DbSet<Vacation> Vacations { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

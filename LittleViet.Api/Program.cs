@@ -55,7 +55,7 @@ try
             options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
         })
         .AddFluentValidation(fv
-            => fv.RegisterValidatorsFromAssemblyContaining<BaseDomain>(lifetime: ServiceLifetime.Singleton));
+            => fv.RegisterValidatorsFromAssemblyContaining<BaseDomain>(lifetime: ServiceLifetime.Transient));
 
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
     builder.Services.AddEndpointsApiExplorer()
@@ -65,7 +65,8 @@ try
         .AddLegacyDi();
 
     var app = builder.Build();
-
+    
+    AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);//TODO: fix or workaround this
     using (var scope = app.Services.CreateScope())
     {
         using (var context = scope.ServiceProvider.GetService<LittleVietContext>())

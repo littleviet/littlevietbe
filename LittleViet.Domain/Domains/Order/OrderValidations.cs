@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.DateTime;
 
@@ -6,13 +7,20 @@ namespace LittleViet.Data.Domains.Order;
 
 public class CreateOrderViewModelValidator : AbstractValidator<CreateOrderViewModel>
 {
-    public CreateOrderViewModelValidator(IDateTimeService dateTimeService)
+    public CreateOrderViewModelValidator(IDateTimeService dateTimeService, IVacationRepository vacationRepository)
     {
         RuleFor(x => x.PickupTime)
             .Cascade(CascadeMode.Stop)
             .Must(x => Constants.WorkingWeekDays.Contains(dateTimeService.ConvertToTimeZone(x).DayOfWeek))
             .WithMessage("We are closed on Tue")
-            .GreaterThan(DateTime.UtcNow);
+            .GreaterThan(DateTime.UtcNow)
+            .MustAsync(async (x, ct) =>
+            {
+                var bookingTime = dateTimeService.ConvertToTimeZone(x);
+                var vacation = await vacationRepository.GetByTimeAsync(bookingTime, ct);
+                return vacation == null;
+            })
+            .WithMessage(x => $"We are closed during your requested time of {dateTimeService.ConvertToTimeZone(x.PickupTime).ToString("f")}");;
         RuleFor(x => x.OrderType).IsInEnum();
         RuleFor(x => x.TotalPrice).NotNull();
         RuleFor(x => x.PaymentType).IsInEnum();

@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using LittleViet.Data.Models;
+using LittleViet.Data.Repositories;
 using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.DateTime;
 
@@ -7,7 +8,7 @@ namespace LittleViet.Data.Domains.Reservations;
 
 public class CreateReservationViewModelValidator : AbstractValidator<CreateReservationViewModel>
 {
-    public CreateReservationViewModelValidator(IDateTimeService dateTimeService)
+    public CreateReservationViewModelValidator(IDateTimeService dateTimeService, IVacationRepository vacationRepository)
     {
         RuleFor(x => x.Email).EmailAddress();
         RuleFor(x => x.BookingDate)
@@ -15,7 +16,14 @@ public class CreateReservationViewModelValidator : AbstractValidator<CreateReser
             .NotEmpty()
             .Must(x => Constants.WorkingWeekDays.Contains(dateTimeService.ConvertToTimeZone(x).DayOfWeek))
             .WithMessage("We are closed on Tue")
-            .GreaterThan(DateTime.UtcNow);
+            .GreaterThan(DateTime.UtcNow)
+            .MustAsync(async (x, ct) =>
+            {
+                var bookingTime = dateTimeService.ConvertToTimeZone(x);
+                var vacation = await vacationRepository.GetByTimeAsync(bookingTime, ct);
+                return vacation == null;
+            })
+            .WithMessage(x => $"We are closed during your requested time of {dateTimeService.ConvertToTimeZone(x.BookingDate).ToString("f")}");
         RuleFor(x => x.FirstName).NotEmpty();
         RuleFor(x => x.PhoneNumber).NotEmpty();
         RuleFor(x => x.NoOfPeople).GreaterThan(0);

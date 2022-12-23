@@ -3,6 +3,7 @@ using System;
 using LittleViet.Data.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LittleViet.Data.Migrations
 {
     [DbContext(typeof(LittleVietContext))]
-    partial class LittleVietContextModelSnapshot : ModelSnapshot
+    [Migration("20221223114027_AddVacation")]
+    partial class AddVacation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -440,12 +442,12 @@ namespace LittleViet.Data.Migrations
                         {
                             Id = new Guid("96c9d97c-1207-46a6-bb25-8773b622d205"),
                             CaName = "Productes envasats",
-                            CreatedDate = new DateTime(2022, 7, 31, 11, 52, 59, 407, DateTimeKind.Utc).AddTicks(4333),
+                            CreatedDate = new DateTime(2022, 12, 23, 11, 40, 26, 890, DateTimeKind.Utc).AddTicks(1093),
                             Description = "Packaged products",
                             EsName = "Productos Empaquetados",
                             IsDeleted = false,
                             Name = "Packaged Products",
-                            UpdatedDate = new DateTime(2022, 7, 31, 11, 52, 59, 407, DateTimeKind.Utc).AddTicks(4336)
+                            UpdatedDate = new DateTime(2022, 12, 23, 11, 40, 26, 890, DateTimeKind.Utc).AddTicks(1096)
                         });
                 });
 
