@@ -1,11 +1,11 @@
 ﻿using System.Security.Claims;
-using LittleViet.Domain.Models;
+using LittleViet.Data.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace LittleViet.Domain.Repositories;
+namespace LittleViet.Data.Repositories;
 
 public partial interface IUnitOfWork
 {

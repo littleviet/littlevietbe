@@ -1,10 +1,10 @@
 ﻿using LittleViet.Api.Utilities;
-using LittleViet.Domain.Domains.Coupon;
-using LittleViet.Domain.Domains.Order;
-using LittleViet.Domain.Domains.Reservations;
-using LittleViet.Domain.Domains.Tasks;
-using LittleViet.Domain.Models;
-using LittleViet.Domain.ViewModels;
+using LittleViet.Data.Domains.Coupon;
+using LittleViet.Data.Domains.Order;
+using LittleViet.Data.Domains.Reservations;
+using LittleViet.Data.Domains.Tasks;
+using LittleViet.Data.Models;
+using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.Mvc.BodyAndRouteBinder;
 using Microsoft.AspNetCore.Mvc;
 

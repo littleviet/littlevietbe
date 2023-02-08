@@ -1,12 +1,12 @@
 ﻿using AutoMapper;
-using LittleViet.Domain.Repositories;
-using LittleViet.Domain.ViewModels;
+using LittleViet.Data.Repositories;
+using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.EntityFramework;
 using LittleViet.Infrastructure.Mvc;
 using static LittleViet.Infrastructure.EntityFramework.SqlHelper;
 using Microsoft.EntityFrameworkCore;
 
-namespace LittleViet.Domain.Domains.ProductType;
+namespace LittleViet.Data.Domains.ProductType;
 
 public interface IProductTypeDomain
 {

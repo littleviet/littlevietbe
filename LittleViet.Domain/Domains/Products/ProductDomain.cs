@@ -1,18 +1,18 @@
 ﻿using AutoMapper;
-using LittleViet.Domain.Domains.ProductType;
+using LittleViet.Data.Domains.ProductType;
+using LittleViet.Data.Repositories;
+using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.Azure.AzureBlobStorage.Interface;
 using LittleViet.Infrastructure.Stripe.Interface;
 using LittleViet.Infrastructure.Stripe.Models;
 using Microsoft.EntityFrameworkCore;
 using Stripe;
-using LittleViet.Domain.Models;
-using LittleViet.Domain.Repositories;
-using LittleViet.Domain.ViewModels;
+using LittleViet.Data.Models;
 using LittleViet.Infrastructure.EntityFramework;
 using Serilog;
 using static LittleViet.Infrastructure.EntityFramework.SqlHelper;
 
-namespace LittleViet.Domain.Domains.Products;
+namespace LittleViet.Data.Domains.Products;
 public interface IProductDomain
 {
     Task<ResponseViewModel<Guid>> Create(CreateProductViewModel createProductViewModel);

@@ -1,4 +1,4 @@
-﻿using LittleViet.Domain.Domains.Payment;
+﻿using LittleViet.Data.Domains.Payment;
 using LittleViet.Infrastructure.Stripe;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;

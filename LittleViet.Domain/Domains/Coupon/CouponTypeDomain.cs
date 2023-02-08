@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using LittleViet.Domain.Models;
-using LittleViet.Domain.Repositories;
-using LittleViet.Domain.ViewModels;
+using LittleViet.Data.Models;
+using LittleViet.Data.Repositories;
+using LittleViet.Data.ViewModels;
 using LittleViet.Infrastructure.Stripe;
 using LittleViet.Infrastructure.Stripe.Interface;
 using LittleViet.Infrastructure.Stripe.Models;
@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Stripe;
 
-namespace LittleViet.Domain.Domains.Coupon;
+namespace LittleViet.Data.Domains.Coupon;
 
 public interface ICouponTypeDomain
 {

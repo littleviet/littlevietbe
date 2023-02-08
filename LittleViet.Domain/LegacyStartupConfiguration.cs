@@ -1,6 +1,6 @@
-﻿using LittleViet.Domain.Domains;
-using LittleViet.Domain.Models;
-using LittleViet.Domain.Repositories;
+﻿using LittleViet.Data.Domains;
+using LittleViet.Data.Models;
+using LittleViet.Data.Repositories;
 using LittleViet.Infrastructure.Azure.AzureBlobStorage;
 using LittleViet.Infrastructure.DateTime;
 using LittleViet.Infrastructure.Email;
@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Scrutor;
 
-namespace LittleViet.Domain;
+namespace LittleViet.Data;
 
 public static class LegacyStartupConfiguration
 {

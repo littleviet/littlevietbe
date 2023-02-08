@@ -1,4 +1,4 @@
-﻿namespace LittleViet.Domain.ViewModels;
+﻿namespace LittleViet.Data.ViewModels;
 
 public class LandingPageViewModel
 {
