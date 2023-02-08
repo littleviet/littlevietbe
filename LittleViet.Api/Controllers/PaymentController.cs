@@ -24,7 +24,7 @@ public class PaymentController : Controller
     {
         var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
         try
-        {
+        {            
             var stripeEvent = EventUtility.ConstructEvent(
                 json,
                 Request.Headers["Stripe-Signature"],
@@ -42,7 +42,7 @@ public class PaymentController : Controller
         }
         catch (Exception e)
         {
-            Log.Warning("Unable to process Stripe event with {exception} and {body} and {stripe-signature}", e.ToString(), json, Request.Headers["Stripe-Signature"]);
+            Log.Warning("Unable to process Stripe event with {exception} and {body} and {stripe-signature}", e.ToString(), json, Request.Headers["Stripe-Signature"].ToString());
             return BadRequest("Bad request from Stripe");
         }
     }
