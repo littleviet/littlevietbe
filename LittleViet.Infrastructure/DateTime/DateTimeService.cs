@@ -13,7 +13,9 @@ internal class DateTimeService : IDateTimeService
     {
       if (utc == default)
         utc = System.DateTime.UtcNow;
-        
+
+      System.DateTime.SpecifyKind(utc, DateTimeKind.Utc);
+      
       tzi ??= GetDefaultLittleVietTimeZone();
       
       return TimeZoneInfo.ConvertTimeFromUtc(utc, tzi);
