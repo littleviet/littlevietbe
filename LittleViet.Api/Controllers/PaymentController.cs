@@ -42,7 +42,7 @@ public class PaymentController : Controller
         }
         catch (Exception e)
         {
-            Log.Warning("Unable to process Stripe event with {exception} and {body} and {stripe-signature}", e.ToString(), json, Request.Headers["Stripe-Signature"].ToString());
+            Log.Warning("Unable to process Stripe event with {exception} and {body} and {stripeSignature}", e.ToString(), json, Request.Headers["Stripe-Signature"].ToString());
             return BadRequest("Bad request from Stripe");
         }
     }
