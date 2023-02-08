@@ -1,5 +1,5 @@
 ﻿{
   "ConnectionStrings": {
-    "LittleVietContext": "Server=localhost;Database=LittleViet-Prod;Port=5432;User Id=postgres;Password=Hoangpro123;Trust Server Certificate=true"
+    "LittleVietContext": ""
   }
 }
