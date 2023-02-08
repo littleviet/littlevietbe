@@ -39,6 +39,7 @@ try
     builder.Host
         .UseAppSerilog();
 
+    AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);//TODO: fix or workaround this
     builder.Services //TODO: move data to separate project
         .AddDbContext<LittleVietContext>(options =>
             options.UseLazyLoadingProxies()
@@ -66,7 +67,6 @@ try
 
     var app = builder.Build();
     
-    AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);//TODO: fix or workaround this
     using (var scope = app.Services.CreateScope())
     {
         using (var context = scope.ServiceProvider.GetService<LittleVietContext>())

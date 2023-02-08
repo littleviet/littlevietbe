@@ -3,21 +3,19 @@
 public interface IDateTimeService
 {
     TimeZoneInfo GetDefaultLittleVietTimeZone();
-    System.DateTime ConvertToTimeZone(System.DateTime utc = default, TimeZoneInfo tzi = null);
+    System.DateTime ConvertToTimeZone(System.DateTime time = default, TimeZoneInfo tzi = null);
 }
 
 internal class DateTimeService : IDateTimeService
 {
     public TimeZoneInfo GetDefaultLittleVietTimeZone() => TimeZoneInfo.FindSystemTimeZoneById("Romance Standard Time");
-    public System.DateTime ConvertToTimeZone(System.DateTime utc = default, TimeZoneInfo tzi = null)
+    public System.DateTime ConvertToTimeZone(System.DateTime time = default, TimeZoneInfo tzi = null)
     {
-      if (utc == default)
-        utc = System.DateTime.UtcNow;
+      if (time == default)
+        time = System.DateTime.UtcNow;
 
-      System.DateTime.SpecifyKind(utc, DateTimeKind.Utc);
-      
       tzi ??= GetDefaultLittleVietTimeZone();
       
-      return TimeZoneInfo.ConvertTimeFromUtc(utc, tzi);
+      return TimeZoneInfo.ConvertTime(time, tzi);
     }
 }
