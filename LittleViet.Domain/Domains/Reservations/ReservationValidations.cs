@@ -1,10 +1,10 @@
 ﻿using FluentValidation;
-using LittleViet.Data.Models;
-using LittleViet.Data.Repositories;
-using LittleViet.Data.ViewModels;
+using LittleViet.Domain.Models;
+using LittleViet.Domain.Repositories;
+using LittleViet.Domain.ViewModels;
 using LittleViet.Infrastructure.DateTime;
 
-namespace LittleViet.Data.Domains.Reservations;
+namespace LittleViet.Domain.Domains.Reservations;
 
 public class CreateReservationViewModelValidator : AbstractValidator<CreateReservationViewModel>
 {

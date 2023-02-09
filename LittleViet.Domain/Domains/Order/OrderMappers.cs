@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using LittleViet.Data.Models;
-using LittleViet.Data.ViewModels;
+using LittleViet.Domain.Models;
+using LittleViet.Domain.ViewModels;
 
-namespace LittleViet.Data.Domains.Order;
+namespace LittleViet.Domain.Domains.Order;
 
 public class OrderMappers : Profile
 {

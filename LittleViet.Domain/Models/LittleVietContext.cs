@@ -1,7 +1,7 @@
-﻿using LittleViet.Data.Domains.ProductType;
+﻿using LittleViet.Domain.Domains.ProductType;
 using Microsoft.EntityFrameworkCore;
 
-namespace LittleViet.Data.Models;
+namespace LittleViet.Domain.Models;
 
 public class LittleVietContext : DbContext
 {

@@ -1,5 +1,5 @@
-﻿using LittleViet.Data.Domains.Coupon;
-using LittleViet.Data.ViewModels;
+﻿using LittleViet.Domain.Domains.Coupon;
+using LittleViet.Domain.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

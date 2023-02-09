@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
-using LittleViet.Data.Domains.ProductType;
-using LittleViet.Data.Repositories;
-using LittleViet.Data.ViewModels;
+using LittleViet.Domain.Domains.ProductType;
+using LittleViet.Domain.Repositories;
+using LittleViet.Domain.ViewModels;
 using Microsoft.EntityFrameworkCore;
 
-namespace LittleViet.Data.Domains.LandingPage;
+namespace LittleViet.Domain.Domains.LandingPage;
 
 public interface ILandingPageDomain
 {
@@ -33,13 +33,13 @@ internal class LandingPageDomain : BaseDomain, ILandingPageDomain
             var productTypes = _productTypeRepository.DbSet()
                 .Include(t => t.Products.Where(p => p.IsDeleted == false))
                 .ThenInclude(p => p.Servings)
-                .Where(pt => pt.Products.Any(p => p.Servings.Any()) && pt.Id != LittleViet.Data.Domains.ProductType.Constants.PackagedProductTypeId)
+                .Where(pt => pt.Products.Any(p => p.Servings.Any()) && pt.Id != ProductType.Constants.PackagedProductTypeId)
                 .AsNoTracking();
 
             var packagedProducts = _productRepository
                 .DbSet()
                 .Include(x => x.ProductImages.Where(i => i.IsMain))
-                .Where(x => x.ProductTypeId == LittleViet.Data.Domains.ProductType.Constants.PackagedProductTypeId);
+                .Where(x => x.ProductTypeId == ProductType.Constants.PackagedProductTypeId);
 
             var result = new LandingPageViewModel()
             {

@@ -1,8 +1,8 @@
-﻿using LittleViet.Data.Models;
+﻿using LittleViet.Domain.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace LittleViet.Data.ViewModels;
+namespace LittleViet.Domain.ViewModels;
 
 public class GenericProductImageViewModel
 {
