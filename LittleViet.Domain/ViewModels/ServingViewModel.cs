@@ -1,6 +1,6 @@
-﻿using LittleViet.Data.Models;
+﻿using LittleViet.Domain.Models;
 
-namespace LittleViet.Data.ViewModels;
+namespace LittleViet.Domain.ViewModels;
 
 public class CreateServingViewModel
 {

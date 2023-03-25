@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using LittleViet.Data.Models;
-using LittleViet.Data.ViewModels;
+using LittleViet.Domain.Models;
+using LittleViet.Domain.ViewModels;
 
-namespace LittleViet.Data.Domains.Reservations;
+namespace LittleViet.Domain.Domains.Reservations;
 
 public class ReservationMappers : Profile
 {

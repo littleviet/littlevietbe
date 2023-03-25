@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using LittleViet.Data.ViewModels;
+using LittleViet.Domain.ViewModels;
 
-namespace LittleViet.Data.Domains.Account;
+namespace LittleViet.Domain.Domains.Account;
 
 public class AccountMappers : Profile
 {

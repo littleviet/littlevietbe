@@ -1,6 +1,7 @@
-﻿using LittleViet.Data.Domains;
-using LittleViet.Data.Models;
-using LittleViet.Data.Repositories;
+﻿using LittleViet.Domain.Domains;
+using LittleViet.Domain.Models;
+using LittleViet.Domain.Repositories;
+using LittleViet.Domain.Services.HealthChecks;
 using LittleViet.Infrastructure.Azure.AzureBlobStorage;
 using LittleViet.Infrastructure.DateTime;
 using LittleViet.Infrastructure.Email;
@@ -11,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Scrutor;
 
-namespace LittleViet.Data;
+namespace LittleViet.Domain;
 
 public static class LegacyStartupConfiguration
 {
@@ -28,7 +29,8 @@ public static class LegacyStartupConfiguration
             .AddAppStripeServices()
             .AddAppAzureBlobStorage()
             .AddAppEmailServices()
-            .AddAppDateTimeServices();
+            .AddAppDateTimeServices()
+            .AddAppHealthChecks();
 
     private static IServiceCollection AddDomainsAndRepositories(this IServiceCollection services) =>
         services.Scan(

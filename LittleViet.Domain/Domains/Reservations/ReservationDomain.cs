@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using LittleViet.Data.Models;
-using LittleViet.Data.Repositories;
-using LittleViet.Data.ViewModels;
+using LittleViet.Domain.Models;
+using LittleViet.Domain.Repositories;
+using LittleViet.Domain.ViewModels;
 using LittleViet.Infrastructure.DateTime;
 using LittleViet.Infrastructure.Email;
 using LittleViet.Infrastructure.Email.Interface;
@@ -12,7 +12,7 @@ using static LittleViet.Infrastructure.EntityFramework.SqlHelper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
-namespace LittleViet.Data.Domains.Reservations;
+namespace LittleViet.Domain.Domains.Reservations;
 
 public interface IReservationDomain
 {

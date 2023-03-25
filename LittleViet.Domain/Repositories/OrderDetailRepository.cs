@@ -1,6 +1,6 @@
-﻿using LittleViet.Data.Models;
+﻿using LittleViet.Domain.Models;
 
-namespace LittleViet.Data.Repositories;
+namespace LittleViet.Domain.Repositories;
 
 public interface IOrderDetailRepository : IBaseRepository<OrderDetail>
 {

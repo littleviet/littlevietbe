@@ -1,4 +1,4 @@
-﻿namespace LittleViet.Data.Domains.ProductType;
+﻿namespace LittleViet.Domain.Domains.ProductType;
 
 public class Constants
 {
