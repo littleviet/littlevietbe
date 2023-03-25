@@ -1,4 +1,5 @@
-﻿using LittleViet.Infrastructure.Security.XSRF;
+﻿using LittleViet.Infrastructure.HealthCheck;
+using LittleViet.Infrastructure.Security.XSRF;
 using Microsoft.AspNetCore.Builder;
 using Serilog;
 using Swashbuckle.AspNetCore.SwaggerUI;
@@ -32,6 +33,8 @@ public static class StartupMiddlewareExtensions
         webApplication.UseHttpsRedirection();
 
         webApplication.MapControllers();
+
+        webApplication.MapAppHealthCheck("/hc");
 
         return webApplication;
     }

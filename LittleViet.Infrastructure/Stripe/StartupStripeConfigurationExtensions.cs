@@ -16,11 +16,12 @@ public static class StartupStripeConfigurationExtensions
         return serviceCollection;
     }
 
-    public static IServiceCollection AddAppStripeServices(this IServiceCollection serviceCollection) => serviceCollection
-        .AddScoped(_ => new ProductService())
-        .AddScoped(_ => new PriceService())
-        .AddScoped(_ => new SessionService())
-        .AddScoped<IStripePaymentService, StripePaymentService>()
-        .AddScoped<IStripeProductService, StripeProductService>()
-        .AddScoped<IStripePriceService, StripePriceService>();
+    public static IServiceCollection AddAppStripeServices(this IServiceCollection serviceCollection) =>
+        serviceCollection
+            .AddScoped(_ => new ProductService())
+            .AddScoped(_ => new PriceService())
+            .AddScoped(_ => new SessionService())
+            .AddScoped<IStripePaymentService, StripePaymentService>()
+            .AddScoped<IStripeProductService, StripeProductService>()
+            .AddScoped<IStripePriceService, StripePriceService>();
 }

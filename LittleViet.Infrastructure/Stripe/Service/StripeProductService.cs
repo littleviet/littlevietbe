@@ -14,6 +14,13 @@ internal class StripeProductService : BaseStripeService, IStripeProductService
     {
         _productService = productService ?? throw new ArgumentNullException(nameof(productService));
     }
+    
+    public Task<Product> GetProduct(string id)
+    {
+        if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
+        
+        return _productService.GetAsync(id);
+    }
 
     public Task<Product> CreateProduct(CreateProductDto dto)
     {

@@ -8,4 +8,5 @@ public interface IStripeProductService
     Task<Product> CreateProduct(CreateProductDto dto);
     Task<Product> UpdateProduct(UpdateProductDto dto);
     Task<Product> DeactivateProduct(string id);
+    Task<Product> GetProduct(string id);
 }
