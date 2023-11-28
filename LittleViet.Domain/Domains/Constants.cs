@@ -1,6 +1,6 @@
 ﻿namespace LittleViet.Domain.Domains;
 
-public class Constants
+public static class Constants
 {
     public static readonly DayOfWeek[] WorkingWeekDays = new[]
     {
@@ -17,4 +17,11 @@ public class Constants
         (new TimeOnly(13, 00), new TimeOnly(16, 00)),
         (new TimeOnly(20, 00), new TimeOnly(23, 00)),
     };
+}
+
+public static class CacheKeys
+{
+    public static readonly string[] CatalogKeys = new [] { LandingPageCatalogCacheKey, TakeAwayMenuCatalogCacheKey };
+    public const string LandingPageCatalogCacheKey = "LandingPageCatalog";
+    public const string TakeAwayMenuCatalogCacheKey = "TakeAwayMenuCatalog";
 }

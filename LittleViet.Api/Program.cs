@@ -3,12 +3,12 @@ using FluentValidation.AspNetCore;
 using LittleViet.Domain;
 using LittleViet.Domain.Domains;
 using LittleViet.Domain.Models;
+using LittleViet.Infrastructure.Caching;
 using Microsoft.EntityFrameworkCore;
 using LittleViet.Infrastructure.Configurations;
 using LittleViet.Infrastructure.Logging;
 using LittleViet.Infrastructure.Middleware;
 using LittleViet.Infrastructure.Security.JWT;
-using LittleViet.Infrastructure.Stripe;
 using LittleViet.Infrastructure.Swagger;
 using LittleViet.Infrastructure.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
@@ -25,21 +25,23 @@ try
         .CreateBootstrapLogger();
 
     Log.Information("Starting up");
-    
+
     var builder = WebApplication.CreateBuilder(args);
 
     builder.Host.AddConfigurations();
     if (environment == Environments.Development)
         builder.Configuration.AddUserSecrets<Program>();
-    
+
     builder.Services
         .AddConfigurationBinding(builder.Configuration)
         .AddAppLoggingAndTelemetry(builder.Configuration);
-    
+
     builder.Host
         .UseAppSerilog();
 
-    AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);//TODO: fix or workaround this
+    builder.Services.AddAppInMemoryCacheServices();
+
+    AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true); //TODO: fix or workaround this
     builder.Services //TODO: move data to separate project
         .AddDbContext<LittleVietContext>(options =>
             options.UseLazyLoadingProxies()
@@ -66,11 +68,11 @@ try
         .AddLegacyDi();
 
     var app = builder.Build();
-    
+
     using (var scope = app.Services.CreateScope())
     {
         using (var context = scope.ServiceProvider.GetService<LittleVietContext>())
-        context.Database.Migrate();
+            context.Database.Migrate();
     }
 
     app.UseAppMiddlewares();

@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using LittleViet.Domain.Repositories;
 using LittleViet.Domain.ViewModels;
+using LittleViet.Infrastructure.Caching;
 using LittleViet.Infrastructure.EntityFramework;
-using LittleViet.Infrastructure.Mvc;
 using static LittleViet.Infrastructure.EntityFramework.SqlHelper;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,18 +13,27 @@ public interface IProductTypeDomain
     Task<ResponseViewModel<Guid>> Create(CreateProductTypeViewModel createProductTypeViewModel);
     Task<ResponseViewModel> Update(UpdateProductTypeViewModel updateProductTypeViewModel);
     Task<ResponseViewModel> Deactivate(Guid id);
-    Task<BaseListResponseViewModel<ProductTypeItemViewModel>> GetListProductTypes(GetListProductTypeParameters parameters);
+
+    Task<BaseListResponseViewModel<ProductTypeItemViewModel>> GetListProductTypes(
+        GetListProductTypeParameters parameters);
+
     Task<BaseListResponseViewModel> Search(BaseSearchParameters parameters);
     Task<ResponseViewModel> GetProductTypeById(Guid id);
 }
+
 internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
 {
     private readonly IProductTypeRepository _productTypeRepository;
     private readonly IMapper _mapper;
-    public ProductTypeDomain(IUnitOfWork uow, IProductTypeRepository productTypeRepository, IMapper mapper) : base(uow)
+    private readonly ICache _cache;
+
+    public ProductTypeDomain(IUnitOfWork uow, IProductTypeRepository productTypeRepository, IMapper mapper,
+        ICache cache) : base(uow)
     {
-        _productTypeRepository = productTypeRepository ?? throw new ArgumentNullException(nameof(productTypeRepository));
+        _productTypeRepository =
+            productTypeRepository ?? throw new ArgumentNullException(nameof(productTypeRepository));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _cache = cache;
     }
 
     public async Task<ResponseViewModel<Guid>> Create(CreateProductTypeViewModel createProductTypeViewModel)
@@ -36,9 +45,13 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
             productType.Id = Guid.NewGuid();
 
             _productTypeRepository.Add(productType);
+
             await _uow.SaveAsync();
 
-            return new ResponseViewModel<Guid> { Success = true, Message = "Create successful", Payload = productType.Id};
+            await _cache.InvalidateAsync(CacheKeys.CatalogKeys);
+
+            return new ResponseViewModel<Guid>
+                { Success = true, Message = "Create successful", Payload = productType.Id };
         }
         catch (Exception e)
         {
@@ -61,10 +74,10 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
 
                 _productTypeRepository.Modify(existedProductType);
                 await _uow.SaveAsync();
+                await _cache.InvalidateAsync(CacheKeys.CatalogKeys);
 
                 return new ResponseViewModel { Success = true, Message = "Update successful" };
             }
-
             return new ResponseViewModel { Success = false, Message = "This product type does not exist" };
         }
         catch (Exception e)
@@ -82,8 +95,8 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
             if (productType != null)
             {
                 _productTypeRepository.Deactivate(productType);
-
                 await _uow.SaveAsync();
+                await _cache.InvalidateAsync(CacheKeys.CatalogKeys);
                 return new ResponseViewModel { Message = "Delete successful", Success = true };
             }
 
@@ -95,7 +108,8 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
         }
     }
 
-    public async Task<BaseListResponseViewModel<ProductTypeItemViewModel>> GetListProductTypes(GetListProductTypeParameters parameters)
+    public async Task<BaseListResponseViewModel<ProductTypeItemViewModel>> GetListProductTypes(
+        GetListProductTypeParameters parameters)
     {
         try
         {
@@ -108,7 +122,8 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
                 .WhereIf(!string.IsNullOrEmpty(parameters.EsName),
                     ContainsIgnoreCase<Models.ProductType>(nameof(Models.ProductType.EsName), parameters.EsName))
                 .WhereIf(!string.IsNullOrEmpty(parameters.Description),
-                    ContainsIgnoreCase<Models.ProductType>(nameof(Models.ProductType.Description), parameters.Description));
+                    ContainsIgnoreCase<Models.ProductType>(nameof(Models.ProductType.Description),
+                        parameters.Description));
 
             return new BaseListResponseViewModel<ProductTypeItemViewModel>
             {
@@ -141,7 +156,8 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
         {
             var keyword = parameters.Keyword.ToLower();
             var productTypes = _productTypeRepository.DbSet().AsNoTracking()
-                .Where(p => p.Name.ToLower().Contains(keyword) || p.CaName.ToLower().Contains(keyword) || p.EsName.ToLower().Contains(keyword));
+                .Where(p => p.Name.ToLower().Contains(keyword) || p.CaName.ToLower().Contains(keyword) ||
+                            p.EsName.ToLower().Contains(keyword));
 
             return new BaseListResponseViewModel
             {
@@ -171,37 +187,34 @@ internal class ProductTypeDomain : BaseDomain, IProductTypeDomain
 
     public async Task<ResponseViewModel> GetProductTypeById(Guid id)
     {
+        var productType = await _productTypeRepository.DbSet()
+            .Include(t => t.Products.Where(p => p.IsDeleted == false))
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id);
 
-            var productType = await _productTypeRepository.DbSet()
-                               .Include(t => t.Products.Where(p => p.IsDeleted == false))
-                               .AsNoTracking()
-                               .FirstOrDefaultAsync(x => x.Id == id);
-            
-            if (productType == null)
+        if (productType == null)
+        {
+            return new ResponseViewModel { Success = false, Message = "This product type does not exist" };
+        }
+
+        var result = new ProductTypeDetailsViewModel
+        {
+            CaName = productType.CaName,
+            EsName = productType.EsName,
+            Name = productType.Name,
+            Id = productType.Id,
+            Description = productType.Description,
+            Products = productType.Products.Select(p => new ProductViewModel
             {
-                return new ResponseViewModel { Success = false, Message = "This product type does not exist" };
-            }
-            
-            var result = new ProductTypeDetailsViewModel
-                  {
-                      CaName = productType.CaName,
-                      EsName = productType.EsName,
-                      Name = productType.Name,
-                      Id = productType.Id,
-                      Description = productType.Description,
-                      Products = productType.Products.Select(p => new ProductViewModel
-                      {
-                          CaName = p.CaName,
-                          EsName = p.EsName,
-                          Name = p.Name,
-                          Description = p.Description,
-                          Status = p.Status,
-                          StatusName = p.Status.ToString()
-                      }).ToList()
-                  };
-            
-            return new ResponseViewModel { Success = true, Payload = result };
- 
+                CaName = p.CaName,
+                EsName = p.EsName,
+                Name = p.Name,
+                Description = p.Description,
+                Status = p.Status,
+                StatusName = p.Status.ToString()
+            }).ToList()
+        };
+
+        return new ResponseViewModel { Success = true, Payload = result };
     }
 }
-

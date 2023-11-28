@@ -2,6 +2,7 @@
 using LittleViet.Domain.Domains.ProductType;
 using LittleViet.Domain.Repositories;
 using LittleViet.Domain.ViewModels;
+using LittleViet.Infrastructure.Caching;
 using Microsoft.EntityFrameworkCore;
 
 namespace LittleViet.Domain.Domains.LandingPage;
@@ -15,25 +16,34 @@ internal class LandingPageDomain : BaseDomain, ILandingPageDomain
 {
     private readonly IProductTypeRepository _productTypeRepository;
     private readonly IProductRepository _productRepository;
-    private readonly IMapper _mapper;
+    private readonly ICache _cache;
 
     public LandingPageDomain(IUnitOfWork uow, IProductTypeRepository productTypeRepository,
-        IProductRepository productRepository, IMapper mapper) : base(uow)
+        IProductRepository productRepository, ICache cache) : base(uow)
     {
         _productTypeRepository =
             productTypeRepository ?? throw new ArgumentNullException(nameof(productTypeRepository));
         _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
-        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _cache = cache;
     }
 
     public async Task<ResponseViewModel<LandingPageViewModel>> GetCatalogForLandingPage()
     {
+        var cacheResult = await _cache.TryGetAsync<LandingPageViewModel>(CacheKeys.LandingPageCatalogCacheKey);
+        if (cacheResult.Found)
+            return new ResponseViewModel<LandingPageViewModel>
+            {
+                Payload = cacheResult.Value,
+                Success = true,
+            };
+
         try
         {
             var productTypes = _productTypeRepository.DbSet()
-                .Include(t => t.Products.Where(p => p.IsDeleted == false))
+                .Include(t => t.Products.Where(p => p.IsDeleted))
                 .ThenInclude(p => p.Servings)
-                .Where(pt => pt.Products.Any(p => p.Servings.Any()) && pt.Id != ProductType.Constants.PackagedProductTypeId)
+                .Where(pt =>
+                    pt.Products.Any(p => p.Servings.Any()) && pt.Id != ProductType.Constants.PackagedProductTypeId)
                 .AsNoTracking();
 
             var packagedProducts = _productRepository
@@ -74,6 +84,8 @@ internal class LandingPageDomain : BaseDomain, ILandingPageDomain
                             }
                         ).ToListAsync(),
             };
+
+            await _cache.SetAsync(CacheKeys.LandingPageCatalogCacheKey, result);
 
             return new ResponseViewModel<LandingPageViewModel>
             {
