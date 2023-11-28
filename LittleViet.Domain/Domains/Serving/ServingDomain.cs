@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using LittleViet.Domain.Repositories;
 using LittleViet.Domain.ViewModels;
+using LittleViet.Infrastructure.Caching;
 using LittleViet.Infrastructure.EntityFramework;
 using LittleViet.Infrastructure.Stripe.Interface;
 using LittleViet.Infrastructure.Stripe.Models;
@@ -25,14 +26,16 @@ internal class ServingDomain : BaseDomain, IServingDomain
 {
     private readonly IServingRepository _servingRepository;
     private readonly IStripePriceService _stripePriceService;
+    private readonly ICache _cache;
     private readonly IMapper _mapper;
 
     public ServingDomain(IUnitOfWork uow, IServingRepository servingRepository, IMapper mapper,
-        IStripePriceService stripePriceService) : base(uow)
+        IStripePriceService stripePriceService, ICache cache) : base(uow)
     {
         _servingRepository = servingRepository ?? throw new ArgumentNullException(nameof(servingRepository));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _stripePriceService = stripePriceService ?? throw new ArgumentNullException(nameof(stripePriceService));
+        _cache = cache;
     }
 
     public async Task<ResponseViewModel<Guid>> Create(CreateServingViewModel createServingViewModel)
@@ -59,6 +62,9 @@ internal class ServingDomain : BaseDomain, IServingDomain
             serving.StripePriceId = stripePrice.Id;
 
             await _uow.SaveAsync();
+
+            await _cache.InvalidateAsync(CacheKeys.LandingPageCatalogCacheKey);
+            
             await transaction.CommitAsync();
 
             return new ResponseViewModel<Guid> {Success = true, Message = "Create successful", Payload = serving.Id};
@@ -90,6 +96,7 @@ internal class ServingDomain : BaseDomain, IServingDomain
             _servingRepository.Deactivate(serving);
             await _uow.SaveAsync();
             await _stripePriceService.DeactivatePrice(serving.StripePriceId);
+            await _cache.InvalidateAsync(CacheKeys.LandingPageCatalogCacheKey);
             await transaction.CommitAsync();
             return new ResponseViewModel {Success = true, Message = "Delete successful"};
         }
@@ -134,6 +141,7 @@ internal class ServingDomain : BaseDomain, IServingDomain
 
             _servingRepository.Modify(existedServing);
             await _uow.SaveAsync();
+            await _cache.InvalidateAsync(CacheKeys.LandingPageCatalogCacheKey);
             await transaction.CommitAsync();
 
             return new ResponseViewModel {Success = true, Message = "Update successful"};

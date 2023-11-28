@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using LittleViet.Domain.Domains.ProductType;
 using LittleViet.Infrastructure.Azure.AzureBlobStorage.Interface;
 using LittleViet.Infrastructure.Stripe.Interface;
 using LittleViet.Infrastructure.Stripe.Models;
@@ -8,6 +7,7 @@ using Stripe;
 using LittleViet.Domain.Models;
 using LittleViet.Domain.Repositories;
 using LittleViet.Domain.ViewModels;
+using LittleViet.Infrastructure.Caching;
 using LittleViet.Infrastructure.EntityFramework;
 using Serilog;
 using static LittleViet.Infrastructure.EntityFramework.SqlHelper;
@@ -33,14 +33,16 @@ internal class ProductDomain : BaseDomain, IProductDomain
     private readonly IStripeProductService _stripeProductService;
     private readonly IMapper _mapper;
     private readonly IBlobProductImageService _blobProductImageService;
+    private readonly ICache _cache;
 
-    public ProductDomain(IUnitOfWork uow, IProductRepository productRepository, IProductImageRepository productImageRepository, IMapper mapper, IStripeProductService stripeProductService, IBlobProductImageService blobProductImageService) : base(uow)
+    public ProductDomain(IUnitOfWork uow, IProductRepository productRepository, IProductImageRepository productImageRepository, IMapper mapper, IStripeProductService stripeProductService, IBlobProductImageService blobProductImageService, ICache cache) : base(uow)
     {
         _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
         _productImageRepository = productImageRepository ?? throw new ArgumentNullException(nameof(productImageRepository));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _stripeProductService = stripeProductService ?? throw new ArgumentNullException(nameof(stripeProductService));
         _blobProductImageService = blobProductImageService ?? throw new ArgumentNullException(nameof(blobProductImageService));
+        _cache = cache;
     }
 
     public async Task<ResponseViewModel<Guid>> Create(CreateProductViewModel createProductViewModel)
@@ -77,6 +79,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
             var stripeProduct = await _stripeProductService.CreateProduct(createStripeProductDto);
             product.StripeProductId = stripeProduct.Id;
             await _uow.SaveAsync();
+            await _cache.InvalidateAsync(CacheKeys.CatalogKeys);
 
             await transaction.CommitAsync();
             
@@ -127,6 +130,8 @@ internal class ProductDomain : BaseDomain, IProductDomain
                 stripeProductDto.Metadata = new () {{Infrastructure.Stripe.Payment.ProductMetaDataKey, existedProduct.Id.ToString()}};
                 _ = await _stripeProductService.UpdateProduct(stripeProductDto);
             }
+
+            await _cache.InvalidateAsync(CacheKeys.CatalogKeys);
             
             await transaction.CommitAsync();
             
@@ -162,6 +167,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
                 _productRepository.Deactivate(product);
                 await _uow.SaveAsync();
                 await _stripeProductService.DeactivateProduct(product.StripeProductId);
+                await _cache.InvalidateAsync(CacheKeys.CatalogKeys);
                 return new ResponseViewModel { Message = "Delete successful", Success = true };
             }
 
@@ -288,6 +294,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
                 
             _productImageRepository.AddRange(productImages);
             await _uow.SaveAsync();
+            await _cache.InvalidateAsync(CacheKeys.CatalogKeys);
 
             return new ResponseViewModel()
             {
@@ -311,6 +318,7 @@ internal class ProductDomain : BaseDomain, IProductDomain
                 throw new InvalidOperationException($"Product image of Id {imageId} cannot be removed because it is main Image of Product with Id {productId}");
             _productImageRepository.Deactivate(productImage);
             await _uow.SaveAsync();
+            await _cache.InvalidateAsync(CacheKeys.CatalogKeys);
 
             return new ResponseViewModel()
             {
@@ -346,6 +354,8 @@ internal class ProductDomain : BaseDomain, IProductDomain
             };
             
             _ = await _stripeProductService.UpdateProduct(stripeProductDto);
+            
+            await _cache.InvalidateAsync(CacheKeys.CatalogKeys);
             
             await transaction.CommitAsync();
             
