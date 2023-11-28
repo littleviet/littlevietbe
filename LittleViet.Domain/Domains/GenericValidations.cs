@@ -1,7 +1,35 @@
 ﻿using FluentValidation;
+using LittleViet.Domain.Repositories;
 using LittleViet.Domain.ViewModels;
+using LittleViet.Infrastructure.DateTime;
 
 namespace LittleViet.Domain.Domains;
+
+public static class CustomRules
+{
+    public static IRuleBuilderOptions<T, DateTime> WithinOpeningTime<T>(this IRuleBuilder<T, DateTime> ruleBuilder,
+        IDateTimeService dateTimeService, IVacationRepository vacationRepository)
+    {
+        return ruleBuilder
+            .Must(x => Constants.WorkingWeekDays.Contains(dateTimeService.ConvertToTimeZone(x).DayOfWeek))
+            .WithMessage("We are closed on Tue")
+            .Must(x =>
+            {
+                var timePart = TimeOnly.FromDateTime(dateTimeService.ConvertToTimeZone(x));
+                return Constants.OpeningHours.Any(x => x.Start <= timePart && timePart <= x.End);
+            })
+            .WithMessage("Your requested time is not within our opening hours")
+            .GreaterThan(DateTime.UtcNow)
+            .MustAsync(async (x, ct) =>
+            {
+                var bookingTime = dateTimeService.ConvertToTimeZone(x);
+                var vacation = await vacationRepository.GetByTimeAsync(bookingTime, ct);
+                return vacation == null;
+            })
+            .WithMessage((_, date) =>
+                $"We are on vacation during your requested time of {dateTimeService.ConvertToTimeZone(date).ToString("f")}");
+    }
+}
 
 public class BaseListQueryParametersValidator : AbstractValidator<BaseListQueryParameters>
 {
