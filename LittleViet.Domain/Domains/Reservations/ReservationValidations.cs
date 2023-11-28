@@ -13,17 +13,8 @@ public class CreateReservationViewModelValidator : AbstractValidator<CreateReser
         RuleFor(x => x.Email).EmailAddress();
         RuleFor(x => x.BookingDate)
             .Cascade(CascadeMode.Stop)
-            .NotEmpty()
-            .Must(x => Constants.WorkingWeekDays.Contains(dateTimeService.ConvertToTimeZone(x).DayOfWeek))
-            .WithMessage("We are closed on Tue")
-            .GreaterThan(DateTime.UtcNow)
-            .MustAsync(async (x, ct) =>
-            {
-                var bookingTime = dateTimeService.ConvertToTimeZone(x);
-                var vacation = await vacationRepository.GetByTimeAsync(bookingTime, ct);
-                return vacation == null;
-            })
-            .WithMessage(x => $"We are closed during your requested time of {dateTimeService.ConvertToTimeZone(x.BookingDate).ToString("f")}");
+            .WithinOpeningTime(dateTimeService, vacationRepository);
+        
         RuleFor(x => x.FirstName).NotEmpty();
         RuleFor(x => x.PhoneNumber).NotEmpty();
         RuleFor(x => x.NoOfPeople).GreaterThan(0);

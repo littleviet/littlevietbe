@@ -173,7 +173,6 @@ internal class CouponDomain : BaseDomain, ICouponDomain
         try
         {
             var coupon = await _couponRepository.DbSet().Where(EqualsIgnoreCase<Models.Coupon>(c => c.CouponCode, couponCode)).SingleOrDefaultAsync();
-            
             Log.Information("Start redeeming {couponId} with code {couponCode} and {usage}", coupon.Id, couponCode, usage);
 
             if (coupon is null)

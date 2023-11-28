@@ -11,16 +11,7 @@ public class CreateOrderViewModelValidator : AbstractValidator<CreateOrderViewMo
     {
         RuleFor(x => x.PickupTime)
             .Cascade(CascadeMode.Stop)
-            .Must(x => Constants.WorkingWeekDays.Contains(dateTimeService.ConvertToTimeZone(x).DayOfWeek))
-            .WithMessage("We are closed on Tue")
-            .GreaterThan(DateTime.UtcNow)
-            .MustAsync(async (x, ct) =>
-            {
-                var bookingTime = dateTimeService.ConvertToTimeZone(x);
-                var vacation = await vacationRepository.GetByTimeAsync(bookingTime, ct);
-                return vacation == null;
-            })
-            .WithMessage(x => $"We are closed during your requested time of {dateTimeService.ConvertToTimeZone(x.PickupTime).ToString("f")}");;
+            .WithinOpeningTime(dateTimeService, vacationRepository);
         RuleFor(x => x.OrderType).IsInEnum();
         RuleFor(x => x.TotalPrice).NotNull();
         RuleFor(x => x.PaymentType).IsInEnum();
