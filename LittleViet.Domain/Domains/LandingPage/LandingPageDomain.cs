@@ -1,8 +1,8 @@
-﻿using AutoMapper;
-using LittleViet.Domain.Domains.ProductType;
-using LittleViet.Domain.Repositories;
+﻿using LittleViet.Domain.Repositories;
 using LittleViet.Domain.ViewModels;
+using LittleViet.Infrastructure.Azure.AzureBlobStorage.Interface;
 using LittleViet.Infrastructure.Caching;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace LittleViet.Domain.Domains.LandingPage;
@@ -10,20 +10,23 @@ namespace LittleViet.Domain.Domains.LandingPage;
 public interface ILandingPageDomain
 {
     Task<ResponseViewModel<LandingPageViewModel>> GetCatalogForLandingPage();
+    Task UpdateMenu(IFormFile menu);
 }
 
 internal class LandingPageDomain : BaseDomain, ILandingPageDomain
 {
     private readonly IProductTypeRepository _productTypeRepository;
     private readonly IProductRepository _productRepository;
+    private readonly IBlobMenuService _blobMenuService;
     private readonly ICache _cache;
 
     public LandingPageDomain(IUnitOfWork uow, IProductTypeRepository productTypeRepository,
-        IProductRepository productRepository, ICache cache) : base(uow)
+        IProductRepository productRepository, IBlobMenuService blobMenuService, ICache cache) : base(uow)
     {
         _productTypeRepository =
             productTypeRepository ?? throw new ArgumentNullException(nameof(productTypeRepository));
         _productRepository = productRepository ?? throw new ArgumentNullException(nameof(productRepository));
+        _blobMenuService = blobMenuService;
         _cache = cache;
     }
 
@@ -97,5 +100,10 @@ internal class LandingPageDomain : BaseDomain, ILandingPageDomain
         {
             throw;
         }
+    }
+
+    public async Task UpdateMenu(IFormFile menu)
+    {
+        var result = await _blobMenuService.UpdateMenuAsync(menu);
     }
 }

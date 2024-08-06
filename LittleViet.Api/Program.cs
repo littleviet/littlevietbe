@@ -44,8 +44,8 @@ try
     AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true); //TODO: fix or workaround this
     builder.Services //TODO: move data to separate project
         .AddDbContext<LittleVietContext>(options =>
-            options.UseLazyLoadingProxies()
-                .UseNpgsql(builder.Configuration.GetConnectionString("LittleVietContext"))
+            options.UseLazyLoadingProxies()//TODO: remove this
+                .UseNpgsql(builder.Configuration.GetConnectionString("LittleVietContext"))//TODO: check if date time still works when upgrading to .NET 8
                 .ConfigureWarnings(warn => warn.Ignore(CoreEventId.DetachedLazyLoadingWarning)))
         .AddMvc(options =>
         {

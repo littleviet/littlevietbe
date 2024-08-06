@@ -7,5 +7,7 @@ namespace LittleViet.Infrastructure.Azure.AzureBlobStorage;
 public static class AppAzureBlobStorageDiExtensions
 {
     public static IServiceCollection AddAppAzureBlobStorage(this IServiceCollection services) =>
-        services.AddScoped<IBlobProductImageService, BlobProductImageService>();
+        services
+            .AddScoped<IBlobProductImageService, BlobProductImageService>()
+            .AddScoped<IBlobMenuService, BlobMenuService>();
 }

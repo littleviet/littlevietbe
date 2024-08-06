@@ -17,7 +17,6 @@ internal class BlobProductImageService : BaseBlobService, IBlobProductImageServi
 
     public async Task<List<string>> CreateProductImages(List<IFormFile> productImages)
     {
-
         var blobContainer = await GetBlobContainer(_connectionString, _azureSettings.BlobStorageSettings.ProductImageContainer);
         var imageLinks = new List<string>();
 
