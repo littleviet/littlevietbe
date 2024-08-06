@@ -1,5 +1,6 @@
 ﻿using LittleViet.Domain.Domains.LandingPage;
 using LittleViet.Domain.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LittleViet.Api.Controllers;
@@ -31,6 +32,7 @@ public class LandingPageController : BaseController
     }
 
     [HttpPut("menu")]
+    [Authorize]
     public async Task<IActionResult> UpdateMenu(IFormFile menu)
     {
         try
