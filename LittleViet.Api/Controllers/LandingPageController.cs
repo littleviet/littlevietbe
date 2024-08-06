@@ -9,6 +9,7 @@ namespace LittleViet.Api.Controllers;
 public class LandingPageController : BaseController
 {
     private readonly ILandingPageDomain _landingPageDomain;
+
     public LandingPageController(ILandingPageDomain landingPageDomain)
     {
         _landingPageDomain = landingPageDomain ?? throw new ArgumentNullException(nameof(landingPageDomain));
@@ -24,8 +25,23 @@ public class LandingPageController : BaseController
         }
         catch (Exception e)
         {
-            return StatusCode(StatusCodes.Status500InternalServerError, new ResponseViewModel { Message = e.Message, Success = false });
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                new ResponseViewModel { Message = e.Message, Success = false });
         }
     }
 
+    [HttpPut("menu")]
+    public async Task<IActionResult> UpdateMenu(IFormFile menu)
+    {
+        try
+        {
+            await _landingPageDomain.UpdateMenu(menu);
+            return Ok();
+        }
+        catch (Exception e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                new ResponseViewModel { Message = e.Message, Success = false });
+        }
+    }
 }
