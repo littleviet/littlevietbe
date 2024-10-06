@@ -1,4 +1,5 @@
 ﻿using LittleViet.Infrastructure.Azure.AzureBlobStorage.Interface;
+using LittleViet.Infrastructure.Images;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
@@ -24,10 +25,11 @@ internal class BlobProductImageService : BaseBlobService, IBlobProductImageServi
         {
             if (image.Length > 0)
             {
-                var file_Extension = Path.GetExtension(image.FileName);
-                var filename = Guid.NewGuid() + (!string.IsNullOrEmpty(file_Extension) ? file_Extension : ".jpg");
+                await using var imageStream = image.OpenReadStream();
+                await using var webpImageSream = await WebpImageConverter.ConvertToWebp(imageStream);
+                var filename = Guid.NewGuid() + ".webp";
 
-                await UploadFileToBlobAsync(blobContainer, filename, image.OpenReadStream());
+                await UploadFileToBlobAsync(blobContainer, filename, webpImageSream);
 
                 imageLinks.Add(new Uri(blobContainer.Uri.AbsoluteUri) + "/" + filename);
             }
