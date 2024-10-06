@@ -13,6 +13,7 @@ public class WebpImageConverter
             
         await myImage.SaveAsync(outStream, new WebpEncoder());
 
+        outStream.Position = 0;
         return outStream;
     }
 }
